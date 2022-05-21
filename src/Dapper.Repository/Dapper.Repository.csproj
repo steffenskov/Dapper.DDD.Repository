@@ -1,0 +1,22 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net5.0</TargetFramework>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <PackageId>Dapper.Repository</PackageId>
+    <Authors>Steffen Skov</Authors>
+	<PackageTags>dapper;orm;sql;repository;</PackageTags>
+	<PackageLicenseExpression>MIT</PackageLicenseExpression>
+	<RepositoryUrl>https://github.com/steffenskov/Dapper.Repository.git</RepositoryUrl> 
+    <RepositoryType>git</RepositoryType> 
+	<Description>
+	  This is an extension library for the Dapper ORM, giving you simple-to-use repositories for all your database access code.
+
+	  You can read the full documentation on its github page here: https://github.com/steffenskov/Dapper.Repository/
+	</Description>
+  </PropertyGroup>
+
+</Project>
