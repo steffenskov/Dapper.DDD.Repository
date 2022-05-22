@@ -1,5 +1,3 @@
-using SqlMapper = Dapper.SqlMapper;
-
 namespace Dapper.Repository.IntegrationTests
 {
 	internal class DapperInjection<TEntity> : IDapperInjection<TEntity>
