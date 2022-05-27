@@ -1,6 +1,6 @@
 namespace Dapper.Repository.Configuration;
 
-public class DefaultConfiguration
+public abstract class DefaultConfiguration
 {
 	public IQueryGeneratorFactory? QueryGeneratorFactory { get; set; }
 	public IConnectionFactory? ConnectionFactory { get; set; }

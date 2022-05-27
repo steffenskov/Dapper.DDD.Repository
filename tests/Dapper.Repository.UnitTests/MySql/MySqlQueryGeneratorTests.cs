@@ -14,7 +14,7 @@ namespace Dapper.Repository.UnitTests.MySql
 		public void Constructor_TableNameIsNull_Throws()
 		{
 			// Arrange
-			var configuration = new AggregateConfiguration<SinglePrimaryKeyAggregate>(default)
+			var configuration = new MySqlAggregateConfiguration<SinglePrimaryKeyAggregate>(default)
 			{
 				TableName = null!
 			};
@@ -27,7 +27,7 @@ namespace Dapper.Repository.UnitTests.MySql
 		public void Constructor_TableNameIsWhiteSpace_Throws()
 		{
 			// Arrange
-			var configuration = new AggregateConfiguration<SinglePrimaryKeyAggregate>(default)
+			var configuration = new MySqlAggregateConfiguration<SinglePrimaryKeyAggregate>(default)
 			{
 				TableName = " "
 			};
@@ -113,7 +113,27 @@ DELETE FROM Users WHERE Users.Username = @Username AND Users.Password = @Passwor
 
 		#region Insert
 		[Fact]
-		public void GenerateInsertQuery_ColumnHasDefaultConstraintAndDefaultValue_Valid()
+		public void GenerateInsertQuery_AggregateHasMultipleIdentities_Invalid()
+		{
+			// Arrange
+			var configuration = new MySqlAggregateConfiguration<HasMultipleIdentiesAggregate>(default)
+			{
+				TableName = "Users"
+			};
+			configuration.HasKey(x => x.Id);
+			configuration.HasIdentity(x => x.Id);
+			configuration.HasIdentity(x => x.Counter);
+			var generator = new MySqlQueryGenerator<HasMultipleIdentiesAggregate>(configuration);
+
+			var aggregate = new HasMultipleIdentiesAggregate();
+
+			// Act && Assert
+			var ex = Assert.Throws<InvalidOperationException>(() => generator.GenerateInsertQuery(aggregate));
+			Assert.Equal("Cannot generate INSERT query for table with multiple identity properties", ex.Message);
+		}
+
+		[Fact]
+		public void GenerateInsertQuery_PropertyHasDefaultConstraintAndDefaultValue_Valid()
 		{
 			// Arrange
 			var generator = CreateHasDefaultConstraintAggregateQueryGenerator();
@@ -127,7 +147,7 @@ SELECT Users.Id, Users.DateCreated FROM Users WHERE Users.Id = @Id;", query);
 		}
 
 		[Fact]
-		public void GenerateInsertQuery_ColumnHasDefaultConstraintAndNonDefaultValue_Valid()
+		public void GenerateInsertQuery_PropertyHasDefaultConstraintAndNonDefaultValue_Valid()
 		{
 			// Arrange
 			var generator = CreateHasDefaultConstraintAggregateQueryGenerator();
@@ -146,7 +166,7 @@ SELECT Users.Id, Users.DateCreated FROM Users WHERE Users.Id = @Id;", query);
 		}
 
 		[Fact]
-		public void GenerateInsertQuery_IdaggregateValuePrimaryKey_Valid()
+		public void GenerateInsertQuery_identityValuePrimaryKey_Valid()
 		{
 			// Arrange
 			var generator = CreateSinglePrimaryKeyAggregateQueryGenerator();
@@ -160,7 +180,7 @@ SELECT Users.Id, Users.Username, Users.Password FROM Users WHERE Users.Id = LAST
 		}
 
 		[Fact]
-		public void GenerateInsertQuery_MissingColumnValue_ContainsColumn()
+		public void GenerateInsertQuery_MissingPropertyValue_ContainsProperty()
 		{
 			// Arrange
 			var generator = CreateCompositePrimaryKeyAggregateQueryGenerator();
@@ -219,32 +239,32 @@ SELECT Users.Username, Users.Password, Users.DateCreated FROM Users WHERE Users.
 		}
 
 		[Fact]
-		public void GenerateUpdateQuery_AllColumnsHasNoSetter_Throws()
+		public void GenerateUpdateQuery_AllPropertiesHasNoSetter_Throws()
 		{
 			// Arrange
-			var configuration = new AggregateConfiguration<AllColumnsHasMissingSetterAggregate>(default)
+			var configuration = new MySqlAggregateConfiguration<AllPropertiesHasMissingSetterAggregate>(default)
 			{
 				TableName = "Users"
 			};
 			configuration.HasKey(aggregate => aggregate.Id);
 			configuration.HasDefault(aggregate => aggregate.DateCreated);
-			var generator = new MySqlQueryGenerator<AllColumnsHasMissingSetterAggregate>(configuration);
+			var generator = new MySqlQueryGenerator<AllPropertiesHasMissingSetterAggregate>(configuration);
 
 			// Act && Assert
 			Assert.Throws<InvalidOperationException>(() => generator.GenerateUpdateQuery());
 		}
 
 		[Fact]
-		public void GenerateUpdateQuery_ColumnHasNoSetter_ColumnIsExcluded()
+		public void GenerateUpdateQuery_PropertyHasNoSetter_PropertyIsExcluded()
 		{
 			// Arrange
-			var configuration = new AggregateConfiguration<ColumnHasMissingSetterAggregate>(default)
+			var configuration = new MySqlAggregateConfiguration<PropertyHasMissingSetterAggregate>(default)
 			{
 				TableName = "Users"
 			};
 			configuration.HasKey(aggregate => aggregate.Id);
 			configuration.HasDefault(aggregate => aggregate.DateCreated);
-			var generator = new MySqlQueryGenerator<ColumnHasMissingSetterAggregate>(configuration);
+			var generator = new MySqlQueryGenerator<PropertyHasMissingSetterAggregate>(configuration);
 
 			// Act
 			var query = generator.GenerateUpdateQuery();
@@ -259,7 +279,7 @@ SELECT Users.Id, Users.Age, Users.DateCreated FROM Users WHERE Users.Id = @Id;",
 		#region Constructors
 		private static MySqlQueryGenerator<HasDefaultConstraintAggregate> CreateHasDefaultConstraintAggregateQueryGenerator()
 		{
-			var configuration = new AggregateConfiguration<HasDefaultConstraintAggregate>(default)
+			var configuration = new MySqlAggregateConfiguration<HasDefaultConstraintAggregate>(default)
 			{
 				TableName = "Users"
 			};
@@ -271,19 +291,19 @@ SELECT Users.Id, Users.Age, Users.DateCreated FROM Users WHERE Users.Id = @Id;",
 
 		private static MySqlQueryGenerator<SinglePrimaryKeyAggregate> CreateSinglePrimaryKeyAggregateQueryGenerator()
 		{
-			var configuration = new Configuration.AggregateConfiguration<SinglePrimaryKeyAggregate>(default)
+			var configuration = new MySqlAggregateConfiguration<SinglePrimaryKeyAggregate>(default)
 			{
 				TableName = "Users"
 			};
 			configuration.HasKey(aggregate => aggregate.Id);
-			configuration.HasIdaggregate(aggregate => aggregate.Id);
+			configuration.HasIdentity(aggregate => aggregate.Id);
 			var generator = new MySqlQueryGenerator<SinglePrimaryKeyAggregate>(configuration);
 			return generator;
 		}
 
 		private static MySqlQueryGenerator<CompositePrimaryKeyAggregate> CreateCompositePrimaryKeyAggregateQueryGenerator()
 		{
-			var configuration = new Configuration.AggregateConfiguration<CompositePrimaryKeyAggregate>(default)
+			var configuration = new MySqlAggregateConfiguration<CompositePrimaryKeyAggregate>(default)
 			{
 				TableName = "Users",
 			};

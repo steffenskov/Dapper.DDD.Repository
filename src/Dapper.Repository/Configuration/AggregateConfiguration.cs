@@ -4,7 +4,7 @@ using Dapper.Repository.Reflection;
 namespace Dapper.Repository.Configuration;
 
 
-public class AggregateConfiguration<TAggregate> : IAggregateConfiguration<TAggregate>
+public abstract class AggregateConfiguration<TAggregate> : IAggregateConfiguration<TAggregate>
 {
 	private List<ExtendedPropertyInfo>? _keyProperties;
 	private readonly List<ExtendedPropertyInfo> _defaults = new();
@@ -16,7 +16,7 @@ public class AggregateConfiguration<TAggregate> : IAggregateConfiguration<TAggre
 	public IConnectionFactory? ConnectionFactory { get; set; }
 	public IDapperInjectionFactory? DapperInjectionFactory { get; set; }
 
-	public AggregateConfiguration(IOptions<DefaultConfiguration>? options)
+	protected AggregateConfiguration(IOptions<DefaultConfiguration>? options)
 	{
 		var defaults = options?.Value;
 		QueryGeneratorFactory = defaults?.QueryGeneratorFactory;
@@ -46,7 +46,7 @@ public class AggregateConfiguration<TAggregate> : IAggregateConfiguration<TAggre
 		_defaults.AddRange(properties);
 	}
 
-	public void HasIdaggregate(Expression<Func<TAggregate, object>> expression)
+	public void HasIdentity(Expression<Func<TAggregate, object>> expression)
 	{
 		var properties = new ExpressionParser<TAggregate>().GetExtendedPropertiesFromExpression(expression);
 
@@ -61,7 +61,7 @@ public class AggregateConfiguration<TAggregate> : IAggregateConfiguration<TAggre
 		return _keyProperties.AsReadOnly();
 	}
 
-	public IReadOnlyList<ExtendedPropertyInfo> GetIdaggregateProperties()
+	public IReadOnlyList<ExtendedPropertyInfo> GetIdentityProperties()
 	{
 		return _identities.AsReadOnly();
 	}

@@ -110,7 +110,7 @@ Our UserAggregate.cs file would therefore look like this:
     {
         public record UserPrimaryKeyAggregate
         {
-            [PrimaryKeyColumn(isIdaggregate: true)]
+            [PrimaryKeyColumn(isidentity: true)]
             public int Id { get; init; }
         }
 
@@ -188,7 +188,7 @@ The Heap based repository has the same events except for the Update ones, as the
 The Pre- events all contain the aggregate you've passed as an argument to the respective method, as well as an CancelableEventArgs allowing any event handler to cancel the operation in question.
 If any listener cancels the event, an CanceledException is thrown by the method in question.
 
-The Post- events all contain the aggregate returned from the database, so for an insert any default constraint, idaggregate columns etc. will have their values fresh from the DB.
+The Post- events all contain the aggregate returned from the database, so for an insert any default constraint, identity columns etc. will have their values fresh from the DB.
 
 Finally all the events SWALLOW EXCEPTIONS, so any exception handling you want for custom code in an event handler you'll have to implement directly in your handler. This is to ensure no third party code breaks the DB operation.
 

@@ -1,36 +1,17 @@
 <Project Sdk="Microsoft.NET.Sdk">
-
-  
-  <PropertyGroup>
-    <TargetFramework>net6.0</TargetFramework>
-    <Nullable>enable</Nullable>
-    <ImplictUsing>enable</ImplictUsing>
-	<TreatWarningsAsErrors>true</TreatWarningsAsErrors>
-    <IsPackable>false</IsPackable>
-  </PropertyGroup>
-
-  <ItemGroup>
-    <PackageReference Include="AutoFixture" Version="4.17.0" />
-    <PackageReference Include="AutoFixture.Xunit2" Version="4.17.0" />
-    <PackageReference Include="Dapper" Version="2.0.78" />
-    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.7.1" />
-    <PackageReference Include="MySql.Data" Version="8.0.26" />
-    <PackageReference Include="System.Data.SqlClient" Version="4.8.2" />
-    <PackageReference Include="xunit" Version="2.4.1" />
-    <PackageReference Include="xunit.runner.visualstudio" Version="2.4.3">
-      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-      <PrivateAssets>all</PrivateAssets>
-    </PackageReference>
-    <PackageReference Include="coverlet.collector" Version="3.0.3">
-      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-      <PrivateAssets>all</PrivateAssets>
-    </PackageReference>
-  </ItemGroup>
-
-  <ItemGroup>
-    <ProjectReference Include="..\..\src\Dapper.Repository\Dapper.Repository.csproj" />
-    <ProjectReference Include="..\..\src\Dapper.Repository.Sql\Dapper.Repository.Sql.csproj" />
-    <ProjectReference Include="..\..\src\Dapper.Repository.DependencyInjection\Dapper.Repository.DependencyInjection.csproj" />
-  </ItemGroup>
-
+	<ItemGroup>
+		<ProjectReference Include="..\..\src\Dapper.Repository\Dapper.Repository.csproj"/>
+	</ItemGroup>
+	<PropertyGroup>
+		<TargetFramework>net6.0</TargetFramework>
+		<ImplicitUsings>enable</ImplicitUsings>
+		<Nullable>enable</Nullable>
+	</PropertyGroup>
+	<ItemGroup>
+		<PackageReference Include="AutoFixture" Version="4.17.0"/>
+		<PackageReference Include="AutoFixture.Xunit2" Version="4.17.0"/>
+		<PackageReference Include="xunit" Version="2.4.1"/>
+		<PackageReference Include="Dapper" Version="2.0.123"/>
+		<PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="6.0.0"/>
+	</ItemGroup>
 </Project>

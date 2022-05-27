@@ -26,36 +26,36 @@ internal class SqlQueryGenerator<TAggregate> : IQueryGenerator<TAggregate>
 	{
 		var whereClause = GenerateWhereClause();
 
-		var outputColumns = GenerateColumnsList("deleted", _configuration.GetProperties());
-		return $"DELETE FROM {_schemaAndTable} OUTPUT {outputColumns} WHERE {whereClause};";
+		var outputProperties = GeneratePropertyList("deleted", _configuration.GetProperties());
+		return $"DELETE FROM {_schemaAndTable} OUTPUT {outputProperties} WHERE {whereClause};";
 	}
 
 	public string GenerateInsertQuery(TAggregate aggregate)
 	{
-		var idaggregateColumns = _configuration.GetIdaggregateProperties();
+		var identityProperties = _configuration.GetIdentityProperties();
 		var propertiesWithDefaultValues = _configuration.GetPropertiesWithDefaultConstraints();
 
-		var columnsToInsert = _configuration.GetProperties()
-									.Where(property => !idaggregateColumns.Contains(property) && (!propertiesWithDefaultValues.Contains(property) || !property.HasDefaultValue(aggregate)))
+		var propertiesToInsert = _configuration.GetProperties()
+									.Where(property => !identityProperties.Contains(property) && (!propertiesWithDefaultValues.Contains(property) || !property.HasDefaultValue(aggregate)))
 									.ToList();
 
-		var outputColumns = GenerateColumnsList("inserted", _configuration.GetProperties());
-		return $"INSERT INTO {_schemaAndTable} ({string.Join(", ", columnsToInsert.Select(column => AddSquareBrackets(column.Name)))}) OUTPUT {outputColumns} VALUES ({string.Join(", ", columnsToInsert.Select(column => $"@{column.Name}"))});";
+		var outputProperties = GeneratePropertyList("inserted", _configuration.GetProperties());
+		return $"INSERT INTO {_schemaAndTable} ({string.Join(", ", propertiesToInsert.Select(property => AddSquareBrackets(property.Name)))}) OUTPUT {outputProperties} VALUES ({string.Join(", ", propertiesToInsert.Select(property => $"@{property.Name}"))});";
 	}
 
 	public string GenerateGetAllQuery()
 	{
-		var columnsList = GenerateColumnsList(_schemaAndTable, _configuration.GetProperties());
-		return $"SELECT {columnsList} FROM {_schemaAndTable};";
+		var propertyList = GeneratePropertyList(_schemaAndTable, _configuration.GetProperties());
+		return $"SELECT {propertyList} FROM {_schemaAndTable};";
 	}
 
 	public string GenerateGetQuery()
 	{
 		var whereClause = GenerateWhereClause();
 
-		var columnsList = GenerateColumnsList(_schemaAndTable, _configuration.GetProperties());
+		var propertyList = GeneratePropertyList(_schemaAndTable, _configuration.GetProperties());
 
-		return $"SELECT {columnsList} FROM {_schemaAndTable} WHERE {whereClause};";
+		return $"SELECT {propertyList} FROM {_schemaAndTable} WHERE {whereClause};";
 	}
 
 	public string GenerateUpdateQuery()
@@ -67,34 +67,34 @@ internal class SqlQueryGenerator<TAggregate> : IQueryGenerator<TAggregate>
 			throw new InvalidOperationException($"GenerateUpdateQuery for aggregate of type {typeof(TAggregate).FullName} failed as the type has no properties with a setter.");
 		}
 
-		var outputColumns = GenerateColumnsList("inserted", _configuration.GetProperties());
+		var outputProperties = GeneratePropertyList("inserted", _configuration.GetProperties());
 
-		return $"UPDATE {_schemaAndTable} SET {setClause} OUTPUT {outputColumns} WHERE {GenerateWhereClause()};";
+		return $"UPDATE {_schemaAndTable} SET {setClause} OUTPUT {outputProperties} WHERE {GenerateWhereClause()};";
 	}
 
 	private string GenerateSetClause()
 	{
 		var primaryKeys = _configuration.GetKeys();
-		var columnsToSet = _configuration.GetProperties().Where(property => !primaryKeys.Contains(property) && property.HasSetter);
-		return string.Join(", ", columnsToSet.Select(column => $"{_schemaAndTable}.{AddSquareBrackets(column.Name)} = @{column.Name}"));
+		var propertiesToSet = _configuration.GetProperties().Where(property => !primaryKeys.Contains(property) && property.HasSetter);
+		return string.Join(", ", propertiesToSet.Select(property => $"{_schemaAndTable}.{AddSquareBrackets(property.Name)} = @{property.Name}"));
 	}
 
 	private string GenerateWhereClause()
 	{
 		var primaryKeys = _configuration.GetKeys();
 
-		return string.Join(" AND ", primaryKeys.Select(column => $"{_schemaAndTable}.{AddSquareBrackets(column.Name)} = @{column.Name}"));
+		return string.Join(" AND ", primaryKeys.Select(property => $"{_schemaAndTable}.{AddSquareBrackets(property.Name)} = @{property.Name}"));
 	}
 
 
-	private string GenerateColumnsList(string tableName, IEnumerable<ExtendedPropertyInfo> properties)
+	private string GeneratePropertyList(string tableName, IEnumerable<ExtendedPropertyInfo> properties)
 	{
 		tableName = EnsureSquareBrackets(tableName);
 
-		return string.Join(", ", properties.Select(property => GenerateColumnClause(tableName, property)));
+		return string.Join(", ", properties.Select(property => GeneratePropertyClause(tableName, property)));
 	}
 
-	private static string GenerateColumnClause(string tableName, ExtendedPropertyInfo property)
+	private static string GeneratePropertyClause(string tableName, ExtendedPropertyInfo property)
 	{
 		return $"{tableName}.{AddSquareBrackets(property.Name)}";
 	}

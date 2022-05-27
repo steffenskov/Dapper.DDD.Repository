@@ -123,7 +123,7 @@ namespace Dapper.Repository.UnitTests.Sql
 		}
 
 		[Fact]
-		public void GenerateInsertQuery_ColumnHasDefaultConstraintAndDefaultValue_Valid()
+		public void GenerateInsertQuery_PropertyHasDefaultConstraintAndDefaultValue_Valid()
 		{
 			// Arrange
 			var generator = CreateHasDefaultConstraintAggregateQueryGenerator();
@@ -136,7 +136,7 @@ namespace Dapper.Repository.UnitTests.Sql
 		}
 
 		[Fact]
-		public void GenerateInsertQuery_ColumnHasDefaultConstraintAndNonDefaultValue_Valid()
+		public void GenerateInsertQuery_PropertyHasDefaultConstraintAndNonDefaultValue_Valid()
 		{
 			// Arrange
 			var generator = CreateHasDefaultConstraintAggregateQueryGenerator();
@@ -154,7 +154,7 @@ namespace Dapper.Repository.UnitTests.Sql
 		}
 
 		[Fact]
-		public void GenerateInsertQuery_IdaggregateValuePrimaryKey_Valid()
+		public void GenerateInsertQuery_identityValuePrimaryKey_Valid()
 		{
 			// Arrange
 			var generator = CreateSinglePrimaryKeyAggregateQueryGenerator();
@@ -167,7 +167,7 @@ namespace Dapper.Repository.UnitTests.Sql
 		}
 
 		[Fact]
-		public void GenerateInsertQuery_MissingColumnValue_ContainsColumn()
+		public void GenerateInsertQuery_MissingPropertyValue_ContainsProperty()
 		{
 			// Arrange
 			var generator = CreateCompositePrimaryKeyAggregateQueryGenerator();
@@ -265,34 +265,34 @@ namespace Dapper.Repository.UnitTests.Sql
 			Assert.Equal($"UPDATE [dbo].[Users] SET [dbo].[Users].[DateCreated] = @DateCreated OUTPUT [inserted].[Username], [inserted].[Password], [inserted].[DateCreated] WHERE [dbo].[Users].[Username] = @Username AND [dbo].[Users].[Password] = @Password;", updateQuery);
 		}
 		[Fact]
-		public void GenerateUpdateQuery_AllColumnsHasNoSetter_Throws()
+		public void GenerateUpdateQuery_AllPropertiesHasNoSetter_Throws()
 		{
 			// Arrange
-			var configuration = new SqlAggregateConfiguration<AllColumnsHasMissingSetterAggregate>(default)
+			var configuration = new SqlAggregateConfiguration<AllPropertiesHasMissingSetterAggregate>(default)
 			{
 				Schema = "dbo",
 				TableName = "Users"
 			};
 			configuration.HasKey(aggregate => aggregate.Id);
 			configuration.HasDefault(aggregate => aggregate.DateCreated);
-			var generator = new SqlQueryGenerator<AllColumnsHasMissingSetterAggregate>(configuration);
+			var generator = new SqlQueryGenerator<AllPropertiesHasMissingSetterAggregate>(configuration);
 
 			// Act && Assert
 			Assert.Throws<InvalidOperationException>(() => generator.GenerateUpdateQuery());
 		}
 
 		[Fact]
-		public void GenerateUpdateQuery_ColumnHasNoSetter_ColumnIsExcluded()
+		public void GenerateUpdateQuery_PropertyHasNoSetter_PropertyIsExcluded()
 		{
 			// Arrange
-			var configuration = new SqlAggregateConfiguration<ColumnHasMissingSetterAggregate>(default)
+			var configuration = new SqlAggregateConfiguration<PropertyHasMissingSetterAggregate>(default)
 			{
 				Schema = "dbo",
 				TableName = "Users"
 			};
 			configuration.HasKey(aggregate => aggregate.Id);
 			configuration.HasDefault(aggregate => aggregate.DateCreated);
-			var generator = new SqlQueryGenerator<ColumnHasMissingSetterAggregate>(configuration);
+			var generator = new SqlQueryGenerator<PropertyHasMissingSetterAggregate>(configuration);
 
 			// Act
 			var query = generator.GenerateUpdateQuery();
@@ -324,7 +324,7 @@ namespace Dapper.Repository.UnitTests.Sql
 				TableName = "Users"
 			};
 			configuration.HasKey(aggregate => aggregate.Id);
-			configuration.HasIdaggregate(aggregate => aggregate.Id);
+			configuration.HasIdentity(aggregate => aggregate.Id);
 			var generator = new SqlQueryGenerator<SinglePrimaryKeyAggregate>(configuration);
 			return generator;
 		}
@@ -337,7 +337,7 @@ namespace Dapper.Repository.UnitTests.Sql
 				TableName = "Users"
 			};
 			configuration.HasKey(aggregate => aggregate.Id);
-			configuration.HasIdaggregate(aggregate => aggregate.Id);
+			configuration.HasIdentity(aggregate => aggregate.Id);
 			var generator = new SqlQueryGenerator<SinglePrimaryKeyAggregate>(configuration);
 			return generator;
 		}

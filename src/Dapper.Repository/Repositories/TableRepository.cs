@@ -2,6 +2,7 @@ namespace Dapper.Repository.Repositories;
 
 public class TableRepository<TAggregate, TAggregateId> : ITableRepository<TAggregate, TAggregateId>
 where TAggregate : notnull
+where TAggregateId : notnull
 {
 	private readonly IDapperInjectionFactory _dapperInjectionFactory;
 	private readonly IDapperInjection<TAggregate> _dapperInjection;
@@ -9,25 +10,7 @@ where TAggregate : notnull
 	private readonly IConnectionFactory _connectionFactory;
 	private readonly IQueryGenerator<TAggregate> _queryGenerator;
 
-	/* TODO: Add DI helper somewhere for configuring a single repo, something alongside:
-	services.ConfigurationDapperRepositoryDefaults(configuration => {
-		configuration.Schema ="dbo";
-		configuration.ConnectionString="";
-		configuration.UseQueryGenerator<SqlServerQueryGenerator>();
-	});
-	services.AddTableRepository<ITableRepository<User, UserId>>(DapperInjection<User>, connectionString, configuration => {
-		configuration.ConnectionString = "";
-		configuration.Schema = "dbo";
-		configuration.TableName = "Users";
-		configuration.UseQueryGenerator<MySqlQueryGenerator>();
-		configuration.HasKey(user => user.Id); // Must be of type UserId and a property on the aggregate and not e.g. a tuple or anonymous type
-		configuration.Ignore(user => user.Deleted); // Can be anything, but should be a property on the aggregate and not e.g. a tuple or anonymous type
-		configuration.HasDefault(user => user.DateCreated); // Can be anything, but should be a property on the aggregate and not e.g. a tuple or anonymous type
-		configuration.HasValueObject(user => user.Address); // Must be a non-primitive type, and should be a property on the aggregate and not e.g. a tuple or anonymous type
-	});
-	*/
-
-	public TableRepository(IOptions<AggregateConfiguration<TAggregate>> options)
+	public TableRepository(IOptions<AggregateConfiguration<TAggregate>> options) // TODO: Cannot rely on AggregateConfiguration as it's abstract, propbably better to just use a single config class
 	{
 		ArgumentNullException.ThrowIfNull(options);
 		ArgumentNullException.ThrowIfNull(options.Value);
