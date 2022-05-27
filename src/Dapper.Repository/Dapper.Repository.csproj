@@ -1,26 +1,14 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-	<TargetFramework>net6.0</TargetFramework>
+    <TargetFramework>net6.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
-    <ImplictUsing>enable</ImplictUsing>
+	<TreatWarningsAsErrors>true</TreatWarningsAsErrors>
   </PropertyGroup>
 
-  <PropertyGroup>
-    <PackageId>Dapper.Repository</PackageId>
-    <Version>1.1.2</Version>
-    <Authors>Steffen Skov</Authors>
-    <Company>Steffen Skov</Company>
-	<Copyright>Steffen Skov 2022</Copyright>
-	<PackageTags>dapper;orm;sql;mysql;repository;</PackageTags>
-	<PackageLicenseExpression>MIT</PackageLicenseExpression>
-	<RepositoryUrl>https://github.com/steffenskov/Dapper.Repository.git</RepositoryUrl> 
-    <RepositoryType>git</RepositoryType> 
-	<Description>
-	  This is an extension library for the Dapper ORM, giving you simple-to-use repositories for all your database access code.
-	</Description>
-  </PropertyGroup>
   <ItemGroup>
-    <None Include="../../README.md" Pack="true" PackagePath="\"/>
+    <PackageReference Include="Microsoft.Extensions.Options" Version="6.0.0" />
   </ItemGroup>
+
 </Project>

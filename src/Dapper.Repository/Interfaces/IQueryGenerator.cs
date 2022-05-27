@@ -1,16 +1,15 @@
-namespace Dapper.Repository.Interfaces
+namespace Dapper.Repository.Interfaces;
+
+public interface IQueryGenerator<TAggregate>
+
 {
-	public interface IQueryGenerator<TEntity>
-	where TEntity : DbEntity
-	{
-		string GenerateDeleteQuery();
+	string GenerateDeleteQuery();
 
-		string GenerateInsertQuery(TEntity entity);
+	string GenerateInsertQuery(TAggregate aggregate);
 
-		string GenerateGetAllQuery();
+	string GenerateGetAllQuery();
 
-		string GenerateGetQuery();
+	string GenerateGetQuery();
 
-		string GenerateUpdateQuery();
-	}
+	string GenerateUpdateQuery();
 }

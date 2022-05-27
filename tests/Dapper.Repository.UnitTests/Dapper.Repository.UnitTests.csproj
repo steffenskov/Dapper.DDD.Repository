@@ -4,7 +4,7 @@
     <TargetFramework>net6.0</TargetFramework>
     <Nullable>enable</Nullable>
     <ImplictUsing>enable</ImplictUsing>
-    
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
     <IsPackable>false</IsPackable>
   </PropertyGroup>
 
@@ -24,6 +24,8 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\src\Dapper.Repository\Dapper.Repository.csproj" />
+    <ProjectReference Include="..\..\src\Dapper.Repository.DependencyInjection\Dapper.Repository.DependencyInjection.csproj" />
+    <ProjectReference Include="..\..\src\Dapper.Repository.Sql\Dapper.Repository.Sql.csproj" />
   </ItemGroup>
 
 </Project>
