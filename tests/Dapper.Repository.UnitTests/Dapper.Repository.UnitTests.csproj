@@ -26,6 +26,7 @@
     <ProjectReference Include="..\..\src\Dapper.Repository\Dapper.Repository.csproj" />
     <ProjectReference Include="..\..\src\Dapper.Repository.DependencyInjection\Dapper.Repository.DependencyInjection.csproj" />
     <ProjectReference Include="..\..\src\Dapper.Repository.Sql\Dapper.Repository.Sql.csproj" />
+    <ProjectReference Include="..\..\src\Dapper.Repository.MySql\Dapper.Repository.MySql.csproj" />
   </ItemGroup>
 
 </Project>

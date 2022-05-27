@@ -1,6 +1,6 @@
 using System;
 using System.Linq;
-using Dapper.Repository.IntegrationTests.Entities;
+using Dapper.Repository.IntegrationTests.Aggregates;
 using Dapper.Repository.IntegrationTests.MySql.Repositories;
 using MySql.Data.MySqlClient;
 using Xunit;
@@ -25,52 +25,52 @@ namespace Dapper.Repository.IntegrationTests.MySql
 		}
 
 		[Theory, AutoDomainData]
-		public void Delete_PrimaryKeyNotEntered_Throws(CategoryEntity entity)
+		public void Delete_PrimaryKeyNotEntered_Throws(Category aggregate)
 		{
 			// Act && Assert
-			Assert.Throws<ArgumentException>(() => _repository.Delete(entity));
+			Assert.Throws<ArgumentException>(() => _repository.Delete(aggregate));
 		}
 
 		[Fact]
 		public void Delete_UseMissingPrimaryKeyValue_ReturnsNull()
 		{
 			// Act 
-			var deleted = _repository.Delete(new CategoryPrimaryKeyEntity { CategoryId = int.MaxValue });
+			var deleted = _repository.Delete(new CategoryPrimaryKeyAggregate { CategoryId = int.MaxValue });
 
 			// Assert
 			Assert.Null(deleted);
 		}
 
 		[Theory, AutoDomainData]
-		public void Delete_UsePrimaryKey_Valid(CategoryEntity entity)
+		public void Delete_UsePrimaryKey_Valid(Category aggregate)
 		{
 			// Arrange
-			var insertedEntity = _repository.Insert(entity);
+			var insertedAggregate = _repository.Insert(aggregate);
 
 			// Act
-			var deleted = _repository.Delete(new CategoryPrimaryKeyEntity { CategoryId = insertedEntity.CategoryId });
+			var deleted = _repository.Delete(new CategoryPrimaryKeyAggregate { CategoryId = insertedAggregate.CategoryId });
 
 			// Assert
-			Assert.Equal(insertedEntity.CategoryId, deleted?.CategoryId);
-			Assert.Equal(entity.Description, deleted?.Description);
-			Assert.Equal(entity.Name, deleted?.Name);
-			Assert.Equal(entity.Picture, deleted?.Picture);
+			Assert.Equal(insertedAggregate.CategoryId, deleted?.CategoryId);
+			Assert.Equal(aggregate.Description, deleted?.Description);
+			Assert.Equal(aggregate.Name, deleted?.Name);
+			Assert.Equal(aggregate.Picture, deleted?.Picture);
 		}
 
 		[Theory, AutoDomainData]
-		public void Delete_UseEntity_Valid(CategoryEntity entity)
+		public void Delete_UseAggregate_Valid(Category aggregate)
 		{
 			// Arrange
-			var insertedEntity = _repository.Insert(entity);
+			var insertedAggregate = _repository.Insert(aggregate);
 
 			// Act
-			var deleted = _repository.Delete(insertedEntity);
+			var deleted = _repository.Delete(insertedAggregate);
 
 			// Assert
-			Assert.Equal(insertedEntity.CategoryId, deleted?.CategoryId);
-			Assert.Equal(entity.Description, deleted?.Description);
-			Assert.Equal(entity.Name, deleted?.Name);
-			Assert.Equal(entity.Picture, deleted?.Picture);
+			Assert.Equal(insertedAggregate.CategoryId, deleted?.CategoryId);
+			Assert.Equal(aggregate.Description, deleted?.Description);
+			Assert.Equal(aggregate.Name, deleted?.Name);
+			Assert.Equal(aggregate.Picture, deleted?.Picture);
 		}
 		#endregion
 
@@ -83,51 +83,51 @@ namespace Dapper.Repository.IntegrationTests.MySql
 		}
 
 		[Theory, AutoDomainData]
-		public void Get_UsePrimaryKey_Valid(CategoryEntity entity)
+		public void Get_UsePrimaryKey_Valid(Category aggregate)
 		{
 			// Arrange
-			var insertedEntity = _repository.Insert(entity);
+			var insertedAggregate = _repository.Insert(aggregate);
 
 			// Act
-			var fetchedEntity = _repository.Get(new CategoryPrimaryKeyEntity { CategoryId = insertedEntity.CategoryId });
+			var fetchedAggregate = _repository.Get(new CategoryPrimaryKeyAggregate { CategoryId = insertedAggregate.CategoryId });
 
 			// Assert
-			Assert.Equal(insertedEntity.Name, fetchedEntity?.Name);
-			Assert.Equal(insertedEntity.Description, fetchedEntity?.Description);
-			Assert.Equal(insertedEntity.Picture, fetchedEntity?.Picture);
+			Assert.Equal(insertedAggregate.Name, fetchedAggregate?.Name);
+			Assert.Equal(insertedAggregate.Description, fetchedAggregate?.Description);
+			Assert.Equal(insertedAggregate.Picture, fetchedAggregate?.Picture);
 
-			_repository.Delete(insertedEntity);
+			_repository.Delete(insertedAggregate);
 		}
 
 		[Theory, AutoDomainData]
-		public void Get_UseFullEntity_Valid(CategoryEntity entity)
+		public void Get_UseFullAggregate_Valid(Category aggregate)
 		{
 			// Arrange
-			var insertedEntity = _repository.Insert(entity);
+			var insertedAggregate = _repository.Insert(aggregate);
 
 			// Act
-			var fetchedEntity = _repository.Get(insertedEntity);
+			var fetchedAggregate = _repository.Get(insertedAggregate);
 
 			// Assert
-			Assert.Equal(insertedEntity.Description, fetchedEntity?.Description);
-			Assert.Equal(insertedEntity.Name, fetchedEntity?.Name);
-			Assert.Equal(insertedEntity.Picture, fetchedEntity?.Picture);
+			Assert.Equal(insertedAggregate.Description, fetchedAggregate?.Description);
+			Assert.Equal(insertedAggregate.Name, fetchedAggregate?.Name);
+			Assert.Equal(insertedAggregate.Picture, fetchedAggregate?.Picture);
 
-			_repository.Delete(insertedEntity);
+			_repository.Delete(insertedAggregate);
 		}
 
 		[Fact]
 		public void Get_PrimaryKeyNotEntered_Throws()
 		{
 			// Act && Assert
-			Assert.Throws<ArgumentException>(() => _repository.Get(new CategoryPrimaryKeyEntity { }));
+			Assert.Throws<ArgumentException>(() => _repository.Get(new CategoryPrimaryKeyAggregate { }));
 		}
 
 		[Fact]
 		public void Get_UseMissingPrimaryKey_ReturnsNull()
 		{
 			// Act
-			var gotten = _repository.Get(new CategoryPrimaryKeyEntity { CategoryId = int.MaxValue });
+			var gotten = _repository.Get(new CategoryPrimaryKeyAggregate { CategoryId = int.MaxValue });
 
 			// Assert
 			Assert.Null(gotten);
@@ -155,10 +155,10 @@ namespace Dapper.Repository.IntegrationTests.MySql
 		}
 
 		[Fact]
-		public void Insert_HasIdentityKeyWithValue_Throws()
+		public void Insert_HasIdaggregateKeyWithValue_Throws()
 		{
 			// Arrange
-			var entity = new CategoryEntity
+			var aggregate = new Category
 			{
 				CategoryId = 42,
 				Description = "Lorem ipsum, dolor sit amit",
@@ -167,25 +167,25 @@ namespace Dapper.Repository.IntegrationTests.MySql
 			};
 
 			// Act && Assert
-			Assert.Throws<ArgumentException>(() => _repository.Insert(entity));
+			Assert.Throws<ArgumentException>(() => _repository.Insert(aggregate));
 		}
 
 		[Theory, AutoDomainData]
-		public void Insert_HasIdentityKeyWithoutValue_IsInserted(CategoryEntity entity)
+		public void Insert_HasIdaggregateKeyWithoutValue_IsInserted(Category aggregate)
 		{
 			// Act
-			var insertedEntity = _repository.Insert(entity);
+			var insertedAggregate = _repository.Insert(aggregate);
 			try
 			{
 				// Assert
-				Assert.NotEqual(default, insertedEntity.CategoryId);
-				Assert.Equal(entity.Description, insertedEntity.Description);
-				Assert.Equal(entity.Name, insertedEntity.Name);
-				Assert.Equal(entity.Picture, insertedEntity.Picture);
+				Assert.NotEqual(default, insertedAggregate.CategoryId);
+				Assert.Equal(aggregate.Description, insertedAggregate.Description);
+				Assert.Equal(aggregate.Name, insertedAggregate.Name);
+				Assert.Equal(aggregate.Picture, insertedAggregate.Picture);
 			}
 			finally
 			{
-				_repository.Delete(insertedEntity);
+				_repository.Delete(insertedAggregate);
 			}
 		}
 
@@ -193,7 +193,7 @@ namespace Dapper.Repository.IntegrationTests.MySql
 		public void Insert_NonNullPropertyMissing_Throws()
 		{
 			// Arrange
-			var entity = new CategoryEntity
+			var aggregate = new Category
 			{
 				Description = "Lorem ipsum, dolor sit amit",
 				Name = null!,
@@ -201,7 +201,7 @@ namespace Dapper.Repository.IntegrationTests.MySql
 			};
 
 			// Act && Assert
-			Assert.Throws<MySqlException>(() => _repository.Insert(entity));
+			Assert.Throws<MySqlException>(() => _repository.Insert(aggregate));
 		}
 		#endregion
 
@@ -214,34 +214,34 @@ namespace Dapper.Repository.IntegrationTests.MySql
 		}
 
 		[Theory, AutoDomainData]
-		public void Update_UseEntity_Valid(CategoryEntity entity)
+		public void Update_UseAggregate_Valid(Category aggregate)
 		{
 			// Arrange
-			var insertedEntity = _repository.Insert(entity);
+			var insertedAggregate = _repository.Insert(aggregate);
 
-			var update = insertedEntity with { Description = "Something else" };
+			var update = insertedAggregate with { Description = "Something else" };
 
 			// Act
-			var updatedEntity = _repository.Update(update);
+			var updatedAggregate = _repository.Update(update);
 
 			// Assert
-			Assert.Equal("Something else", updatedEntity?.Description);
+			Assert.Equal("Something else", updatedAggregate?.Description);
 
-			_repository.Delete(insertedEntity);
+			_repository.Delete(insertedAggregate);
 		}
 
 		[Theory, AutoDomainData]
-		public void Update_PrimaryKeyNotEntered_Throws(CategoryEntity entity)
+		public void Update_PrimaryKeyNotEntered_Throws(Category aggregate)
 		{
 			// Act && Assert
-			Assert.Throws<ArgumentException>(() => _repository.Update(entity));
+			Assert.Throws<ArgumentException>(() => _repository.Update(aggregate));
 		}
 
 		[Fact]
 		public void Update_UseMissingPrimaryKeyValue_ReturnsNull()
 		{
 			// Arrange
-			var entity = new CategoryEntity
+			var aggregate = new Category
 			{
 				CategoryId = int.MaxValue,
 				Description = "Lorem ipsum, dolor sit amit",
@@ -249,7 +249,7 @@ namespace Dapper.Repository.IntegrationTests.MySql
 			};
 
 			// Act
-			var updated = _repository.Update(entity);
+			var updated = _repository.Update(aggregate);
 
 			// Assert
 			Assert.Null(updated);

@@ -1,4 +1,9 @@
-namespace Dapper.Repository.Sql;
+using System;
+using System.Data;
+using System.Data.SqlClient;
+using Dapper.Repository.Interfaces;
+
+namespace Dapper.Repository.IntegrationTests.Sql;
 
 public class SqlConnectionFactory : IConnectionFactory
 {

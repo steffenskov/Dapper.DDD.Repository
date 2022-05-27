@@ -1,5 +1,5 @@
 namespace Dapper.Repository.MySql;
-public class SqlQueryGeneratorFactory : IQueryGeneratorFactory
+public class MySqlQueryGeneratorFactory : IQueryGeneratorFactory
 {
 	public IQueryGenerator<TAggregate> Create<TAggregate>(AggregateConfiguration<TAggregate> configuration)
 	where TAggregate : notnull

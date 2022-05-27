@@ -1,6 +1,7 @@
 using System;
+using Dapper.Repository.Configuration;
 using Dapper.Repository.Sql;
-using Dapper.Repository.UnitTests.Entities;
+using Dapper.Repository.UnitTests.Aggregates;
 using Xunit;
 
 namespace Dapper.Repository.UnitTests.Sql
@@ -11,29 +12,54 @@ namespace Dapper.Repository.UnitTests.Sql
 		[Fact]
 		public void Constructor_TableNameIsNull_Throws()
 		{
-			// Arrange, act && assert
-			Assert.Throws<ArgumentNullException>(() => new SqlQueryGenerator<HeapEntity>("dbo", null!));
+			// Arrange
+			var configuration = new SqlAggregateConfiguration<SinglePrimaryKeyAggregate>(default)
+			{
+				Schema = "dbo",
+				TableName = null
+			};
+
+			// Act && assert
+			Assert.Throws<ArgumentNullException>(() => new SqlQueryGenerator<SinglePrimaryKeyAggregate>(configuration));
 		}
 
 		[Fact]
 		public void Constructor_SchemaIsNull_Throws()
 		{
-			// Arrange, act && assert
-			Assert.Throws<ArgumentNullException>(() => new SqlQueryGenerator<HeapEntity>(null!, "Users"));
+			// Arrange
+			var configuration = new SqlAggregateConfiguration<SinglePrimaryKeyAggregate>(default)
+			{
+				Schema = null,
+				TableName = "Users"
+			};
+			// Act && assert
+			Assert.Throws<ArgumentNullException>(() => new SqlQueryGenerator<SinglePrimaryKeyAggregate>(configuration));
 		}
 
 		[Fact]
 		public void Constructor_TableNameIsWhitespace_Throws()
 		{
-			// Arrange, act && assert
-			Assert.Throws<ArgumentException>(() => new SqlQueryGenerator<HeapEntity>("dbo", " "));
+			// Arrange
+			var configuration = new SqlAggregateConfiguration<SinglePrimaryKeyAggregate>(default)
+			{
+				Schema = "dbo",
+				TableName = " "
+			};
+			// Act && assert
+			Assert.Throws<ArgumentException>(() => new SqlQueryGenerator<SinglePrimaryKeyAggregate>(configuration));
 		}
 
 		[Fact]
 		public void Constructor_SchemaIsWhitespace_Throws()
 		{
-			// Arrange, act && assert
-			Assert.Throws<ArgumentException>(() => new SqlQueryGenerator<HeapEntity>(" ", "Users"));
+			// Arrange
+			var configuration = new SqlAggregateConfiguration<SinglePrimaryKeyAggregate>(default)
+			{
+				Schema = " ",
+				TableName = "Users"
+			};
+			// Act && assert
+			Assert.Throws<ArgumentException>(() => new SqlQueryGenerator<SinglePrimaryKeyAggregate>(configuration));
 		}
 		#endregion
 
@@ -44,7 +70,7 @@ namespace Dapper.Repository.UnitTests.Sql
 		public void GenerateDeleteQuery_CustomSchema_Valid()
 		{
 			// Arrange
-			var generator = new SqlQueryGenerator<SinglePrimaryKeyEntity>("account", "Users");
+			var generator = CreateSinglePrimaryKeyAggregateWithCustomSchemaQueryGenerator();
 
 			// Act
 			var query = generator.GenerateDeleteQuery();
@@ -57,7 +83,7 @@ namespace Dapper.Repository.UnitTests.Sql
 		public void GenerateDeleteQuery_OnePrimaryKey_Valid()
 		{
 			// Arrange
-			var generator = new SqlQueryGenerator<SinglePrimaryKeyEntity>("dbo", "Users");
+			var generator = CreateSinglePrimaryKeyAggregateQueryGenerator();
 
 			// Act
 			var deleteQuery = generator.GenerateDeleteQuery();
@@ -66,43 +92,19 @@ namespace Dapper.Repository.UnitTests.Sql
 			Assert.Equal($"DELETE FROM [dbo].[Users] OUTPUT [deleted].[Id], [deleted].[Username], [deleted].[Password] WHERE [dbo].[Users].[Id] = @Id;", deleteQuery);
 		}
 
+
+
 		[Fact]
 		public void GenerateDeleteQuery_CompositePrimaryKey_Valid()
 		{
 			// Arrange
-			var generator = new SqlQueryGenerator<CompositePrimaryKeyEntity>("dbo", "Users");
+			var generator = CreateCompositePrimaryKeyAggregateQueryGenerator();
 
 			// Act
 			var deleteQuery = generator.GenerateDeleteQuery();
 
 			// Assert
 			Assert.Equal($"DELETE FROM [dbo].[Users] OUTPUT [deleted].[Username], [deleted].[Password], [deleted].[DateCreated] WHERE [dbo].[Users].[Username] = @Username AND [dbo].[Users].[Password] = @Password;", deleteQuery);
-		}
-
-		[Fact]
-		public void GenerateDeleteQuery_CustomColumnNames_Valid()
-		{
-			// Arrange
-			var generator = new SqlQueryGenerator<CustomColumnNamesEntity>("dbo", "Orders");
-
-			// Act
-			var deleteQuery = generator.GenerateDeleteQuery();
-
-			// Assert
-			Assert.Equal($"DELETE FROM [dbo].[Orders] OUTPUT [deleted].[OrderId] AS [Id], [deleted].[DateCreated] AS [Date] WHERE [dbo].[Orders].[OrderId] = @Id;", deleteQuery);
-		}
-
-		[Fact]
-		public void GenerateDeleteQuery_NoPrimaryKey_Valid()
-		{
-			// Arrange
-			var generator = new SqlQueryGenerator<HeapEntity>("dbo", "Users");
-
-			// Act
-			var deleteQuery = generator.GenerateDeleteQuery();
-
-			// Assert
-			Assert.Equal($"DELETE FROM [dbo].[Users] OUTPUT [deleted].[Username], [deleted].[Password] WHERE [dbo].[Users].[Username] = @Username AND [dbo].[Users].[Password] = @Password;", deleteQuery);
 		}
 		#endregion
 
@@ -111,10 +113,10 @@ namespace Dapper.Repository.UnitTests.Sql
 		public void GenerateInsertQuery_CustomSchema_Valid()
 		{
 			// Arrange
-			var generator = new SqlQueryGenerator<SinglePrimaryKeyEntity>("account", "Users");
+			SqlQueryGenerator<SinglePrimaryKeyAggregate> generator = CreateSinglePrimaryKeyAggregateWithCustomSchemaQueryGenerator();
 
 			// Act
-			var query = generator.GenerateInsertQuery(new SinglePrimaryKeyEntity());
+			var query = generator.GenerateInsertQuery(new SinglePrimaryKeyAggregate());
 
 			// Assert
 			Assert.Equal("INSERT INTO [account].[Users] ([Username], [Password]) OUTPUT [inserted].[Id], [inserted].[Username], [inserted].[Password] VALUES (@Username, @Password);", query);
@@ -124,10 +126,10 @@ namespace Dapper.Repository.UnitTests.Sql
 		public void GenerateInsertQuery_ColumnHasDefaultConstraintAndDefaultValue_Valid()
 		{
 			// Arrange
-			var generator = new SqlQueryGenerator<HasDefaultConstraintEntity>("dbo", "Users");
+			var generator = CreateHasDefaultConstraintAggregateQueryGenerator();
 
 			// Actj
-			var query = generator.GenerateInsertQuery(new HasDefaultConstraintEntity());
+			var query = generator.GenerateInsertQuery(new HasDefaultConstraintAggregate());
 
 			// Assert
 			Assert.Equal("INSERT INTO [dbo].[Users] ([Id]) OUTPUT [inserted].[Id], [inserted].[DateCreated] VALUES (@Id);", query);
@@ -137,8 +139,8 @@ namespace Dapper.Repository.UnitTests.Sql
 		public void GenerateInsertQuery_ColumnHasDefaultConstraintAndNonDefaultValue_Valid()
 		{
 			// Arrange
-			var generator = new SqlQueryGenerator<HasDefaultConstraintEntity>("dbo", "Users");
-			var record = new HasDefaultConstraintEntity
+			var generator = CreateHasDefaultConstraintAggregateQueryGenerator();
+			var record = new HasDefaultConstraintAggregate
 			{
 				Id = 42,
 				DateCreated = DateTime.Now
@@ -152,13 +154,13 @@ namespace Dapper.Repository.UnitTests.Sql
 		}
 
 		[Fact]
-		public void GenerateInsertQuery_IdentityValuePrimaryKey_Valid()
+		public void GenerateInsertQuery_IdaggregateValuePrimaryKey_Valid()
 		{
 			// Arrange
-			var generator = new SqlQueryGenerator<SinglePrimaryKeyEntity>("dbo", "Users");
+			var generator = CreateSinglePrimaryKeyAggregateQueryGenerator();
 
 			// Act
-			var insertQuery = generator.GenerateInsertQuery(new SinglePrimaryKeyEntity());
+			var insertQuery = generator.GenerateInsertQuery(new SinglePrimaryKeyAggregate());
 
 			// Assert
 			Assert.Equal($"INSERT INTO [dbo].[Users] ([Username], [Password]) OUTPUT [inserted].[Id], [inserted].[Username], [inserted].[Password] VALUES (@Username, @Password);", insertQuery);
@@ -168,10 +170,10 @@ namespace Dapper.Repository.UnitTests.Sql
 		public void GenerateInsertQuery_MissingColumnValue_ContainsColumn()
 		{
 			// Arrange
-			var generator = new SqlQueryGenerator<CompositePrimaryKeyEntity>("dbo", "Users");
+			var generator = CreateCompositePrimaryKeyAggregateQueryGenerator();
 
 			// Act
-			var insertQuery = generator.GenerateInsertQuery(new CompositePrimaryKeyEntity());
+			var insertQuery = generator.GenerateInsertQuery(new CompositePrimaryKeyAggregate());
 
 			// Assert
 			Assert.Equal($"INSERT INTO [dbo].[Users] ([Username], [Password], [DateCreated]) OUTPUT [inserted].[Username], [inserted].[Password], [inserted].[DateCreated] VALUES (@Username, @Password, @DateCreated);", insertQuery);
@@ -181,39 +183,13 @@ namespace Dapper.Repository.UnitTests.Sql
 		public void GenerateInsertQuery_CompositePrimaryKey_Valid()
 		{
 			// Arrange
-			var generator = new SqlQueryGenerator<CompositePrimaryKeyEntity>("dbo", "Users");
+			var generator = CreateCompositePrimaryKeyAggregateQueryGenerator();
 
 			// Act
-			var insertQuery = generator.GenerateInsertQuery(new CompositePrimaryKeyEntity());
+			var insertQuery = generator.GenerateInsertQuery(new CompositePrimaryKeyAggregate());
 
 			// Assert
 			Assert.Equal($"INSERT INTO [dbo].[Users] ([Username], [Password], [DateCreated]) OUTPUT [inserted].[Username], [inserted].[Password], [inserted].[DateCreated] VALUES (@Username, @Password, @DateCreated);", insertQuery);
-		}
-
-		[Fact]
-		public void GenerateInsertQuery_CustomColumnNames_Valid()
-		{
-			// Arrange
-			var generator = new SqlQueryGenerator<CustomColumnNamesEntity>("dbo", "Orders");
-
-			// Act
-			var insertQuery = generator.GenerateInsertQuery(new CustomColumnNamesEntity());
-
-			// Assert
-			Assert.Equal($"INSERT INTO [dbo].[Orders] ([DateCreated]) OUTPUT [inserted].[OrderId] AS [Id], [inserted].[DateCreated] AS [Date] VALUES (@Date);", insertQuery);
-		}
-
-		[Fact]
-		public void GenerateInsertQuery_NoPrimaryKey_Valid()
-		{
-			// Arrange
-			var generator = new SqlQueryGenerator<HeapEntity>("dbo", "Users");
-
-			// Act
-			var insertQuery = generator.GenerateInsertQuery(new HeapEntity());
-
-			// Assert
-			Assert.Equal($"INSERT INTO [dbo].[Users] ([Username], [Password]) OUTPUT [inserted].[Username], [inserted].[Password] VALUES (@Username, @Password);", insertQuery);
 		}
 		#endregion
 
@@ -222,27 +198,15 @@ namespace Dapper.Repository.UnitTests.Sql
 		public void GenerateGetAllQuery_ProperTableName_Valid()
 		{
 			// Arrange
-			var generator = new SqlQueryGenerator<HeapEntity>("dbo", "Users");
+			var generator = CreateSinglePrimaryKeyAggregateQueryGenerator();
 
 			// Act
 			var selectQuery = generator.GenerateGetAllQuery();
 
 			// Assert
-			Assert.Equal($"SELECT [dbo].[Users].[Username], [dbo].[Users].[Password] FROM [dbo].[Users];", selectQuery);
+			Assert.Equal($"SELECT [dbo].[Users].[Id], [dbo].[Users].[Username], [dbo].[Users].[Password] FROM [dbo].[Users];", selectQuery);
 		}
 
-		[Fact]
-		public void GenerateGetAllQuery_CustomColumnNames_Valid()
-		{
-			// Arrange
-			var generator = new SqlQueryGenerator<CustomColumnNamesEntity>("dbo", "Orders");
-
-			// Act
-			var selectQuery = generator.GenerateGetAllQuery();
-
-			// Assert
-			Assert.Equal($"SELECT [dbo].[Orders].[OrderId] AS [Id], [dbo].[Orders].[DateCreated] AS [Date] FROM [dbo].[Orders];", selectQuery);
-		}
 		#endregion
 
 		#region Get
@@ -250,7 +214,7 @@ namespace Dapper.Repository.UnitTests.Sql
 		public void GenerateGetQuery_SinglePrimaryKey_Valid()
 		{
 			// Arrange
-			var generator = new SqlQueryGenerator<SinglePrimaryKeyEntity>("dbo", "Users");
+			var generator = CreateSinglePrimaryKeyAggregateQueryGenerator();
 
 			// Act
 			var selectQuery = generator.GenerateGetQuery();
@@ -263,39 +227,13 @@ namespace Dapper.Repository.UnitTests.Sql
 		public void GenerateGetQuery_CompositePrimaryKey_Valid()
 		{
 			// Arrange
-			var generator = new SqlQueryGenerator<CompositePrimaryKeyEntity>("dbo", "Users");
+			var generator = CreateCompositePrimaryKeyAggregateQueryGenerator();
 
 			// Act
 			var selectQuery = generator.GenerateGetQuery();
 
 			// Assert
 			Assert.Equal($"SELECT [dbo].[Users].[Username], [dbo].[Users].[Password], [dbo].[Users].[DateCreated] FROM [dbo].[Users] WHERE [dbo].[Users].[Username] = @Username AND [dbo].[Users].[Password] = @Password;", selectQuery);
-		}
-
-		[Fact]
-		public void GenerateGetQuery_CustomColumnNames_Valid()
-		{
-			// Arrange
-			var generator = new SqlQueryGenerator<CustomColumnNamesEntity>("dbo", "Orders");
-
-			// Act
-			var selectQuery = generator.GenerateGetQuery();
-
-			// Assert
-			Assert.Equal($"SELECT [dbo].[Orders].[OrderId] AS [Id], [dbo].[Orders].[DateCreated] AS [Date] FROM [dbo].[Orders] WHERE [dbo].[Orders].[OrderId] = @Id;", selectQuery);
-		}
-
-		[Fact]
-		public void GenerateGetQuery_NoPrimaryKey_Valid()
-		{
-			// Arrange
-			var generator = new SqlQueryGenerator<HeapEntity>("dbo", "Users");
-
-			// Act
-			var query = generator.GenerateGetQuery();
-
-			// Assert
-			Assert.Equal("SELECT [dbo].[Users].[Username], [dbo].[Users].[Password] FROM [dbo].[Users] WHERE [dbo].[Users].[Username] = @Username AND [dbo].[Users].[Password] = @Password;", query);
 		}
 		#endregion
 
@@ -305,7 +243,7 @@ namespace Dapper.Repository.UnitTests.Sql
 		public void GenerateUpdateQuery_SinglePrimaryKey_Valid()
 		{
 			// Arrange
-			var generator = new SqlQueryGenerator<SinglePrimaryKeyEntity>("dbo", "Users");
+			var generator = CreateSinglePrimaryKeyAggregateQueryGenerator();
 
 			// Act 
 			var updateQuery = generator.GenerateUpdateQuery();
@@ -318,7 +256,7 @@ namespace Dapper.Repository.UnitTests.Sql
 		public void GenerateUpdateQuery_CompositePrimaryKey_Valid()
 		{
 			// Arrange
-			var generator = new SqlQueryGenerator<CompositePrimaryKeyEntity>("dbo", "Users");
+			var generator = CreateCompositePrimaryKeyAggregateQueryGenerator();
 
 			// Act 
 			var updateQuery = generator.GenerateUpdateQuery();
@@ -326,35 +264,18 @@ namespace Dapper.Repository.UnitTests.Sql
 			// Assert
 			Assert.Equal($"UPDATE [dbo].[Users] SET [dbo].[Users].[DateCreated] = @DateCreated OUTPUT [inserted].[Username], [inserted].[Password], [inserted].[DateCreated] WHERE [dbo].[Users].[Username] = @Username AND [dbo].[Users].[Password] = @Password;", updateQuery);
 		}
-
-		[Fact]
-		public void GenerateUpdateQuery_CustomColumnNames_Valid()
-		{
-			// Arrange
-			var generator = new SqlQueryGenerator<CustomColumnNamesEntity>("dbo", "Orders");
-
-			// Act 
-			var updateQuery = generator.GenerateUpdateQuery();
-
-			// Assert
-			Assert.Equal($"UPDATE [dbo].[Orders] SET [dbo].[Orders].[DateCreated] = @Date OUTPUT [inserted].[OrderId] AS [Id], [inserted].[DateCreated] AS [Date] WHERE [dbo].[Orders].[OrderId] = @Id;", updateQuery);
-		}
-
-		[Fact]
-		public void GenerateUpdateQuery_NoPrimaryKey_Throws()
-		{
-			// Arrange
-			var generator = new SqlQueryGenerator<HeapEntity>("dbo", "Users");
-
-			// Act && Assert
-			Assert.Throws<InvalidOperationException>(() => generator.GenerateUpdateQuery());
-		}
-
 		[Fact]
 		public void GenerateUpdateQuery_AllColumnsHasNoSetter_Throws()
 		{
 			// Arrange
-			var generator = new SqlQueryGenerator<AllColumnsHasMissingSetterEntity>("dbo", "Users");
+			var configuration = new SqlAggregateConfiguration<AllColumnsHasMissingSetterAggregate>(default)
+			{
+				Schema = "dbo",
+				TableName = "Users"
+			};
+			configuration.HasKey(aggregate => aggregate.Id);
+			configuration.HasDefault(aggregate => aggregate.DateCreated);
+			var generator = new SqlQueryGenerator<AllColumnsHasMissingSetterAggregate>(configuration);
 
 			// Act && Assert
 			Assert.Throws<InvalidOperationException>(() => generator.GenerateUpdateQuery());
@@ -364,13 +285,74 @@ namespace Dapper.Repository.UnitTests.Sql
 		public void GenerateUpdateQuery_ColumnHasNoSetter_ColumnIsExcluded()
 		{
 			// Arrange
-			var generator = new SqlQueryGenerator<ColumnHasMissingSetterEntity>("dbo", "Users");
+			var configuration = new SqlAggregateConfiguration<ColumnHasMissingSetterAggregate>(default)
+			{
+				Schema = "dbo",
+				TableName = "Users"
+			};
+			configuration.HasKey(aggregate => aggregate.Id);
+			configuration.HasDefault(aggregate => aggregate.DateCreated);
+			var generator = new SqlQueryGenerator<ColumnHasMissingSetterAggregate>(configuration);
 
 			// Act
 			var query = generator.GenerateUpdateQuery();
 
 			// Assert
 			Assert.Equal("UPDATE [dbo].[Users] SET [dbo].[Users].[Age] = @Age OUTPUT [inserted].[Id], [inserted].[Age], [inserted].[DateCreated] WHERE [dbo].[Users].[Id] = @Id;", query);
+		}
+		#endregion
+
+		#region Constructors
+		private static SqlQueryGenerator<HasDefaultConstraintAggregate> CreateHasDefaultConstraintAggregateQueryGenerator()
+		{
+			var configuration = new SqlAggregateConfiguration<HasDefaultConstraintAggregate>(default)
+			{
+				Schema = "dbo",
+				TableName = "Users"
+			};
+			configuration.HasKey(aggregate => aggregate.Id);
+			configuration.HasDefault(aggregate => aggregate.DateCreated);
+			var generator = new SqlQueryGenerator<HasDefaultConstraintAggregate>(configuration);
+			return generator;
+		}
+
+		private static SqlQueryGenerator<SinglePrimaryKeyAggregate> CreateSinglePrimaryKeyAggregateQueryGenerator()
+		{
+			var configuration = new SqlAggregateConfiguration<SinglePrimaryKeyAggregate>(default)
+			{
+				Schema = "dbo",
+				TableName = "Users"
+			};
+			configuration.HasKey(aggregate => aggregate.Id);
+			configuration.HasIdaggregate(aggregate => aggregate.Id);
+			var generator = new SqlQueryGenerator<SinglePrimaryKeyAggregate>(configuration);
+			return generator;
+		}
+
+		private static SqlQueryGenerator<SinglePrimaryKeyAggregate> CreateSinglePrimaryKeyAggregateWithCustomSchemaQueryGenerator()
+		{
+			var configuration = new SqlAggregateConfiguration<SinglePrimaryKeyAggregate>(default)
+			{
+				Schema = "account",
+				TableName = "Users"
+			};
+			configuration.HasKey(aggregate => aggregate.Id);
+			configuration.HasIdaggregate(aggregate => aggregate.Id);
+			var generator = new SqlQueryGenerator<SinglePrimaryKeyAggregate>(configuration);
+			return generator;
+		}
+
+		private static SqlQueryGenerator<CompositePrimaryKeyAggregate> CreateCompositePrimaryKeyAggregateQueryGenerator()
+		{
+			var configuration = new SqlAggregateConfiguration<CompositePrimaryKeyAggregate>(default)
+			{
+				Schema = "dbo",
+				TableName = "Users",
+
+			};
+			configuration.HasKey(aggregate => new { aggregate.Username, aggregate.Password });
+			var generator = new SqlQueryGenerator<CompositePrimaryKeyAggregate>(configuration);
+			return generator;
 		}
 		#endregion
 	}

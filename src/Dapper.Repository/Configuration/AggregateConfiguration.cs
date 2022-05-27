@@ -11,7 +11,6 @@ public class AggregateConfiguration<TAggregate> : IAggregateConfiguration<TAggre
 	private readonly List<ExtendedPropertyInfo> _identities = new();
 	private readonly List<ExtendedPropertyInfo> _ignores = new();
 
-	public string? Schema { get; set; }
 	public string? TableName { get; set; }
 	public IQueryGeneratorFactory? QueryGeneratorFactory { get; set; }
 	public IConnectionFactory? ConnectionFactory { get; set; }
@@ -20,7 +19,6 @@ public class AggregateConfiguration<TAggregate> : IAggregateConfiguration<TAggre
 	public AggregateConfiguration(IOptions<DefaultConfiguration>? options)
 	{
 		var defaults = options?.Value;
-		Schema = defaults?.Schema;
 		QueryGeneratorFactory = defaults?.QueryGeneratorFactory;
 		ConnectionFactory = defaults?.ConnectionFactory;
 		DapperInjectionFactory = defaults?.DapperInjectionFactory;
@@ -48,7 +46,7 @@ public class AggregateConfiguration<TAggregate> : IAggregateConfiguration<TAggre
 		_defaults.AddRange(properties);
 	}
 
-	public void HasIdentity(Expression<Func<TAggregate, object>> expression)
+	public void HasIdaggregate(Expression<Func<TAggregate, object>> expression)
 	{
 		var properties = new ExpressionParser<TAggregate>().GetExtendedPropertiesFromExpression(expression);
 
@@ -63,7 +61,7 @@ public class AggregateConfiguration<TAggregate> : IAggregateConfiguration<TAggre
 		return _keyProperties.AsReadOnly();
 	}
 
-	public IReadOnlyList<ExtendedPropertyInfo> GetIdentityProperties()
+	public IReadOnlyList<ExtendedPropertyInfo> GetIdaggregateProperties()
 	{
 		return _identities.AsReadOnly();
 	}

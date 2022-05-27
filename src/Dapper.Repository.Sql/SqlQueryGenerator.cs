@@ -1,16 +1,14 @@
-using System.Reflection;
 using Dapper.Repository.Reflection;
 
 namespace Dapper.Repository.Sql;
 
-
 internal class SqlQueryGenerator<TAggregate> : IQueryGenerator<TAggregate>
 	where TAggregate : notnull
 {
-	private readonly AggregateConfiguration<TAggregate> _configuration;
+	private readonly SqlAggregateConfiguration<TAggregate> _configuration;
 	private readonly string _schemaAndTable;
 
-	public SqlQueryGenerator(AggregateConfiguration<TAggregate> configuration)
+	public SqlQueryGenerator(SqlAggregateConfiguration<TAggregate> configuration)
 	{
 		ArgumentNullException.ThrowIfNull(configuration.Schema);
 		ArgumentNullException.ThrowIfNull(configuration.TableName);
@@ -34,11 +32,11 @@ internal class SqlQueryGenerator<TAggregate> : IQueryGenerator<TAggregate>
 
 	public string GenerateInsertQuery(TAggregate aggregate)
 	{
-		var identityColumns = _configuration.GetIdentityProperties();
+		var idaggregateColumns = _configuration.GetIdaggregateProperties();
 		var propertiesWithDefaultValues = _configuration.GetPropertiesWithDefaultConstraints();
 
 		var columnsToInsert = _configuration.GetProperties()
-									.Where(property => !identityColumns.Contains(property) && (!propertiesWithDefaultValues.Contains(property) || !property.HasDefaultValue(aggregate)))
+									.Where(property => !idaggregateColumns.Contains(property) && (!propertiesWithDefaultValues.Contains(property) || !property.HasDefaultValue(aggregate)))
 									.ToList();
 
 		var outputColumns = GenerateColumnsList("inserted", _configuration.GetProperties());

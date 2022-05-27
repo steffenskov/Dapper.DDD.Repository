@@ -1,14 +1,11 @@
 using System;
-using Dapper.Repository.Attributes;
 
-namespace Dapper.Repository.UnitTests.Entities
+namespace Dapper.Repository.UnitTests.Aggregates
 {
-	public record HasDefaultConstraintEntity : DbEntity
+	public record HasDefaultConstraintAggregate
 	{
-		[PrimaryKeyColumn]
 		public int Id { get; init; }
 
-		[Column(hasDefaultConstraint: true)]
 		public DateTime DateCreated { get; init; }
 	}
 }

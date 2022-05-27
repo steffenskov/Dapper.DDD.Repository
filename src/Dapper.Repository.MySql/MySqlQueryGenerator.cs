@@ -2,7 +2,6 @@ using Dapper.Repository.Reflection;
 
 namespace Dapper.Repository.MySql;
 
-
 internal class MySqlQueryGenerator<TAggregate> : IQueryGenerator<TAggregate>
 	where TAggregate : notnull
 {
@@ -12,11 +11,9 @@ internal class MySqlQueryGenerator<TAggregate> : IQueryGenerator<TAggregate>
 	public MySqlQueryGenerator(AggregateConfiguration<TAggregate> configuration)
 	{
 		ArgumentNullException.ThrowIfNull(configuration.TableName);
-		if (configuration.Schema is not null)
-			throw new ArgumentException("MySql does not support schemas.", nameof(configuration));
-
 		if (string.IsNullOrWhiteSpace(configuration.TableName))
 			throw new ArgumentException("Table name cannot be null or whitespace.", nameof(configuration));
+
 		_configuration = configuration;
 		_table = configuration.TableName;
 	}
@@ -47,20 +44,20 @@ DELETE FROM {_table} WHERE {whereClause};";
 
 	public string GenerateInsertQuery(TAggregate aggregate)
 	{
-		var identityColumns = _configuration.GetIdentityProperties();
+		var idaggregateColumns = _configuration.GetIdaggregateProperties();
 		var propertiesWithDefaultValues = _configuration.GetPropertiesWithDefaultConstraints();
 
 		var columnsToInsert = _configuration.GetProperties()
-									.Where(property => !identityColumns.Contains(property) && (!propertiesWithDefaultValues.Contains(property) || !property.HasDefaultValue(aggregate)))
+									.Where(property => !idaggregateColumns.Contains(property) && (!propertiesWithDefaultValues.Contains(property) || !property.HasDefaultValue(aggregate)))
 									.ToList();
 
 		string selectStatement = "";
-		if (identityColumns.Any())
+		if (idaggregateColumns.Any())
 		{
-			var column = identityColumns.SingleOrDefault();
+			var column = idaggregateColumns.SingleOrDefault();
 			if (column is null)
 			{
-				throw new InvalidOperationException("Cannot generate INSERT query for table with multiple identity columns");
+				throw new InvalidOperationException("Cannot generate INSERT query for table with multiple idaggregate columns");
 			}
 			var columnsList = GenerateColumnsList(_table, _configuration.GetProperties());
 			selectStatement = $"SELECT {columnsList} FROM {_table} WHERE {_table}.{column.Name} = LAST_INSERT_ID();";

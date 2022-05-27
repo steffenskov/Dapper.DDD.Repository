@@ -4,8 +4,8 @@ using Dapper.Repository.Sql;
 
 namespace Dapper.Repository.IntegrationTests.Sql.Repositories
 {
-	public abstract class MyViewRepository<TEntity> : ViewRepository<TEntity>
-	where TEntity : DbEntity
+	public abstract class MyViewRepository<TAggregate> : ViewRepository<TAggregate>
+	where TAggregate
 	{
 		protected override IDbConnection CreateConnection()
 		{

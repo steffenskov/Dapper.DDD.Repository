@@ -1,17 +1,12 @@
 ﻿using System;
-using Dapper.Repository.Attributes;
 
-namespace Dapper.Repository.UnitTests.Entities
+namespace Dapper.Repository.UnitTests.Aggregates
 {
-	internal record CompositePrimaryKeyEntity : DbEntity
+	internal record CompositePrimaryKeyAggregate
 	{
-		[PrimaryKeyColumn]
 		public string Username { get; init; } = default!;
-
-		[PrimaryKeyColumn]
 		public string Password { get; init; } = default!;
 
-		[Column]
 		public DateTime DateCreated { get; init; }
 	}
 }

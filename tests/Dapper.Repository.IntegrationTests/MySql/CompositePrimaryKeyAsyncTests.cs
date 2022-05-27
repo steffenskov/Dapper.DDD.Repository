@@ -1,6 +1,6 @@
 using System;
 using System.Threading.Tasks;
-using Dapper.Repository.IntegrationTests.Entities;
+using Dapper.Repository.IntegrationTests.Aggregates;
 using Dapper.Repository.IntegrationTests.MySql.Repositories;
 using Xunit;
 
@@ -19,102 +19,102 @@ namespace Dapper.Repository.IntegrationTests.MySql
 		public async Task Delete_PrimaryKeyPartiallyNotEntered_Throws()
 		{
 			// Act && Assert
-			await Assert.ThrowsAsync<ArgumentException>(async () => await _repository.DeleteAsync(new CompositeUserPrimaryKeyEntity { Username = "async My name" }));
+			await Assert.ThrowsAsync<ArgumentException>(async () => await _repository.DeleteAsync(new CompositeUserPrimaryKeyAggregate { Username = "async My name" }));
 		}
 
 		[Fact]
 		public async Task Delete_UseMissingPrimaryKeyValue_ReturnsNull()
 		{
 			// Act
-			var deleted = await _repository.DeleteAsync(new CompositeUserPrimaryKeyEntity { Username = "async My name", Password = "Secret" });
+			var deleted = await _repository.DeleteAsync(new CompositeUserPrimaryKeyAggregate { Username = "async My name", Password = "Secret" });
 
 			// Assert
 			Assert.Null(deleted);
 		}
 
 		[Theory, AutoDomainData]
-		public async Task Delete_UsePrimaryKey_Valid(CompositeUserEntity entity)
+		public async Task Delete_UsePrimaryKey_Valid(CompositeUserAggregate aggregate)
 		{
 			// Arrange
-			var insertedEntity = _repository.Insert(entity);
+			var insertedAggregate = _repository.Insert(aggregate);
 
 			// Act
-			var deleted = await _repository.DeleteAsync(new CompositeUserPrimaryKeyEntity { Username = entity.Username, Password = entity.Password });
+			var deleted = await _repository.DeleteAsync(new CompositeUserPrimaryKeyAggregate { Username = aggregate.Username, Password = aggregate.Password });
 
 			// Assert
-			Assert.Equal(entity.Username, deleted?.Username);
-			Assert.Equal(entity.Password, deleted?.Password);
-			Assert.Equal(insertedEntity.DateCreated, deleted?.DateCreated);
+			Assert.Equal(aggregate.Username, deleted?.Username);
+			Assert.Equal(aggregate.Password, deleted?.Password);
+			Assert.Equal(insertedAggregate.DateCreated, deleted?.DateCreated);
 		}
 
 		[Fact]
 		public async Task Get_PrimaryKeyPartiallyNotEntered_Throws()
 		{
 			// Act && Assert
-			await Assert.ThrowsAsync<ArgumentException>(async () => await _repository.GetAsync(new CompositeUserPrimaryKeyEntity { Username = "async My name" }));
+			await Assert.ThrowsAsync<ArgumentException>(async () => await _repository.GetAsync(new CompositeUserPrimaryKeyAggregate { Username = "async My name" }));
 		}
 
 		[Fact]
 		public async Task Get_UseMissingPrimaryKeyValue_ReturnsNull()
 		{
 			// Act
-			var gotten = await _repository.GetAsync(new CompositeUserPrimaryKeyEntity { Username = "async My name", Password = "Secret" });
+			var gotten = await _repository.GetAsync(new CompositeUserPrimaryKeyAggregate { Username = "async My name", Password = "Secret" });
 
 			// Assert
 			Assert.Null(gotten);
 		}
 
 		[Theory, AutoDomainData]
-		public async Task Get_UsePrimaryKey_Valid(CompositeUserEntity entity)
+		public async Task Get_UsePrimaryKey_Valid(CompositeUserAggregate aggregate)
 		{
 			// Arrange
-			var insertedEntity = _repository.Insert(entity);
+			var insertedAggregate = _repository.Insert(aggregate);
 
 			// Act
-			var gotten = _repository.Get(new CompositeUserPrimaryKeyEntity { Username = entity.Username, Password = entity.Password });
+			var gotten = _repository.Get(new CompositeUserPrimaryKeyAggregate { Username = aggregate.Username, Password = aggregate.Password });
 
 			// Assert
-			Assert.Equal(entity.Username, gotten?.Username);
-			Assert.Equal(entity.Password, gotten?.Password);
-			Assert.Equal(insertedEntity.DateCreated, gotten?.DateCreated);
+			Assert.Equal(aggregate.Username, gotten?.Username);
+			Assert.Equal(aggregate.Password, gotten?.Password);
+			Assert.Equal(insertedAggregate.DateCreated, gotten?.DateCreated);
 
-			await _repository.DeleteAsync(insertedEntity);
+			await _repository.DeleteAsync(insertedAggregate);
 		}
 
 		[Fact]
 		public async Task Update_PrimaryKeyPartiallyNotEntered_Throws()
 		{
 			// Act && Assert
-			await Assert.ThrowsAsync<ArgumentException>(async () => await _repository.UpdateAsync(new CompositeUserEntity { Username = "async My name" }));
+			await Assert.ThrowsAsync<ArgumentException>(async () => await _repository.UpdateAsync(new CompositeUserAggregate { Username = "async My name" }));
 		}
 
 		[Fact]
 		public async Task Update_UseMissingPrimaryKeyValue_ReturnsNull()
 		{
 			// Act
-			var updated = await _repository.UpdateAsync(new CompositeUserEntity { Username = "Doesnt exist", Password = "Secret" });
+			var updated = await _repository.UpdateAsync(new CompositeUserAggregate { Username = "Doesnt exist", Password = "Secret" });
 
 			// Assert
 			Assert.Null(updated);
 		}
 
 		[Theory, AutoDomainData]
-		public async Task Update_UsePrimaryKey_Valid(CompositeUserEntity entity)
+		public async Task Update_UsePrimaryKey_Valid(CompositeUserAggregate aggregate)
 		{
 			// Arrange
-			var insertedEntity = _repository.Insert(entity);
+			var insertedAggregate = _repository.Insert(aggregate);
 
 			// Act
-			var updated = _repository.Update(insertedEntity with { Age = 42 });
+			var updated = _repository.Update(insertedAggregate with { Age = 42 });
 
 			// Assert
-			Assert.Equal(entity.Username, updated?.Username);
-			Assert.Equal(entity.Password, updated?.Password);
-			Assert.NotEqual(42, insertedEntity.Age);
+			Assert.Equal(aggregate.Username, updated?.Username);
+			Assert.Equal(aggregate.Password, updated?.Password);
+			Assert.NotEqual(42, insertedAggregate.Age);
 			Assert.Equal(42, updated?.Age);
-			Assert.Equal(insertedEntity.DateCreated, updated?.DateCreated);
+			Assert.Equal(insertedAggregate.DateCreated, updated?.DateCreated);
 
-			await _repository.DeleteAsync(insertedEntity);
+			await _repository.DeleteAsync(insertedAggregate);
 		}
 	}
 }

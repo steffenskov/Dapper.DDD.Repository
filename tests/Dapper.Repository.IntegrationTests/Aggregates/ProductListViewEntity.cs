@@ -1,8 +1,8 @@
 using Dapper.Repository.Attributes;
 
-namespace Dapper.Repository.IntegrationTests.Entities
+namespace Dapper.Repository.IntegrationTests.Aggregates
 {
-	public record ProductListViewEntity : DbEntity
+	public record ProductListViewAggregate
 	{
 		[Column]
 		public int ProductID { get; }

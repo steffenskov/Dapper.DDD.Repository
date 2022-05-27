@@ -3,9 +3,9 @@ using Dapper.Repository.MySql;
 
 namespace Dapper.Repository.IntegrationTests.MySql.Repositories
 {
-	public abstract class MyPrimaryKeyRepository<TPrimaryKeyEntity, TEntity> : PrimaryKeyRepository<TPrimaryKeyEntity, TEntity>
-	where TPrimaryKeyEntity : DbEntity
-	where TEntity : TPrimaryKeyEntity
+	public abstract class MyPrimaryKeyRepository<TPrimaryKeyAggregate, TAggregate> : PrimaryKeyRepository<TPrimaryKeyAggregate, TAggregate>
+	where TPrimaryKeyAggregate
+	where TAggregate : TPrimaryKeyAggregate
 	{
 		protected override IDbConnection CreateConnection()
 		{

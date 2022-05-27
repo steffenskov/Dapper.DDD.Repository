@@ -1,7 +1,7 @@
 using System;
 using System.Linq;
 using System.Threading.Tasks;
-using Dapper.Repository.IntegrationTests.Entities;
+using Dapper.Repository.IntegrationTests.Aggregates;
 using Dapper.Repository.IntegrationTests.MySql.Repositories;
 using MySql.Data.MySqlClient;
 using Xunit;
@@ -26,52 +26,52 @@ namespace Dapper.Repository.IntegrationTests.MySql
 		}
 
 		[Theory, AutoDomainData]
-		public async Task Delete_PrimaryKeyNotEntered_Throws(CategoryEntity entity)
+		public async Task Delete_PrimaryKeyNotEntered_Throws(Category aggregate)
 		{
 			// Act && Assert
-			await Assert.ThrowsAsync<ArgumentException>(async () => await _repository.DeleteAsync(entity));
+			await Assert.ThrowsAsync<ArgumentException>(async () => await _repository.DeleteAsync(aggregate));
 		}
 
 		[Fact]
 		public async Task Delete_UseMissingPrimaryKeyValue_ReturnsNull()
 		{
 			// Act
-			var deleted = await _repository.DeleteAsync(new CategoryPrimaryKeyEntity { CategoryId = int.MaxValue });
+			var deleted = await _repository.DeleteAsync(new CategoryPrimaryKeyAggregate { CategoryId = int.MaxValue });
 
 			// Assert
 			Assert.Null(deleted);
 		}
 
 		[Theory, AutoDomainData]
-		public async Task Delete_UsePrimaryKey_Valid(CategoryEntity entity)
+		public async Task Delete_UsePrimaryKey_Valid(Category aggregate)
 		{
 			// Arrange
-			var insertedEntity = await _repository.InsertAsync(entity);
+			var insertedAggregate = await _repository.InsertAsync(aggregate);
 
 			// Act
-			var deleted = await _repository.DeleteAsync(new CategoryPrimaryKeyEntity { CategoryId = insertedEntity.CategoryId });
+			var deleted = await _repository.DeleteAsync(new CategoryPrimaryKeyAggregate { CategoryId = insertedAggregate.CategoryId });
 
 			// Assert
-			Assert.Equal(insertedEntity.CategoryId, deleted?.CategoryId);
-			Assert.Equal(entity.Description, deleted?.Description);
-			Assert.Equal(entity.Name, deleted?.Name);
-			Assert.Equal(entity.Picture, deleted?.Picture);
+			Assert.Equal(insertedAggregate.CategoryId, deleted?.CategoryId);
+			Assert.Equal(aggregate.Description, deleted?.Description);
+			Assert.Equal(aggregate.Name, deleted?.Name);
+			Assert.Equal(aggregate.Picture, deleted?.Picture);
 		}
 
 		[Theory, AutoDomainData]
-		public async Task Delete_UseEntity_Valid(CategoryEntity entity)
+		public async Task Delete_UseAggregate_Valid(Category aggregate)
 		{
 			// Arrange
-			var insertedEntity = await _repository.InsertAsync(entity);
+			var insertedAggregate = await _repository.InsertAsync(aggregate);
 
 			// Act
-			var deleted = await _repository.DeleteAsync(insertedEntity);
+			var deleted = await _repository.DeleteAsync(insertedAggregate);
 
 			// Assert
-			Assert.Equal(insertedEntity.CategoryId, deleted?.CategoryId);
-			Assert.Equal(entity.Description, deleted?.Description);
-			Assert.Equal(entity.Name, deleted?.Name);
-			Assert.Equal(entity.Picture, deleted?.Picture);
+			Assert.Equal(insertedAggregate.CategoryId, deleted?.CategoryId);
+			Assert.Equal(aggregate.Description, deleted?.Description);
+			Assert.Equal(aggregate.Name, deleted?.Name);
+			Assert.Equal(aggregate.Picture, deleted?.Picture);
 		}
 		#endregion
 
@@ -84,51 +84,51 @@ namespace Dapper.Repository.IntegrationTests.MySql
 		}
 
 		[Theory, AutoDomainData]
-		public async Task Get_UsePrimaryKey_Valid(CategoryEntity entity)
+		public async Task Get_UsePrimaryKey_Valid(Category aggregate)
 		{
 			// Arrange
-			var insertedEntity = await _repository.InsertAsync(entity);
+			var insertedAggregate = await _repository.InsertAsync(aggregate);
 
 			// Act
-			var fetchedEntity = await _repository.GetAsync(new CategoryPrimaryKeyEntity { CategoryId = insertedEntity.CategoryId });
+			var fetchedAggregate = await _repository.GetAsync(new CategoryPrimaryKeyAggregate { CategoryId = insertedAggregate.CategoryId });
 
 			// Assert
-			Assert.Equal(insertedEntity.Description, fetchedEntity?.Description);
-			Assert.Equal(insertedEntity.Name, fetchedEntity?.Name);
-			Assert.Equal(insertedEntity.Picture, fetchedEntity?.Picture);
+			Assert.Equal(insertedAggregate.Description, fetchedAggregate?.Description);
+			Assert.Equal(insertedAggregate.Name, fetchedAggregate?.Name);
+			Assert.Equal(insertedAggregate.Picture, fetchedAggregate?.Picture);
 
-			await _repository.DeleteAsync(insertedEntity);
+			await _repository.DeleteAsync(insertedAggregate);
 		}
 
 		[Theory, AutoDomainData]
-		public async Task Get_UseFullEntity_Valid(CategoryEntity entity)
+		public async Task Get_UseFullAggregate_Valid(Category aggregate)
 		{
 			// Arrange
-			var insertedEntity = await _repository.InsertAsync(entity);
+			var insertedAggregate = await _repository.InsertAsync(aggregate);
 
 			// Act
-			var fetchedEntity = await _repository.GetAsync(insertedEntity);
+			var fetchedAggregate = await _repository.GetAsync(insertedAggregate);
 
 			// Assert
-			Assert.Equal(insertedEntity.Description, fetchedEntity?.Description);
-			Assert.Equal(insertedEntity.Name, fetchedEntity?.Name);
-			Assert.Equal(insertedEntity.Picture, fetchedEntity?.Picture);
+			Assert.Equal(insertedAggregate.Description, fetchedAggregate?.Description);
+			Assert.Equal(insertedAggregate.Name, fetchedAggregate?.Name);
+			Assert.Equal(insertedAggregate.Picture, fetchedAggregate?.Picture);
 
-			await _repository.DeleteAsync(insertedEntity);
+			await _repository.DeleteAsync(insertedAggregate);
 		}
 
 		[Fact]
 		public async Task Get_PrimaryKeyNotEntered_Throws()
 		{
 			// Act && Assert
-			await Assert.ThrowsAsync<ArgumentException>(async () => await _repository.GetAsync(new CategoryPrimaryKeyEntity { }));
+			await Assert.ThrowsAsync<ArgumentException>(async () => await _repository.GetAsync(new CategoryPrimaryKeyAggregate { }));
 		}
 
 		[Fact]
 		public async Task Get_UseMissingPrimaryKey_ReturnsNull()
 		{
 			// Act
-			var gotten = await _repository.GetAsync(new CategoryPrimaryKeyEntity { CategoryId = int.MaxValue });
+			var gotten = await _repository.GetAsync(new CategoryPrimaryKeyAggregate { CategoryId = int.MaxValue });
 
 			// Assert
 			Assert.Null(gotten);
@@ -156,10 +156,10 @@ namespace Dapper.Repository.IntegrationTests.MySql
 		}
 
 		[Fact]
-		public async Task Insert_HasIdentityKeyWithValue_Throws()
+		public async Task Insert_HasIdaggregateKeyWithValue_Throws()
 		{
 			// Arrange
-			var entity = new CategoryEntity
+			var aggregate = new Category
 			{
 				CategoryId = 42,
 				Description = "Lorem ipsum, dolor sit amit",
@@ -168,25 +168,25 @@ namespace Dapper.Repository.IntegrationTests.MySql
 			};
 
 			// Act && Assert
-			await Assert.ThrowsAsync<ArgumentException>(async () => await _repository.InsertAsync(entity));
+			await Assert.ThrowsAsync<ArgumentException>(async () => await _repository.InsertAsync(aggregate));
 		}
 
 		[Theory, AutoDomainData]
-		public async Task Insert_HasIdentityKeyWithoutValue_IsInserted(CategoryEntity entity)
+		public async Task Insert_HasIdaggregateKeyWithoutValue_IsInserted(Category aggregate)
 		{
 			// Act
-			var insertedEntity = await _repository.InsertAsync(entity);
+			var insertedAggregate = await _repository.InsertAsync(aggregate);
 			try
 			{
 				// Assert
-				Assert.NotEqual(default, insertedEntity.CategoryId);
-				Assert.Equal(entity.Description, insertedEntity.Description);
-				Assert.Equal(entity.Name, insertedEntity.Name);
-				Assert.Equal(entity.Picture, insertedEntity.Picture);
+				Assert.NotEqual(default, insertedAggregate.CategoryId);
+				Assert.Equal(aggregate.Description, insertedAggregate.Description);
+				Assert.Equal(aggregate.Name, insertedAggregate.Name);
+				Assert.Equal(aggregate.Picture, insertedAggregate.Picture);
 			}
 			finally
 			{
-				await _repository.DeleteAsync(insertedEntity);
+				await _repository.DeleteAsync(insertedAggregate);
 			}
 		}
 
@@ -194,7 +194,7 @@ namespace Dapper.Repository.IntegrationTests.MySql
 		public async Task Insert_NonNullPropertyMissing_Throws()
 		{
 			// Arrange
-			var entity = new CategoryEntity
+			var aggregate = new Category
 			{
 				Description = "Lorem ipsum, dolor sit amit",
 				Name = null!,
@@ -202,7 +202,7 @@ namespace Dapper.Repository.IntegrationTests.MySql
 			};
 
 			// Act && Assert
-			await Assert.ThrowsAsync<MySqlException>(async () => await _repository.InsertAsync(entity));
+			await Assert.ThrowsAsync<MySqlException>(async () => await _repository.InsertAsync(aggregate));
 		}
 		#endregion
 
@@ -215,34 +215,34 @@ namespace Dapper.Repository.IntegrationTests.MySql
 		}
 
 		[Theory, AutoDomainData]
-		public async Task Update_UseEntity_Valid(CategoryEntity entity)
+		public async Task Update_UseAggregate_Valid(Category aggregate)
 		{
 			// Arrange
-			var insertedEntity = await _repository.InsertAsync(entity);
+			var insertedAggregate = await _repository.InsertAsync(aggregate);
 
-			var update = insertedEntity with { Description = "Something else" };
+			var update = insertedAggregate with { Description = "Something else" };
 
 			// Act
-			var updatedEntity = await _repository.UpdateAsync(update);
+			var updatedAggregate = await _repository.UpdateAsync(update);
 
 			// Assert
-			Assert.Equal("Something else", updatedEntity?.Description);
+			Assert.Equal("Something else", updatedAggregate?.Description);
 
-			await _repository.DeleteAsync(insertedEntity);
+			await _repository.DeleteAsync(insertedAggregate);
 		}
 
 		[Theory, AutoDomainData]
-		public async Task Update_PrimaryKeyNotEntered_Throws(CategoryEntity entity)
+		public async Task Update_PrimaryKeyNotEntered_Throws(Category aggregate)
 		{
 			// Act && Assert
-			await Assert.ThrowsAsync<ArgumentException>(async () => await _repository.UpdateAsync(entity));
+			await Assert.ThrowsAsync<ArgumentException>(async () => await _repository.UpdateAsync(aggregate));
 		}
 
 		[Fact]
 		public async Task Update_UseMissingPrimaryKeyValue_ReturnsNull()
 		{
 			// Arrange
-			var entity = new CategoryEntity
+			var aggregate = new Category
 			{
 				CategoryId = int.MaxValue,
 				Description = "Lorem ipsum, dolor sit amit",
@@ -250,7 +250,7 @@ namespace Dapper.Repository.IntegrationTests.MySql
 			};
 
 			// Act 
-			var updated = await _repository.UpdateAsync(entity);
+			var updated = await _repository.UpdateAsync(aggregate);
 
 			// Assert
 			Assert.Null(updated);

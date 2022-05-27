@@ -4,6 +4,10 @@ public class SqlQueryGeneratorFactory : IQueryGeneratorFactory
 	public IQueryGenerator<TAggregate> Create<TAggregate>(AggregateConfiguration<TAggregate> configuration)
 	where TAggregate : notnull
 	{
-		return new SqlQueryGenerator<TAggregate>(configuration);
+		if (configuration is not SqlAggregateConfiguration<TAggregate> sqlConfiguration)
+		{
+			throw new ArgumentException($"Configuration must be of type {nameof(SqlAggregateConfiguration<TAggregate>)}");
+		}
+		return new SqlQueryGenerator<TAggregate>(sqlConfiguration);
 	}
 }

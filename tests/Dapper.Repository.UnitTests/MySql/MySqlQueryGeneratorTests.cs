@@ -1,6 +1,7 @@
 using System;
+using Dapper.Repository.Configuration;
 using Dapper.Repository.MySql;
-using Dapper.Repository.UnitTests.Entities;
+using Dapper.Repository.UnitTests.Aggregates;
 using Xunit;
 
 namespace Dapper.Repository.UnitTests.MySql
@@ -12,16 +13,26 @@ namespace Dapper.Repository.UnitTests.MySql
 		[Fact]
 		public void Constructor_TableNameIsNull_Throws()
 		{
-			// Arrange, Act && Assert
-			Assert.Throws<ArgumentNullException>(() => new MySqlQueryGenerator<HeapEntity>(null!));
-		}
+			// Arrange
+			var configuration = new AggregateConfiguration<SinglePrimaryKeyAggregate>(default)
+			{
+				TableName = null!
+			};
 
+			// Act && Assert
+			Assert.Throws<ArgumentNullException>(() => new MySqlQueryGenerator<SinglePrimaryKeyAggregate>(configuration));
+		}
 
 		[Fact]
 		public void Constructor_TableNameIsWhiteSpace_Throws()
 		{
-			// Arrange, Act && Assert
-			Assert.Throws<ArgumentException>(() => new MySqlQueryGenerator<HeapEntity>(" "));
+			// Arrange
+			var configuration = new AggregateConfiguration<SinglePrimaryKeyAggregate>(default)
+			{
+				TableName = " "
+			};
+			// Act && Assert
+			Assert.Throws<ArgumentException>(() => new MySqlQueryGenerator<SinglePrimaryKeyAggregate>(configuration));
 		}
 		#endregion
 
@@ -31,7 +42,7 @@ namespace Dapper.Repository.UnitTests.MySql
 		public void GenerateDeleteQuery_OnePrimaryKey_Valid()
 		{
 			// Arrange
-			var generator = new MySqlQueryGenerator<SinglePrimaryKeyEntity>("Users");
+			var generator = CreateSinglePrimaryKeyAggregateQueryGenerator();
 
 			// Act
 			var deleteQuery = generator.GenerateDeleteQuery();
@@ -45,41 +56,13 @@ DELETE FROM Users WHERE Users.Id = @Id;", deleteQuery);
 		public void GenerateDeleteQuery_CompositePrimaryKey_Valid()
 		{
 			// Arrange
-			var generator = new MySqlQueryGenerator<CompositePrimaryKeyEntity>("Users");
+			var generator = CreateCompositePrimaryKeyAggregateQueryGenerator();
 
 			// Act
 			var deleteQuery = generator.GenerateDeleteQuery();
 
 			// Assert
 			Assert.Equal($@"SELECT Users.Username, Users.Password, Users.DateCreated FROM Users WHERE Users.Username = @Username AND Users.Password = @Password;
-DELETE FROM Users WHERE Users.Username = @Username AND Users.Password = @Password;", deleteQuery);
-		}
-
-		[Fact]
-		public void GenerateDeleteQuery_CustomColumnNames_Valid()
-		{
-			// Arrange
-			var generator = new MySqlQueryGenerator<CustomColumnNamesEntity>("Orders");
-
-			// Act
-			var deleteQuery = generator.GenerateDeleteQuery();
-
-			// Assert
-			Assert.Equal($@"SELECT Orders.OrderId AS Id, Orders.DateCreated AS Date FROM Orders WHERE Orders.OrderId = @Id;
-DELETE FROM Orders WHERE Orders.OrderId = @Id;", deleteQuery);
-		}
-
-		[Fact]
-		public void GenerateDeleteQuery_NoPrimaryKey_Valid()
-		{
-			// Arrange
-			var generator = new MySqlQueryGenerator<HeapEntity>("Users");
-
-			// Act
-			var deleteQuery = generator.GenerateDeleteQuery();
-
-			// Assert
-			Assert.Equal($@"SELECT Users.Username, Users.Password FROM Users WHERE Users.Username = @Username AND Users.Password = @Password;
 DELETE FROM Users WHERE Users.Username = @Username AND Users.Password = @Password;", deleteQuery);
 		}
 		#endregion
@@ -89,27 +72,15 @@ DELETE FROM Users WHERE Users.Username = @Username AND Users.Password = @Passwor
 		public void GenerateGetAllQuery_ProperTableName_Valid()
 		{
 			// Arrange
-			var generator = new MySqlQueryGenerator<HeapEntity>("Users");
+			var generator = CreateSinglePrimaryKeyAggregateQueryGenerator();
 
 			// Act
 			var selectQuery = generator.GenerateGetAllQuery();
 
 			// Assert
-			Assert.Equal($"SELECT Users.Username, Users.Password FROM Users;", selectQuery);
+			Assert.Equal($"SELECT Users.Id, Users.Username, Users.Password FROM Users;", selectQuery);
 		}
 
-		[Fact]
-		public void GenerateGetAllQuery_CustomColumnNames_Valid()
-		{
-			// Arrange
-			var generator = new MySqlQueryGenerator<CustomColumnNamesEntity>("Orders");
-
-			// Act
-			var selectQuery = generator.GenerateGetAllQuery();
-
-			// Assert
-			Assert.Equal($"SELECT Orders.OrderId AS Id, Orders.DateCreated AS Date FROM Orders;", selectQuery);
-		}
 		#endregion
 
 		#region Get
@@ -117,7 +88,7 @@ DELETE FROM Users WHERE Users.Username = @Username AND Users.Password = @Passwor
 		public void GenerateGetQuery_SinglePrimaryKey_Valid()
 		{
 			// Arrange
-			var generator = new MySqlQueryGenerator<SinglePrimaryKeyEntity>("Users");
+			var generator = CreateSinglePrimaryKeyAggregateQueryGenerator();
 
 			// Act
 			var selectQuery = generator.GenerateGetQuery();
@@ -130,39 +101,13 @@ DELETE FROM Users WHERE Users.Username = @Username AND Users.Password = @Passwor
 		public void GenerateGetQuery_CompositePrimaryKey_Valid()
 		{
 			// Arrange
-			var generator = new MySqlQueryGenerator<CompositePrimaryKeyEntity>("Users");
+			var generator = CreateCompositePrimaryKeyAggregateQueryGenerator();
 
 			// Act
 			var selectQuery = generator.GenerateGetQuery();
 
 			// Assert
 			Assert.Equal($"SELECT Users.Username, Users.Password, Users.DateCreated FROM Users WHERE Users.Username = @Username AND Users.Password = @Password;", selectQuery);
-		}
-
-		[Fact]
-		public void GenerateGetQuery_CustomColumnNames_Valid()
-		{
-			// Arrange
-			var generator = new MySqlQueryGenerator<CustomColumnNamesEntity>("Orders");
-
-			// Act
-			var selectQuery = generator.GenerateGetQuery();
-
-			// Assert
-			Assert.Equal($"SELECT Orders.OrderId AS Id, Orders.DateCreated AS Date FROM Orders WHERE Orders.OrderId = @Id;", selectQuery);
-		}
-
-		[Fact]
-		public void GenerateGetQuery_NoPrimaryKey_Valid()
-		{
-			// Arrange
-			var generator = new MySqlQueryGenerator<HeapEntity>("Users");
-
-			// Act
-			var query = generator.GenerateGetQuery();
-
-			// Assert
-			Assert.Equal("SELECT Users.Username, Users.Password FROM Users WHERE Users.Username = @Username AND Users.Password = @Password;", query);
 		}
 		#endregion
 
@@ -171,10 +116,10 @@ DELETE FROM Users WHERE Users.Username = @Username AND Users.Password = @Passwor
 		public void GenerateInsertQuery_ColumnHasDefaultConstraintAndDefaultValue_Valid()
 		{
 			// Arrange
-			var generator = new MySqlQueryGenerator<HasDefaultConstraintEntity>("Users");
+			var generator = CreateHasDefaultConstraintAggregateQueryGenerator();
 
 			// Actj
-			var query = generator.GenerateInsertQuery(new HasDefaultConstraintEntity());
+			var query = generator.GenerateInsertQuery(new HasDefaultConstraintAggregate());
 
 			// Assert
 			Assert.Equal(@"INSERT INTO Users (Id) VALUES (@Id);
@@ -185,8 +130,8 @@ SELECT Users.Id, Users.DateCreated FROM Users WHERE Users.Id = @Id;", query);
 		public void GenerateInsertQuery_ColumnHasDefaultConstraintAndNonDefaultValue_Valid()
 		{
 			// Arrange
-			var generator = new MySqlQueryGenerator<HasDefaultConstraintEntity>("Users");
-			var record = new HasDefaultConstraintEntity
+			var generator = CreateHasDefaultConstraintAggregateQueryGenerator();
+			var record = new HasDefaultConstraintAggregate
 			{
 				Id = 42,
 				DateCreated = DateTime.Now
@@ -201,13 +146,13 @@ SELECT Users.Id, Users.DateCreated FROM Users WHERE Users.Id = @Id;", query);
 		}
 
 		[Fact]
-		public void GenerateInsertQuery_IdentityValuePrimaryKey_Valid()
+		public void GenerateInsertQuery_IdaggregateValuePrimaryKey_Valid()
 		{
 			// Arrange
-			var generator = new MySqlQueryGenerator<SinglePrimaryKeyEntity>("Users");
+			var generator = CreateSinglePrimaryKeyAggregateQueryGenerator();
 
 			// Act
-			var insertQuery = generator.GenerateInsertQuery(new SinglePrimaryKeyEntity());
+			var insertQuery = generator.GenerateInsertQuery(new SinglePrimaryKeyAggregate());
 
 			// Assert
 			Assert.Equal(@"INSERT INTO Users (Username, Password) VALUES (@Username, @Password);
@@ -218,10 +163,10 @@ SELECT Users.Id, Users.Username, Users.Password FROM Users WHERE Users.Id = LAST
 		public void GenerateInsertQuery_MissingColumnValue_ContainsColumn()
 		{
 			// Arrange
-			var generator = new MySqlQueryGenerator<CompositePrimaryKeyEntity>("Users");
+			var generator = CreateCompositePrimaryKeyAggregateQueryGenerator();
 
 			// Act
-			var insertQuery = generator.GenerateInsertQuery(new CompositePrimaryKeyEntity());
+			var insertQuery = generator.GenerateInsertQuery(new CompositePrimaryKeyAggregate());
 
 			// Assert
 			Assert.Equal(@"INSERT INTO Users (Username, Password, DateCreated) VALUES (@Username, @Password, @DateCreated);
@@ -232,42 +177,14 @@ SELECT Users.Username, Users.Password, Users.DateCreated FROM Users WHERE Users.
 		public void GenerateInsertQuery_CompositePrimaryKey_Valid()
 		{
 			// Arrange
-			var generator = new MySqlQueryGenerator<CompositePrimaryKeyEntity>("Users");
+			var generator = CreateCompositePrimaryKeyAggregateQueryGenerator();
 
 			// Act
-			var insertQuery = generator.GenerateInsertQuery(new CompositePrimaryKeyEntity());
+			var insertQuery = generator.GenerateInsertQuery(new CompositePrimaryKeyAggregate());
 
 			// Assert
 			Assert.Equal(@"INSERT INTO Users (Username, Password, DateCreated) VALUES (@Username, @Password, @DateCreated);
 SELECT Users.Username, Users.Password, Users.DateCreated FROM Users WHERE Users.Username = @Username AND Users.Password = @Password;", insertQuery);
-		}
-
-		[Fact]
-		public void GenerateInsertQuery_CustomColumnNames_Valid()
-		{
-			// Arrange
-			var generator = new MySqlQueryGenerator<CustomColumnNamesEntity>("Orders");
-
-			// Act
-			var insertQuery = generator.GenerateInsertQuery(new CustomColumnNamesEntity());
-
-			// Assert
-			Assert.Equal(@"INSERT INTO Orders (DateCreated) VALUES (@Date);
-SELECT Orders.OrderId AS Id, Orders.DateCreated AS Date FROM Orders WHERE Orders.OrderId = LAST_INSERT_ID();", insertQuery);
-		}
-
-		[Fact]
-		public void GenerateInsertQuery_NoPrimaryKey_Valid()
-		{
-			// Arrange
-			var generator = new MySqlQueryGenerator<HeapEntity>("Users");
-
-			// Act
-			var insertQuery = generator.GenerateInsertQuery(new HeapEntity());
-
-			// Assert
-			Assert.Equal(@"INSERT INTO Users (Username, Password) VALUES (@Username, @Password);
-SELECT Users.Username, Users.Password FROM Users WHERE Users.Username = @Username AND Users.Password = @Password;", insertQuery);
 		}
 		#endregion
 
@@ -277,7 +194,7 @@ SELECT Users.Username, Users.Password FROM Users WHERE Users.Username = @Usernam
 		public void GenerateUpdateQuery_SinglePrimaryKey_Valid()
 		{
 			// Arrange
-			var generator = new MySqlQueryGenerator<SinglePrimaryKeyEntity>("Users");
+			var generator = CreateSinglePrimaryKeyAggregateQueryGenerator();
 
 			// Act 
 			var updateQuery = generator.GenerateUpdateQuery();
@@ -291,7 +208,7 @@ SELECT Users.Id, Users.Username, Users.Password FROM Users WHERE Users.Id = @Id;
 		public void GenerateUpdateQuery_CompositePrimaryKey_Valid()
 		{
 			// Arrange
-			var generator = new MySqlQueryGenerator<CompositePrimaryKeyEntity>("Users");
+			var generator = CreateCompositePrimaryKeyAggregateQueryGenerator();
 
 			// Act 
 			var updateQuery = generator.GenerateUpdateQuery();
@@ -302,34 +219,16 @@ SELECT Users.Username, Users.Password, Users.DateCreated FROM Users WHERE Users.
 		}
 
 		[Fact]
-		public void GenerateUpdateQuery_CustomColumnNames_Valid()
-		{
-			// Arrange
-			var generator = new MySqlQueryGenerator<CustomColumnNamesEntity>("Orders");
-
-			// Act 
-			var updateQuery = generator.GenerateUpdateQuery();
-
-			// Assert
-			Assert.Equal($@"UPDATE Orders SET DateCreated = @Date WHERE Orders.OrderId = @Id;
-SELECT Orders.OrderId AS Id, Orders.DateCreated AS Date FROM Orders WHERE Orders.OrderId = @Id;", updateQuery);
-		}
-
-		[Fact]
-		public void GenerateUpdateQuery_NoPrimaryKey_Throws()
-		{
-			// Arrange
-			var generator = new MySqlQueryGenerator<HeapEntity>("Users");
-
-			// Act && Assert
-			Assert.Throws<InvalidOperationException>(() => generator.GenerateUpdateQuery());
-		}
-
-		[Fact]
 		public void GenerateUpdateQuery_AllColumnsHasNoSetter_Throws()
 		{
 			// Arrange
-			var generator = new MySqlQueryGenerator<AllColumnsHasMissingSetterEntity>("Users");
+			var configuration = new AggregateConfiguration<AllColumnsHasMissingSetterAggregate>(default)
+			{
+				TableName = "Users"
+			};
+			configuration.HasKey(aggregate => aggregate.Id);
+			configuration.HasDefault(aggregate => aggregate.DateCreated);
+			var generator = new MySqlQueryGenerator<AllColumnsHasMissingSetterAggregate>(configuration);
 
 			// Act && Assert
 			Assert.Throws<InvalidOperationException>(() => generator.GenerateUpdateQuery());
@@ -339,7 +238,13 @@ SELECT Orders.OrderId AS Id, Orders.DateCreated AS Date FROM Orders WHERE Orders
 		public void GenerateUpdateQuery_ColumnHasNoSetter_ColumnIsExcluded()
 		{
 			// Arrange
-			var generator = new MySqlQueryGenerator<ColumnHasMissingSetterEntity>("Users");
+			var configuration = new AggregateConfiguration<ColumnHasMissingSetterAggregate>(default)
+			{
+				TableName = "Users"
+			};
+			configuration.HasKey(aggregate => aggregate.Id);
+			configuration.HasDefault(aggregate => aggregate.DateCreated);
+			var generator = new MySqlQueryGenerator<ColumnHasMissingSetterAggregate>(configuration);
 
 			// Act
 			var query = generator.GenerateUpdateQuery();
@@ -349,5 +254,44 @@ SELECT Orders.OrderId AS Id, Orders.DateCreated AS Date FROM Orders WHERE Orders
 SELECT Users.Id, Users.Age, Users.DateCreated FROM Users WHERE Users.Id = @Id;", query);
 		}
 		#endregion
+
+
+		#region Constructors
+		private static MySqlQueryGenerator<HasDefaultConstraintAggregate> CreateHasDefaultConstraintAggregateQueryGenerator()
+		{
+			var configuration = new AggregateConfiguration<HasDefaultConstraintAggregate>(default)
+			{
+				TableName = "Users"
+			};
+			configuration.HasKey(aggregate => aggregate.Id);
+			configuration.HasDefault(aggregate => aggregate.DateCreated);
+			var generator = new MySqlQueryGenerator<HasDefaultConstraintAggregate>(configuration);
+			return generator;
+		}
+
+		private static MySqlQueryGenerator<SinglePrimaryKeyAggregate> CreateSinglePrimaryKeyAggregateQueryGenerator()
+		{
+			var configuration = new Configuration.AggregateConfiguration<SinglePrimaryKeyAggregate>(default)
+			{
+				TableName = "Users"
+			};
+			configuration.HasKey(aggregate => aggregate.Id);
+			configuration.HasIdaggregate(aggregate => aggregate.Id);
+			var generator = new MySqlQueryGenerator<SinglePrimaryKeyAggregate>(configuration);
+			return generator;
+		}
+
+		private static MySqlQueryGenerator<CompositePrimaryKeyAggregate> CreateCompositePrimaryKeyAggregateQueryGenerator()
+		{
+			var configuration = new Configuration.AggregateConfiguration<CompositePrimaryKeyAggregate>(default)
+			{
+				TableName = "Users",
+			};
+			configuration.HasKey(aggregate => new { aggregate.Username, aggregate.Password });
+			var generator = new MySqlQueryGenerator<CompositePrimaryKeyAggregate>(configuration);
+			return generator;
+		}
+		#endregion
+
 	}
 }

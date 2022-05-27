@@ -1,5 +1,5 @@
 using System;
-using Dapper.Repository.IntegrationTests.Entities;
+using Dapper.Repository.IntegrationTests.Aggregates;
 using Dapper.Repository.IntegrationTests.Sql.Repositories;
 using Xunit;
 
@@ -15,40 +15,40 @@ namespace Dapper.Repository.IntegrationTests.Sql
 		}
 
 		[Theory, AutoDomainData]
-		public void Insert_RelyOnDefaultConstraint_Valid(CompositeUserEntity entity)
+		public void Insert_RelyOnDefaultConstraint_Valid(CompositeUserAggregate aggregate)
 		{
 			// Act
-			var insertedEntity = _repository.Insert(entity);
+			var insertedAggregate = _repository.Insert(aggregate);
 
 			// Assert
 			try
 			{
-				Assert.Equal(entity.Username, insertedEntity.Username);
-				Assert.Equal(entity.Password, insertedEntity.Password);
-				Assert.True(insertedEntity.DateCreated > DateTime.UtcNow.AddHours(-1));
+				Assert.Equal(aggregate.Username, insertedAggregate.Username);
+				Assert.Equal(aggregate.Password, insertedAggregate.Password);
+				Assert.True(insertedAggregate.DateCreated > DateTime.UtcNow.AddHours(-1));
 			}
 			finally
 			{
-				_repository.Delete(entity);
+				_repository.Delete(aggregate);
 			}
 		}
 
 		[Theory, AutoDomainData]
-		public void Update_ColumnHasMissingSetter_ColumnIsExcluded(CompositeUserEntity entity)
+		public void Update_ColumnHasMissingSetter_ColumnIsExcluded(CompositeUserAggregate aggregate)
 		{
 			// Act
-			var insertedEntity = _repository.Insert(entity);
+			var insertedAggregate = _repository.Insert(aggregate);
 
 			// Assert
 			try
 			{
-				Assert.Equal(entity.Username, insertedEntity.Username);
-				Assert.Equal(entity.Password, insertedEntity.Password);
-				Assert.True(insertedEntity.DateCreated > DateTime.UtcNow.AddHours(-1));
+				Assert.Equal(aggregate.Username, insertedAggregate.Username);
+				Assert.Equal(aggregate.Password, insertedAggregate.Password);
+				Assert.True(insertedAggregate.DateCreated > DateTime.UtcNow.AddHours(-1));
 			}
 			finally
 			{
-				_repository.Delete(entity);
+				_repository.Delete(aggregate);
 			}
 		}
 	}

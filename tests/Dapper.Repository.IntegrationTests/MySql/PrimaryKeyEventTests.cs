@@ -1,7 +1,7 @@
 using System;
 using System.Linq;
 using Dapper.Repository.Exceptions;
-using Dapper.Repository.IntegrationTests.Entities;
+using Dapper.Repository.IntegrationTests.Aggregates;
 using Dapper.Repository.IntegrationTests.MySql.Repositories;
 using Xunit;
 
@@ -12,105 +12,105 @@ namespace Dapper.Repository.IntegrationTests.MySql
 
 		#region Delete
 		[Theory, AutoDomainData]
-		public void Delete_PreInsertHasEvent_IsInvoked(CategoryEntity entity)
+		public void Delete_PreInsertHasEvent_IsInvoked(Category aggregate)
 		{
 			// Arrange
 			var repository = new CategoryRepository();
-			var insertedEntity = repository.Insert(entity);
+			var insertedAggregate = repository.Insert(aggregate);
 
-			repository.PreDelete += (inputEntity, cancelArgs) =>
+			repository.PreDelete += (inputAggregate, cancelArgs) =>
 			{
 				// Assert
-				Assert.Equal(entity, inputEntity);
+				Assert.Equal(aggregate, inputAggregate);
 			};
 
 			// Act
-			repository.Delete(insertedEntity);
+			repository.Delete(insertedAggregate);
 		}
 
 		[Theory, AutoDomainData]
-		public void Delete_PreInsertThrows_IsDeleted(CategoryEntity entity)
+		public void Delete_PreInsertThrows_IsDeleted(Category aggregate)
 		{
 			// Arrange
 			var repository = new CategoryRepository();
-			var insertedEntity = repository.Insert(entity);
+			var insertedAggregate = repository.Insert(aggregate);
 
-			repository.PreDelete += (inputEntity, cancelArgs) =>
+			repository.PreDelete += (inputAggregate, cancelArgs) =>
 			{
 				throw new InvalidOperationException();
 			};
 
 			// Act
-			var deletedEntity = repository.Delete(insertedEntity);
+			var deletedAggregate = repository.Delete(insertedAggregate);
 
 			// Assert
-			Assert.True(deletedEntity?.CategoryId > 0);
-			var gotten = repository.Get(deletedEntity!);
+			Assert.True(deletedAggregate?.CategoryId > 0);
+			var gotten = repository.Get(deletedAggregate!);
 			Assert.Null(gotten);
-			Assert.Equal(deletedEntity, insertedEntity);
-			Assert.NotSame(deletedEntity, insertedEntity); // Ensure we're not just handed the inputEntity back
+			Assert.Equal(deletedAggregate, insertedAggregate);
+			Assert.NotSame(deletedAggregate, insertedAggregate); // Ensure we're not just handed the inputAggregate back
 		}
 
 		[Theory, AutoDomainData]
-		public void Delete_PreInsertCancels_IsCanceled(CategoryEntity entity)
+		public void Delete_PreInsertCancels_IsCanceled(Category aggregate)
 		{
 			// Arrange
 			var repository = new CategoryRepository();
-			var insertedEntity = repository.Insert(entity);
+			var insertedAggregate = repository.Insert(aggregate);
 
 			var shouldCancel = true;
 
-			repository.PreDelete += (inputEntity, cancelArgs) =>
+			repository.PreDelete += (inputAggregate, cancelArgs) =>
 			{
 				cancelArgs.Cancel = shouldCancel;
 			};
 
 			// Act && Assert
-			Assert.Throws<CanceledException>(() => repository.Delete(insertedEntity));
+			Assert.Throws<CanceledException>(() => repository.Delete(insertedAggregate));
 
 			// Assert
-			Assert.NotNull(repository.Get(insertedEntity));
+			Assert.NotNull(repository.Get(insertedAggregate));
 
 			// Cleanup
 			shouldCancel = false;
-			repository.Delete(insertedEntity);
+			repository.Delete(insertedAggregate);
 		}
 
 		[Theory, AutoDomainData]
-		public void Delete_PostDeleteHasEvent_IsInvoked(CategoryEntity entity)
+		public void Delete_PostDeleteHasEvent_IsInvoked(Category aggregate)
 		{
 			// Arrange
 			var repository = new CategoryRepository();
-			var insertedEntity = repository.Insert(entity);
+			var insertedAggregate = repository.Insert(aggregate);
 
-			CategoryEntity? deletedEntity = null;
-			repository.PostDelete += (tmpEntity) =>
+			Category? deletedAggregate = null;
+			repository.PostDelete += (tmpAggregate) =>
 			{
-				deletedEntity = tmpEntity;
+				deletedAggregate = tmpAggregate;
 			};
 
 			// Act
-			var result = repository.Delete(insertedEntity);
+			var result = repository.Delete(insertedAggregate);
 
 			// Assert
-			Assert.Equal(result, deletedEntity);
-			Assert.Same(result, deletedEntity);
+			Assert.Equal(result, deletedAggregate);
+			Assert.Same(result, deletedAggregate);
 		}
 
 		[Theory, AutoDomainData]
-		public void Delete_PostDeleteThrows_IsDeleted(CategoryEntity entity)
+		public void Delete_PostDeleteThrows_IsDeleted(Category aggregate)
 		{
 			// Arrange
 			var repository = new CategoryRepository();
-			var insertedEntity = repository.Insert(entity);
+			var insertedAggregate = repository.Insert(aggregate);
 
-			repository.PostDelete += (tmpEntity) =>
+			repository.PostDelete += (tmpAggregate) =>
 			{
 				throw new InvalidOperationException();
 			};
 
 			// Act
-			var result = repository.Delete(insertedEntity);
+			var result = repository.Delete(insertedAggregate);
 
 			// Assert
 			Assert.True(result?.CategoryId > 0);
@@ -121,242 +121,242 @@ namespace Dapper.Repository.IntegrationTests.MySql
 
 		#region Insert
 		[Theory, AutoDomainData]
-		public void Insert_PreInsertHasEvent_IsInvoked(CategoryEntity entity)
+		public void Insert_PreInsertHasEvent_IsInvoked(Category aggregate)
 		{
 			// Arrange
 			var repository = new CategoryRepository();
 
-			repository.PreInsert += (preInsertEntity, cancelArgs) =>
+			repository.PreInsert += (preInsertAggregate, cancelArgs) =>
 			{
 				// Assert
-				Assert.Equal(entity, preInsertEntity);
+				Assert.Equal(aggregate, preInsertAggregate);
 			};
 
 			// Act
-			var insertedEntity = repository.Insert(entity);
+			var insertedAggregate = repository.Insert(aggregate);
 
-			repository.Delete(insertedEntity);
+			repository.Delete(insertedAggregate);
 		}
 
 		[Theory, AutoDomainData]
-		public void Insert_PreInsertThrows_IsInserted(CategoryEntity entity)
+		public void Insert_PreInsertThrows_IsInserted(Category aggregate)
 		{
 			// Arrange
 			var repository = new CategoryRepository();
 
-			repository.PreInsert += (preInsertEntity, cancelArgs) =>
+			repository.PreInsert += (preInsertAggregate, cancelArgs) =>
 			{
 				throw new InvalidOperationException();
 			};
 
 			// Act
-			var insertedEntity = repository.Insert(entity);
+			var insertedAggregate = repository.Insert(aggregate);
 
 			// Assert
 			try
 			{
-				Assert.True(insertedEntity.CategoryId > 0);
+				Assert.True(insertedAggregate.CategoryId > 0);
 			}
 			finally
 			{
-				repository.Delete(insertedEntity);
+				repository.Delete(insertedAggregate);
 			}
 		}
 
 		[Theory, AutoDomainData]
-		public void Insert_PreInsertCancels_IsCancelled(CategoryEntity entity)
+		public void Insert_PreInsertCancels_IsCancelled(Category aggregate)
 		{
 			// Arrange
 			var repository = new CategoryRepository();
 
-			repository.PreInsert += (preInsertEntity, cancelArgs) =>
+			repository.PreInsert += (preInsertAggregate, cancelArgs) =>
 			{
 				cancelArgs.Cancel = true;
 			};
 
 			// Act && Assert
-			Assert.Throws<CanceledException>(() => repository.Insert(entity));
+			Assert.Throws<CanceledException>(() => repository.Insert(aggregate));
 
 			var allNames = repository.GetAll().Select(category => category.Name);
-			Assert.DoesNotContain(entity.Name, allNames);
+			Assert.DoesNotContain(aggregate.Name, allNames);
 		}
 
 		[Theory, AutoDomainData]
-		public void Insert_PostInsertHasEvent_IsInvoked(CategoryEntity entity)
+		public void Insert_PostInsertHasEvent_IsInvoked(Category aggregate)
 		{
 			// Arrange
 			var repository = new CategoryRepository();
 
-			CategoryEntity? postInsertEntity = null;
-			repository.PostInsert += (tmpEntity) =>
+			Category? postInsertAggregate = null;
+			repository.PostInsert += (tmpAggregate) =>
 			{
-				postInsertEntity = tmpEntity;
+				postInsertAggregate = tmpAggregate;
 			};
 
 			// Act
-			var insertedEntity = repository.Insert(entity);
+			var insertedAggregate = repository.Insert(aggregate);
 
 			// Assert
 			try
 			{
-				Assert.Equal(insertedEntity, postInsertEntity);
-				Assert.Same(insertedEntity, postInsertEntity);
+				Assert.Equal(insertedAggregate, postInsertAggregate);
+				Assert.Same(insertedAggregate, postInsertAggregate);
 			}
 			finally
 			{
-				repository.Delete(insertedEntity);
+				repository.Delete(insertedAggregate);
 			}
 		}
 
 		[Theory, AutoDomainData]
-		public void Insert_PostInsertThrows_IsInserted(CategoryEntity entity)
+		public void Insert_PostInsertThrows_IsInserted(Category aggregate)
 		{
 			// Arrange
 			var repository = new CategoryRepository();
 
-			repository.PostInsert += (tmpEntity) =>
+			repository.PostInsert += (tmpAggregate) =>
 			{
 				throw new InvalidOperationException();
 			};
 
 			// Act
-			var insertedEntity = repository.Insert(entity);
+			var insertedAggregate = repository.Insert(aggregate);
 
 			// Assert
 			try
 			{
-				Assert.True(insertedEntity.CategoryId > 0);
+				Assert.True(insertedAggregate.CategoryId > 0);
 			}
 			finally
 			{
-				repository.Delete(insertedEntity);
+				repository.Delete(insertedAggregate);
 			}
 		}
 		#endregion
 
 		#region Update
 		[Theory, AutoDomainData]
-		public void Update_PreUpdateHasEvent_IsInvoked(CategoryEntity entity)
+		public void Update_PreUpdateHasEvent_IsInvoked(Category aggregate)
 		{
 			// Arrange
 			var repository = new CategoryRepository();
 
-			var insertedEntity = repository.Insert(entity);
+			var insertedAggregate = repository.Insert(aggregate);
 
-			var entityToUpdate = insertedEntity with { Description = "Hello world" };
+			var aggregateToUpdate = insertedAggregate with { Description = "Hello world" };
 
-			repository.PreUpdate += (preUpdateEntity, cancelArgs) =>
+			repository.PreUpdate += (preUpdateAggregate, cancelArgs) =>
 			{
 				// Assert
-				Assert.Equal(entityToUpdate, preUpdateEntity);
+				Assert.Equal(aggregateToUpdate, preUpdateAggregate);
 			};
 
 			// Act
-			repository.Update(entityToUpdate);
+			repository.Update(aggregateToUpdate);
 
-			repository.Delete(insertedEntity);
+			repository.Delete(insertedAggregate);
 		}
 
 		[Theory, AutoDomainData]
-		public void Update_PreUpdateThrows_IsUpdated(CategoryEntity entity)
+		public void Update_PreUpdateThrows_IsUpdated(Category aggregate)
 		{
 			// Arrange
 			var repository = new CategoryRepository();
-			var insertedEntity = repository.Insert(entity);
+			var insertedAggregate = repository.Insert(aggregate);
 
-			repository.PreUpdate += (preUpdateEntity, cancelArgs) =>
+			repository.PreUpdate += (preUpdateAggregate, cancelArgs) =>
 			{
 				throw new InvalidOperationException();
 			};
 
 			// Act
-			var updatedEntity = repository.Update(insertedEntity with { Description = "Hello world" });
+			var updatedAggregate = repository.Update(insertedAggregate with { Description = "Hello world" });
 
 			// Assert
 			try
 			{
-				Assert.Equal("Hello world", updatedEntity?.Description);
+				Assert.Equal("Hello world", updatedAggregate?.Description);
 			}
 			finally
 			{
-				repository.Delete(insertedEntity);
+				repository.Delete(insertedAggregate);
 			}
 		}
 
 		[Theory, AutoDomainData]
-		public void Update_PreUpdateCancels_IsCancelled(CategoryEntity entity)
+		public void Update_PreUpdateCancels_IsCancelled(Category aggregate)
 		{
 			// Arrange
 			var repository = new CategoryRepository();
 
-			repository.PreUpdate += (preUpdateEntity, cancelArgs) =>
+			repository.PreUpdate += (preUpdateAggregate, cancelArgs) =>
 			{
 				cancelArgs.Cancel = true;
 			};
 
-			var insertedEntity = repository.Insert(entity);
+			var insertedAggregate = repository.Insert(aggregate);
 
 			// Act && Assert
-			Assert.Throws<CanceledException>(() => repository.Update(insertedEntity with { Description = "Hello world" }));
-			var gottenEntity = repository.Get(insertedEntity);
-			Assert.Equal(entity.Description, gottenEntity?.Description);
+			Assert.Throws<CanceledException>(() => repository.Update(insertedAggregate with { Description = "Hello world" }));
+			var gottenAggregate = repository.Get(insertedAggregate);
+			Assert.Equal(aggregate.Description, gottenAggregate?.Description);
 
-			repository.Delete(insertedEntity);
+			repository.Delete(insertedAggregate);
 		}
 
 		[Theory, AutoDomainData]
-		public void Update_PostUpdateHasEvent_IsInvoked(CategoryEntity entity)
+		public void Update_PostUpdateHasEvent_IsInvoked(Category aggregate)
 		{
 			// Arrange
 			var repository = new CategoryRepository();
 
-			CategoryEntity? postUpdateEntity = null;
-			repository.PostUpdate += (tmpEntity) =>
+			Category? postUpdateAggregate = null;
+			repository.PostUpdate += (tmpAggregate) =>
 			{
-				postUpdateEntity = tmpEntity;
+				postUpdateAggregate = tmpAggregate;
 			};
 
 			// Act
-			var insertedEntity = repository.Insert(entity);
+			var insertedAggregate = repository.Insert(aggregate);
 
-			var updatedEntity = repository.Update(insertedEntity with { Description = "Hello world" });
+			var updatedAggregate = repository.Update(insertedAggregate with { Description = "Hello world" });
 
 			// Assert
 			try
 			{
-				Assert.Equal(updatedEntity, postUpdateEntity);
-				Assert.Same(updatedEntity, postUpdateEntity);
+				Assert.Equal(updatedAggregate, postUpdateAggregate);
+				Assert.Same(updatedAggregate, postUpdateAggregate);
 			}
 			finally
 			{
-				repository.Delete(insertedEntity);
+				repository.Delete(insertedAggregate);
 			}
 		}
 
 		[Theory, AutoDomainData]
-		public void Update_PostUpdatedThrows_IsUpdated(CategoryEntity entity)
+		public void Update_PostUpdatedThrows_IsUpdated(Category aggregate)
 		{
 			// Arrange
 			var repository = new CategoryRepository();
 
-			var insertedEntity = repository.Insert(entity);
+			var insertedAggregate = repository.Insert(aggregate);
 
-			repository.PostUpdate += (tmpEntity) =>
+			repository.PostUpdate += (tmpAggregate) =>
 			{
 				throw new InvalidOperationException();
 			};
 
 			// Act
-			var updatedEntity = repository.Update(insertedEntity with { Description = "Hello world" });
+			var updatedAggregate = repository.Update(insertedAggregate with { Description = "Hello world" });
 
 			// Assert
 			try
 			{
-				Assert.Equal("Hello world", updatedEntity?.Description);
+				Assert.Equal("Hello world", updatedAggregate?.Description);
 			}
 			finally
 			{
-				repository.Delete(insertedEntity);
+				repository.Delete(insertedAggregate);
 			}
 		}
 		#endregion
