@@ -11,13 +11,6 @@ where TDbException : Exception
 
 	#region Delete
 
-	[Theory, AutoDomainData]
-	public async Task Delete_PrimaryKeyNotEntered_Throws(Category aggregate)
-	{
-		// Act && Assert
-		await Assert.ThrowsAsync<ArgumentException>(async () => await _repository.DeleteAsync(aggregate.CategoryID));
-	}
-
 	[Fact]
 	public async Task Delete_UseMissingPrimaryKeyValue_ReturnsNull()
 	{
@@ -202,13 +195,6 @@ where TDbException : Exception
 		Assert.Equal("Something else", updatedAggregate?.Description);
 
 		await _repository.DeleteAsync(insertedAggregate.CategoryID);
-	}
-
-	[Theory, AutoDomainData]
-	public async Task Update_PrimaryKeyNotEntered_Throws(Category aggregate)
-	{
-		// Act && Assert
-		await Assert.ThrowsAsync<ArgumentException>(async () => await _repository.UpdateAsync(aggregate));
 	}
 
 	[Fact]

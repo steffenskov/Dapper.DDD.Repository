@@ -14,20 +14,20 @@ public class Startup
 		});
 		services.AddTableRepository<Category, int>(options =>
 		{
-			options.TableName = "Categories";
+			options.TableName = "categories";
 			options.HasKey(x => x.CategoryID);
 			options.HasIdentity(x => x.CategoryID);
 		});
 		services.AddTableRepository<CompositeUser, CompositeUserId>(options => // TODO: how to map TAggregateId?
 		{
-			options.TableName = "CompositeUsers";
+			options.TableName = "composite_users";
 			options.HasKey(x => x.Id);
 			options.HasDefault(x => x.DateCreated);
 		});
 
 		services.AddViewRepository<ProductListView, int>(options =>
 		{
-			options.TableName = "Current Product List";
+			options.TableName = "current_product_list";
 			options.HasKey(x => x.ProductID);
 		});
 		this.Provider = services.BuildServiceProvider();

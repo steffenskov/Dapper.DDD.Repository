@@ -33,14 +33,14 @@ where TAggregateId : notnull
 	{
 		var query = _queryGenerator.GenerateDeleteQuery();
 
-		return await QuerySingleOrDefaultAsync(query, new { id }, cancellationToken: cancellationToken).ConfigureAwait(false);
+		return await QuerySingleOrDefaultAsync(query, WrapId(id), cancellationToken: cancellationToken).ConfigureAwait(false);
 	}
 
 	public async Task<TAggregate?> GetAsync(TAggregateId id, CancellationToken cancellationToken)
 	{
 		var query = _queryGenerator.GenerateGetQuery();
 
-		return await QuerySingleOrDefaultAsync(query, new { id }, cancellationToken: cancellationToken).ConfigureAwait(false);
+		return await QuerySingleOrDefaultAsync(query, WrapId(id), cancellationToken: cancellationToken).ConfigureAwait(false);
 	}
 
 	public async Task<IEnumerable<TAggregate>> GetAllAsync(CancellationToken cancellationToken)
@@ -66,10 +66,29 @@ where TAggregateId : notnull
 
 	public async Task<TAggregate?> UpdateAsync(TAggregate aggregate, CancellationToken cancellationToken)
 	{
+		ArgumentNullException.ThrowIfNull(aggregate);
 		var query = _queryGenerator.GenerateUpdateQuery();
 		return await QuerySingleOrDefaultAsync(query, aggregate, cancellationToken: cancellationToken).ConfigureAwait(false);
 	}
 	#endregion
+
+	private IDictionary<string, object> WrapId(TAggregateId id)
+	{
+		var dictionary = new Dictionary<string, object>();
+		var keys = _configuration.GetKeys();
+		if (keys.Count == 1)
+		{
+			dictionary.Add(keys.First().Name, id);
+		}
+		else
+		{
+			foreach (var key in keys)
+			{
+				dictionary.Add(key.Name, key.GetValue(id));
+			}
+		}
+		return dictionary;
+	}
 
 	#region Dapper methods
 	protected async Task<IEnumerable<TAggregate>> QueryAsync(string query, object? param = null, IDbTransaction? transaction = null, int? commandTimeout = null, CommandType? commandType = null, CancellationToken cancellationToken = default)
