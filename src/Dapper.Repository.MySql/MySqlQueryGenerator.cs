@@ -5,7 +5,7 @@ namespace Dapper.Repository.MySql;
 internal class MySqlQueryGenerator<TAggregate> : IQueryGenerator<TAggregate>
 	where TAggregate : notnull
 {
-	private readonly AggregateConfiguration<TAggregate> _configuration;
+	private readonly IReadAggregateConfiguration<TAggregate> _configuration;
 	private readonly string _table;
 
 	public MySqlQueryGenerator(AggregateConfiguration<TAggregate> configuration)

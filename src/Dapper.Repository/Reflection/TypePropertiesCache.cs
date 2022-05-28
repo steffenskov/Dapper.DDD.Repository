@@ -4,7 +4,7 @@ using System.Reflection;
 
 namespace Dapper.Repository.Reflection;
 
-internal static class TypePropertiesCache
+public static class TypePropertiesCache // TODO: This really should be internal, how to deal with the QueryGenerators needing this?
 {
 	private static readonly ConcurrentDictionary<Type, IReadOnlyDictionary<string, ExtendedPropertyInfo>> _properties = new();
 

@@ -7,15 +7,15 @@ internal class MemberAccessor
 {
 	internal readonly string name;
 	public string Name => name;
-	private static readonly Func<object, object> NoGetter =
+	private static readonly Func<object, object?> NoGetter =
 		obj => { throw new InvalidOperationException("No getter for property"); };
-	private static readonly Action<object, object> NoSetter =
+	private static readonly Action<object, object?> NoSetter =
 		(obj, val) => { throw new InvalidOperationException("No setter for property"); };
 
-	public object GetValue(object target) { return getter(target); }
-	public void SetValue(object target, object value) { setter(target, value); }
-	internal readonly Func<object, object> getter;
-	internal readonly Action<object, object> setter;
+	public object? GetValue(object target) { return getter(target); }
+	public void SetValue(object target, object? value) { setter(target, value); }
+	internal readonly Func<object, object?> getter;
+	internal readonly Action<object, object?> setter;
 
 	public bool HasGetter => getter != NoGetter;
 	public bool HasSetter => setter != NoSetter;
@@ -55,7 +55,7 @@ internal class MemberAccessor
 				il.Emit(OpCodes.Box, property.PropertyType);
 			}
 			il.Emit(OpCodes.Ret);
-			getter = (Func<object, object>)dm.CreateDelegate(typeof(Func<object, object>));
+			getter = (Func<object, object?>)dm.CreateDelegate(typeof(Func<object, object?>));
 		}
 		method = property.GetSetMethod(true);
 		if (method is null)
@@ -84,7 +84,7 @@ internal class MemberAccessor
 			}
 			il.Emit(OpCodes.Callvirt, method);
 			il.Emit(OpCodes.Ret);
-			setter = (Action<object, object>)dm.CreateDelegate(typeof(Action<object, object>));
+			setter = (Action<object, object?>)dm.CreateDelegate(typeof(Action<object, object?>));
 		}
 	}
 }

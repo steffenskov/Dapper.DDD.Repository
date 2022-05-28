@@ -1,8 +1,4 @@
-using System.Collections.Generic;
 using System.Data;
-using System.Threading;
-using System.Threading.Tasks;
-using Dapper.Repository.Interfaces;
 
 namespace Dapper.Repository.IntegrationTests;
 
@@ -16,6 +12,11 @@ public class DapperInjection<T> : IDapperInjection<T>
 	public Task<IEnumerable<T>> QueryAsync(IDbConnection cnn, string sql, object? param = null, IDbTransaction? transaction = null, int? commandTimeout = null, CommandType? commandType = null, CancellationToken cancellationToken = default)
 	{
 		return cnn.QueryAsync<T>(new CommandDefinition(sql, param, transaction, commandTimeout, commandType, cancellationToken: cancellationToken));
+	}
+
+	public Task<IEnumerable<T>> QueryAsync(IDbConnection cnn, string sql, Type[] types, Func<object[], T> map, object? param = null, IDbTransaction? transaction = null, bool buffered = true, string splitOn = "Id", int? commandTimeout = null, CommandType? commandType = null)
+	{
+		return cnn.QueryAsync<T>(sql, types, map, param, transaction, buffered, splitOn, commandTimeout, commandType);
 	}
 
 	public Task<T> QuerySingleAsync(IDbConnection cnn, string sql, object? param = null, IDbTransaction? transaction = null, int? commandTimeout = null, CommandType? commandType = null, CancellationToken cancellationToken = default)

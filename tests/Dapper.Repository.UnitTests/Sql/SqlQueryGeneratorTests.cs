@@ -211,6 +211,26 @@ namespace Dapper.Repository.UnitTests.Sql
 
 		#region Get
 		[Fact]
+		public void GenerateGetQuery_HasValueObject_Valid()
+		{
+			var config = new AggregateConfiguration<UserAggregate>()
+			{
+				Schema = "dbo",
+				TableName = "Users"
+			};
+			config.HasKey(x => x.Id);
+			config.HasValueObject(x => x.Address);
+			var generator = new SqlQueryGenerator<UserAggregate>(config);
+
+			// Act
+			var query = generator.GenerateGetQuery();
+
+			// TODO: Create GetAll, Delete, Insert and Update query tests as well
+			// Assert
+			Assert.Equal($"SELECT [dbo].[Users].[Id], [dbo].[Users].[Address_City], [dbo].[Users].[Address_Street] FROM [dbo].[Users] WHERE [dbo].[Users].[Id] = @Id;", query);
+		}
+
+		[Fact]
 		public void GenerateGetQuery_SinglePrimaryKey_Valid()
 		{
 			// Arrange

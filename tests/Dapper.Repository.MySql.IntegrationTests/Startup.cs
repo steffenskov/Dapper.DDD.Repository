@@ -23,6 +23,7 @@ public class Startup
 			options.TableName = "composite_users";
 			options.HasKey(x => x.Id);
 			options.HasDefault(x => x.DateCreated);
+			options.HasValueObject(x => x.Id);
 		});
 
 		services.AddViewRepository<ProductListView, int>(options =>

@@ -3,13 +3,13 @@ using Dapper.Repository.Reflection;
 
 namespace Dapper.Repository.Configuration;
 
-
-public class AggregateConfiguration<TAggregate> : IAggregateConfiguration<TAggregate>
+public class AggregateConfiguration<TAggregate> : IReadAggregateConfiguration<TAggregate>
 {
 	private List<ExtendedPropertyInfo>? _keyProperties;
 	private readonly List<ExtendedPropertyInfo> _defaults = new();
 	private readonly List<ExtendedPropertyInfo> _identities = new();
 	private readonly List<ExtendedPropertyInfo> _ignores = new();
+	private readonly List<ExtendedPropertyInfo> _valueObjects = new();
 
 	public string? Schema { get; set; }
 	public string? TableName { get; set; }
@@ -56,7 +56,17 @@ public class AggregateConfiguration<TAggregate> : IAggregateConfiguration<TAggre
 		_identities.AddRange(properties);
 	}
 
-	public IReadOnlyList<ExtendedPropertyInfo> GetKeys()
+	public void HasValueObject(Expression<Func<TAggregate, object>> expression)
+	{
+		var properties = new ExpressionParser<TAggregate>().GetExtendedPropertiesFromExpression(expression);
+		var invalidProperties = properties.Where(property => property.Type.IsPrimitive || property.Type == typeof(string) || property.Type == typeof(Guid));
+		if (invalidProperties.Any())
+			throw new ArgumentException($"The properties {string.Join(", ", invalidProperties.Select(p => p.Name))} are not value objects.");
+
+		_valueObjects.AddRange(properties);
+	}
+
+	IReadOnlyList<ExtendedPropertyInfo> IReadAggregateConfiguration<TAggregate>.GetKeys()
 	{
 		if (_keyProperties is null)
 			throw new InvalidOperationException("No key has been specified for this aggregate.");
@@ -64,12 +74,12 @@ public class AggregateConfiguration<TAggregate> : IAggregateConfiguration<TAggre
 		return _keyProperties.AsReadOnly();
 	}
 
-	public IReadOnlyList<ExtendedPropertyInfo> GetIdentityProperties()
+	IReadOnlyList<ExtendedPropertyInfo> IReadAggregateConfiguration<TAggregate>.GetIdentityProperties()
 	{
 		return _identities.AsReadOnly();
 	}
 
-	public IReadOnlyList<ExtendedPropertyInfo> GetProperties()
+	IReadOnlyList<ExtendedPropertyInfo> IReadAggregateConfiguration<TAggregate>.GetProperties()
 	{
 		var rawList = TypePropertiesCache.GetProperties<TAggregate>().Values.ToDictionary(prop => prop.Name); // Clone dictionary so we can mutate it
 
@@ -81,8 +91,13 @@ public class AggregateConfiguration<TAggregate> : IAggregateConfiguration<TAggre
 		return rawList.Values.ToList().AsReadOnly();
 	}
 
-	public IReadOnlyList<ExtendedPropertyInfo> GetPropertiesWithDefaultConstraints()
+	IReadOnlyList<ExtendedPropertyInfo> IReadAggregateConfiguration<TAggregate>.GetPropertiesWithDefaultConstraints()
 	{
 		return _defaults.AsReadOnly();
+	}
+
+	IReadOnlyList<ExtendedPropertyInfo> IReadAggregateConfiguration<TAggregate>.GetValueObjects()
+	{
+		return _valueObjects.AsReadOnly();
 	}
 }

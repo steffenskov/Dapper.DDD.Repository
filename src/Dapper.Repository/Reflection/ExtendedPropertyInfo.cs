@@ -31,9 +31,15 @@ public class ExtendedPropertyInfo
 		return value == _defaultValue || value?.Equals(_defaultValue) == true;
 	}
 
-	public object GetValue<T>(T aggregate)
+	public object? GetValue<T>(T aggregate)
 	where T : notnull
 	{
 		return _accessor.getter(aggregate);
+	}
+
+	public void SetValue<T>(T aggregate, object? value)
+	where T : notnull
+	{
+		_accessor.setter(aggregate, value);
 	}
 }
