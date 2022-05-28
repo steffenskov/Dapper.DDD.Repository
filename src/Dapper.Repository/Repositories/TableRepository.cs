@@ -10,15 +10,18 @@ where TAggregateId : notnull
 	private readonly IConnectionFactory _connectionFactory;
 	private readonly IQueryGenerator<TAggregate> _queryGenerator;
 
-	public TableRepository(IOptions<AggregateConfiguration<TAggregate>> options) // TODO: Cannot rely on AggregateConfiguration as it's abstract, propbably better to just use a single config class
+	public TableRepository(IOptions<AggregateConfiguration<TAggregate>> options, IOptions<DefaultConfiguration> defaultOptions)
 	{
 		ArgumentNullException.ThrowIfNull(options);
 		ArgumentNullException.ThrowIfNull(options.Value);
-		ArgumentNullException.ThrowIfNull(options.Value.QueryGeneratorFactory);
-		ArgumentNullException.ThrowIfNull(options.Value.ConnectionFactory);
-		ArgumentNullException.ThrowIfNull(options.Value.DapperInjectionFactory);
 
-		_configuration = options.Value;
+		var configuration = options.Value;
+		configuration.SetDefaults(defaultOptions?.Value);
+		ArgumentNullException.ThrowIfNull(configuration.ConnectionFactory);
+		ArgumentNullException.ThrowIfNull(configuration.DapperInjectionFactory);
+		ArgumentNullException.ThrowIfNull(configuration.QueryGeneratorFactory);
+
+		_configuration = configuration;
 		_dapperInjectionFactory = _configuration.DapperInjectionFactory;
 		_dapperInjection = _dapperInjectionFactory.Create<TAggregate>();
 		_connectionFactory = _configuration.ConnectionFactory!;
@@ -48,6 +51,15 @@ where TAggregateId : notnull
 
 	public async Task<TAggregate> InsertAsync(TAggregate aggregate, CancellationToken cancellationToken)
 	{
+		ArgumentNullException.ThrowIfNull(aggregate);
+		var invalidIdentityProperties = _configuration.GetIdentityProperties()
+											.Where(pk => !pk.HasDefaultValue(aggregate))
+											.ToList();
+
+		if (invalidIdentityProperties.Any())
+		{
+			throw new ArgumentException($"Aggregate has the following identity properties, which have non-default values: {string.Join(", ", invalidIdentityProperties.Select(col => col.Name))}", nameof(aggregate));
+		}
 		var query = _queryGenerator.GenerateInsertQuery(aggregate);
 		return await QuerySingleAsync(query, aggregate, cancellationToken: cancellationToken).ConfigureAwait(false);
 	}

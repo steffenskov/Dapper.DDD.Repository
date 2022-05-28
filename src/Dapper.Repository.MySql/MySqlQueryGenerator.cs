@@ -10,6 +10,9 @@ internal class MySqlQueryGenerator<TAggregate> : IQueryGenerator<TAggregate>
 
 	public MySqlQueryGenerator(AggregateConfiguration<TAggregate> configuration)
 	{
+		if (configuration.Schema is not null)
+			throw new ArgumentException("MySql doesn't support Schema.", nameof(configuration));
+
 		ArgumentNullException.ThrowIfNull(configuration.TableName);
 		if (string.IsNullOrWhiteSpace(configuration.TableName))
 			throw new ArgumentException("Table name cannot be null or whitespace.", nameof(configuration));

@@ -13,7 +13,7 @@ namespace Dapper.Repository.UnitTests.Sql
 		public void Constructor_TableNameIsNull_Throws()
 		{
 			// Arrange
-			var configuration = new SqlAggregateConfiguration<SinglePrimaryKeyAggregate>(default)
+			var configuration = new AggregateConfiguration<SinglePrimaryKeyAggregate>()
 			{
 				Schema = "dbo",
 				TableName = null
@@ -27,7 +27,7 @@ namespace Dapper.Repository.UnitTests.Sql
 		public void Constructor_SchemaIsNull_Throws()
 		{
 			// Arrange
-			var configuration = new SqlAggregateConfiguration<SinglePrimaryKeyAggregate>(default)
+			var configuration = new AggregateConfiguration<SinglePrimaryKeyAggregate>()
 			{
 				Schema = null,
 				TableName = "Users"
@@ -40,7 +40,7 @@ namespace Dapper.Repository.UnitTests.Sql
 		public void Constructor_TableNameIsWhitespace_Throws()
 		{
 			// Arrange
-			var configuration = new SqlAggregateConfiguration<SinglePrimaryKeyAggregate>(default)
+			var configuration = new AggregateConfiguration<SinglePrimaryKeyAggregate>()
 			{
 				Schema = "dbo",
 				TableName = " "
@@ -53,7 +53,7 @@ namespace Dapper.Repository.UnitTests.Sql
 		public void Constructor_SchemaIsWhitespace_Throws()
 		{
 			// Arrange
-			var configuration = new SqlAggregateConfiguration<SinglePrimaryKeyAggregate>(default)
+			var configuration = new AggregateConfiguration<SinglePrimaryKeyAggregate>()
 			{
 				Schema = " ",
 				TableName = "Users"
@@ -268,7 +268,7 @@ namespace Dapper.Repository.UnitTests.Sql
 		public void GenerateUpdateQuery_AllPropertiesHasNoSetter_Throws()
 		{
 			// Arrange
-			var configuration = new SqlAggregateConfiguration<AllPropertiesHasMissingSetterAggregate>(default)
+			var configuration = new AggregateConfiguration<AllPropertiesHasMissingSetterAggregate>()
 			{
 				Schema = "dbo",
 				TableName = "Users"
@@ -285,7 +285,7 @@ namespace Dapper.Repository.UnitTests.Sql
 		public void GenerateUpdateQuery_PropertyHasNoSetter_PropertyIsExcluded()
 		{
 			// Arrange
-			var configuration = new SqlAggregateConfiguration<PropertyHasMissingSetterAggregate>(default)
+			var configuration = new AggregateConfiguration<PropertyHasMissingSetterAggregate>()
 			{
 				Schema = "dbo",
 				TableName = "Users"
@@ -305,7 +305,7 @@ namespace Dapper.Repository.UnitTests.Sql
 		#region Constructors
 		private static SqlQueryGenerator<HasDefaultConstraintAggregate> CreateHasDefaultConstraintAggregateQueryGenerator()
 		{
-			var configuration = new SqlAggregateConfiguration<HasDefaultConstraintAggregate>(default)
+			var configuration = new AggregateConfiguration<HasDefaultConstraintAggregate>()
 			{
 				Schema = "dbo",
 				TableName = "Users"
@@ -318,7 +318,7 @@ namespace Dapper.Repository.UnitTests.Sql
 
 		private static SqlQueryGenerator<SinglePrimaryKeyAggregate> CreateSinglePrimaryKeyAggregateQueryGenerator()
 		{
-			var configuration = new SqlAggregateConfiguration<SinglePrimaryKeyAggregate>(default)
+			var configuration = new AggregateConfiguration<SinglePrimaryKeyAggregate>()
 			{
 				Schema = "dbo",
 				TableName = "Users"
@@ -331,7 +331,7 @@ namespace Dapper.Repository.UnitTests.Sql
 
 		private static SqlQueryGenerator<SinglePrimaryKeyAggregate> CreateSinglePrimaryKeyAggregateWithCustomSchemaQueryGenerator()
 		{
-			var configuration = new SqlAggregateConfiguration<SinglePrimaryKeyAggregate>(default)
+			var configuration = new AggregateConfiguration<SinglePrimaryKeyAggregate>()
 			{
 				Schema = "account",
 				TableName = "Users"
@@ -344,7 +344,7 @@ namespace Dapper.Repository.UnitTests.Sql
 
 		private static SqlQueryGenerator<CompositePrimaryKeyAggregate> CreateCompositePrimaryKeyAggregateQueryGenerator()
 		{
-			var configuration = new SqlAggregateConfiguration<CompositePrimaryKeyAggregate>(default)
+			var configuration = new AggregateConfiguration<CompositePrimaryKeyAggregate>()
 			{
 				Schema = "dbo",
 				TableName = "Users",

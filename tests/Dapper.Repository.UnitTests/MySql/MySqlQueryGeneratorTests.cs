@@ -14,7 +14,7 @@ namespace Dapper.Repository.UnitTests.MySql
 		public void Constructor_TableNameIsNull_Throws()
 		{
 			// Arrange
-			var configuration = new MySqlAggregateConfiguration<SinglePrimaryKeyAggregate>(default)
+			var configuration = new AggregateConfiguration<SinglePrimaryKeyAggregate>()
 			{
 				TableName = null!
 			};
@@ -27,7 +27,7 @@ namespace Dapper.Repository.UnitTests.MySql
 		public void Constructor_TableNameIsWhiteSpace_Throws()
 		{
 			// Arrange
-			var configuration = new MySqlAggregateConfiguration<SinglePrimaryKeyAggregate>(default)
+			var configuration = new AggregateConfiguration<SinglePrimaryKeyAggregate>()
 			{
 				TableName = " "
 			};
@@ -116,7 +116,7 @@ DELETE FROM Users WHERE Users.Username = @Username AND Users.Password = @Passwor
 		public void GenerateInsertQuery_AggregateHasMultipleIdentities_Invalid()
 		{
 			// Arrange
-			var configuration = new MySqlAggregateConfiguration<HasMultipleIdentiesAggregate>(default)
+			var configuration = new AggregateConfiguration<HasMultipleIdentiesAggregate>()
 			{
 				TableName = "Users"
 			};
@@ -242,7 +242,7 @@ SELECT Users.Username, Users.Password, Users.DateCreated FROM Users WHERE Users.
 		public void GenerateUpdateQuery_AllPropertiesHasNoSetter_Throws()
 		{
 			// Arrange
-			var configuration = new MySqlAggregateConfiguration<AllPropertiesHasMissingSetterAggregate>(default)
+			var configuration = new AggregateConfiguration<AllPropertiesHasMissingSetterAggregate>()
 			{
 				TableName = "Users"
 			};
@@ -258,7 +258,7 @@ SELECT Users.Username, Users.Password, Users.DateCreated FROM Users WHERE Users.
 		public void GenerateUpdateQuery_PropertyHasNoSetter_PropertyIsExcluded()
 		{
 			// Arrange
-			var configuration = new MySqlAggregateConfiguration<PropertyHasMissingSetterAggregate>(default)
+			var configuration = new AggregateConfiguration<PropertyHasMissingSetterAggregate>()
 			{
 				TableName = "Users"
 			};
@@ -279,7 +279,7 @@ SELECT Users.Id, Users.Age, Users.DateCreated FROM Users WHERE Users.Id = @Id;",
 		#region Constructors
 		private static MySqlQueryGenerator<HasDefaultConstraintAggregate> CreateHasDefaultConstraintAggregateQueryGenerator()
 		{
-			var configuration = new MySqlAggregateConfiguration<HasDefaultConstraintAggregate>(default)
+			var configuration = new AggregateConfiguration<HasDefaultConstraintAggregate>()
 			{
 				TableName = "Users"
 			};
@@ -291,7 +291,7 @@ SELECT Users.Id, Users.Age, Users.DateCreated FROM Users WHERE Users.Id = @Id;",
 
 		private static MySqlQueryGenerator<SinglePrimaryKeyAggregate> CreateSinglePrimaryKeyAggregateQueryGenerator()
 		{
-			var configuration = new MySqlAggregateConfiguration<SinglePrimaryKeyAggregate>(default)
+			var configuration = new AggregateConfiguration<SinglePrimaryKeyAggregate>()
 			{
 				TableName = "Users"
 			};
@@ -303,7 +303,7 @@ SELECT Users.Id, Users.Age, Users.DateCreated FROM Users WHERE Users.Id = @Id;",
 
 		private static MySqlQueryGenerator<CompositePrimaryKeyAggregate> CreateCompositePrimaryKeyAggregateQueryGenerator()
 		{
-			var configuration = new MySqlAggregateConfiguration<CompositePrimaryKeyAggregate>(default)
+			var configuration = new AggregateConfiguration<CompositePrimaryKeyAggregate>()
 			{
 				TableName = "Users",
 			};

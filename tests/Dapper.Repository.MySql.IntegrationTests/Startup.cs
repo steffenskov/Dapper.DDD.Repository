@@ -5,6 +5,7 @@ public class Startup
 	public Startup()
 	{
 		var services = new ServiceCollection();
+		services.AddOptions();
 		services.ConfigureDapperRepositoryDefaults(options =>
 		{
 			options.ConnectionFactory = new MySqlConnectionFactory("Server=localhost;Port=33060;Database=northwind;Uid=root;Pwd=mysql1337;");
@@ -15,6 +16,7 @@ public class Startup
 		{
 			options.TableName = "Categories";
 			options.HasKey(x => x.CategoryID);
+			options.HasIdentity(x => x.CategoryID);
 		});
 		services.AddTableRepository<CompositeUser, CompositeUserId>(options => // TODO: how to map TAggregateId?
 		{

@@ -5,10 +5,10 @@ namespace Dapper.Repository.Sql;
 internal class SqlQueryGenerator<TAggregate> : IQueryGenerator<TAggregate>
 	where TAggregate : notnull
 {
-	private readonly SqlAggregateConfiguration<TAggregate> _configuration;
+	private readonly AggregateConfiguration<TAggregate> _configuration;
 	private readonly string _schemaAndTable;
 
-	public SqlQueryGenerator(SqlAggregateConfiguration<TAggregate> configuration)
+	public SqlQueryGenerator(AggregateConfiguration<TAggregate> configuration)
 	{
 		ArgumentNullException.ThrowIfNull(configuration.Schema);
 		ArgumentNullException.ThrowIfNull(configuration.TableName);

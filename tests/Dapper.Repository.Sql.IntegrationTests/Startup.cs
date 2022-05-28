@@ -1,8 +1,3 @@
-using Dapper.Repository.Configuration;
-using Dapper.Repository.IntegrationTests;
-using Dapper.Repository.IntegrationTests.Aggregates;
-using Microsoft.Extensions.DependencyInjection;
-
 namespace Dapper.Repository.Sql.IntegrationTests;
 
 public class Startup
@@ -10,9 +5,10 @@ public class Startup
 	public Startup()
 	{
 		var services = new ServiceCollection();
+		services.AddOptions();
 		services.ConfigureDapperRepositoryDefaults(options =>
 		{
-			options.ConnectionFactory = new SqlConnectionFactory("Server=localhost;Database=Northwind;User Id=sa;Password=SqlServer2019;");
+			options.ConnectionFactory = new SqlConnectionFactory("Server=localhost;Database=Northwind;User Id=sa;Password=SqlServer2019;Encrypt=False;");
 			options.DapperInjectionFactory = new DapperInjectionFactory();
 			options.QueryGeneratorFactory = new SqlQueryGeneratorFactory();
 			options.Schema = "dbo";
@@ -21,6 +17,7 @@ public class Startup
 		{
 			options.TableName = "Categories";
 			options.HasKey(x => x.CategoryID);
+			options.HasIdentity(x => x.CategoryID);
 		});
 		services.AddTableRepository<CompositeUser, CompositeUserId>(options => // TODO: how to map TAggregateId?
 		{

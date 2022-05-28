@@ -4,24 +4,27 @@ using Dapper.Repository.Reflection;
 namespace Dapper.Repository.Configuration;
 
 
-public abstract class AggregateConfiguration<TAggregate> : IAggregateConfiguration<TAggregate>
+public class AggregateConfiguration<TAggregate> : IAggregateConfiguration<TAggregate>
 {
 	private List<ExtendedPropertyInfo>? _keyProperties;
 	private readonly List<ExtendedPropertyInfo> _defaults = new();
 	private readonly List<ExtendedPropertyInfo> _identities = new();
 	private readonly List<ExtendedPropertyInfo> _ignores = new();
 
+	public string? Schema { get; set; }
 	public string? TableName { get; set; }
 	public IQueryGeneratorFactory? QueryGeneratorFactory { get; set; }
 	public IConnectionFactory? ConnectionFactory { get; set; }
 	public IDapperInjectionFactory? DapperInjectionFactory { get; set; }
 
-	protected AggregateConfiguration(IOptions<DefaultConfiguration>? options)
+	internal void SetDefaults(DefaultConfiguration? defaults)
 	{
-		var defaults = options?.Value;
-		QueryGeneratorFactory = defaults?.QueryGeneratorFactory;
-		ConnectionFactory = defaults?.ConnectionFactory;
-		DapperInjectionFactory = defaults?.DapperInjectionFactory;
+		if (defaults is null)
+			return;
+		Schema ??= defaults.Schema;
+		QueryGeneratorFactory ??= defaults.QueryGeneratorFactory;
+		ConnectionFactory ??= defaults.ConnectionFactory;
+		DapperInjectionFactory ??= defaults.DapperInjectionFactory;
 	}
 
 	public void HasKey(Expression<Func<TAggregate, object>> expression)

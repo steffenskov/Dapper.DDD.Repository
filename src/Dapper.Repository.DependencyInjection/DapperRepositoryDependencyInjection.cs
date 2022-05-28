@@ -1,3 +1,5 @@
+using Dapper.Repository.Configuration;
+using Dapper.Repository.Interfaces;
 using Dapper.Repository.Repositories;
 
 namespace Microsoft.Extensions.DependencyInjection;
@@ -7,7 +9,7 @@ public static class DapperRepositoryDependencyInjection
 	/// <summary>
 	/// Configure defaults to use for all aggregate types.
 	/// </summary>
-	public static IServiceCollection ConfigureDapperRepositoryDefaults(this IServiceCollection services, Action<SqlDefaultConfiguration> configureOptions)
+	public static IServiceCollection ConfigureDapperRepositoryDefaults(this IServiceCollection services, Action<DefaultConfiguration> configureOptions)
 	{
 		return services.Configure(configureOptions);
 	}
@@ -16,7 +18,7 @@ public static class DapperRepositoryDependencyInjection
 	/// Add a table repository for the given aggregate type to the dependency injection system.
 	/// You can inject an ITableRepository<TAggregate, TAggregateId> into your own repositories afterwards.
 	/// </summary>
-	public static IServiceCollection AddTableRepository<TAggregate, TAggregateId>(this IServiceCollection services, Action<SqlAggregateConfiguration<TAggregate>> configureOptions)
+	public static IServiceCollection AddTableRepository<TAggregate, TAggregateId>(this IServiceCollection services, Action<AggregateConfiguration<TAggregate>> configureOptions)
 	where TAggregate : notnull
 	where TAggregateId : notnull
 	{
@@ -29,7 +31,7 @@ public static class DapperRepositoryDependencyInjection
 	/// Add a view repository for the given aggregate type to the dependency injection system.
 	/// You can inject an IViewRepository<TAggregate, TAggregateId> into your own repositories afterwards.
 	/// </summary>
-	public static IServiceCollection AddViewRepository<TAggregate, TAggregateId>(this IServiceCollection services, Action<SqlAggregateConfiguration<TAggregate>> configureOptions)
+	public static IServiceCollection AddViewRepository<TAggregate, TAggregateId>(this IServiceCollection services, Action<AggregateConfiguration<TAggregate>> configureOptions)
 	where TAggregate : notnull
 	where TAggregateId : notnull
 	{
