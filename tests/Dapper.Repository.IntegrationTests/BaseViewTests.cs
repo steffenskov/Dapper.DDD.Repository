@@ -12,7 +12,7 @@ public abstract class BaseViewTests
 	public async Task GetAll_HaveRows_Valid()
 	{
 		// Act
-		var all = await _repository.GetAllAsync(default);
+		var all = await _repository.GetAllAsync();
 
 		Assert.True(all.Count() >= 2);
 	}

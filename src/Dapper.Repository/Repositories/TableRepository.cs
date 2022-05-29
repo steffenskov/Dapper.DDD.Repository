@@ -11,14 +11,14 @@ where TAggregateId : notnull
 	}
 
 	#region ITableRepository
-	public async Task<TAggregate?> DeleteAsync(TAggregateId id, CancellationToken cancellationToken)
+	public async Task<TAggregate?> DeleteAsync(TAggregateId id)
 	{
 		var query = _queryGenerator.GenerateDeleteQuery();
 
-		return await QuerySingleOrDefaultAsync(query, WrapId(id), cancellationToken: cancellationToken).ConfigureAwait(false);
+		return await QuerySingleOrDefaultAsync(query, WrapId(id)).ConfigureAwait(false);
 	}
 
-	public async Task<TAggregate?> GetAsync(TAggregateId id, CancellationToken cancellationToken)
+	public async Task<TAggregate?> GetAsync(TAggregateId id)
 	{
 		var query = _queryGenerator.GenerateGetQuery();
 
@@ -27,10 +27,10 @@ where TAggregateId : notnull
 			return (await QueryWithValueObjectsAsync(query, WrapId(id)).ConfigureAwait(false)).FirstOrDefault();
 		}
 		else
-			return await QuerySingleOrDefaultAsync(query, WrapId(id), cancellationToken: cancellationToken).ConfigureAwait(false);
+			return await QuerySingleOrDefaultAsync(query, WrapId(id)).ConfigureAwait(false);
 	}
 
-	public async Task<TAggregate> InsertAsync(TAggregate aggregate, CancellationToken cancellationToken)
+	public async Task<TAggregate> InsertAsync(TAggregate aggregate)
 	{
 		ArgumentNullException.ThrowIfNull(aggregate);
 		var invalidIdentityProperties = _configuration.GetIdentityProperties()
@@ -42,14 +42,14 @@ where TAggregateId : notnull
 			throw new ArgumentException($"Aggregate has the following identity properties, which have non-default values: {string.Join(", ", invalidIdentityProperties.Select(col => col.Name))}", nameof(aggregate));
 		}
 		var query = _queryGenerator.GenerateInsertQuery(aggregate);
-		return await QuerySingleAsync(query, aggregate, cancellationToken: cancellationToken).ConfigureAwait(false);
+		return await QuerySingleAsync(query, aggregate).ConfigureAwait(false);
 	}
 
-	public async Task<TAggregate?> UpdateAsync(TAggregate aggregate, CancellationToken cancellationToken)
+	public async Task<TAggregate?> UpdateAsync(TAggregate aggregate)
 	{
 		ArgumentNullException.ThrowIfNull(aggregate);
 		var query = _queryGenerator.GenerateUpdateQuery();
-		return await QuerySingleOrDefaultAsync(query, aggregate, cancellationToken: cancellationToken).ConfigureAwait(false);
+		return await QuerySingleOrDefaultAsync(query, aggregate).ConfigureAwait(false);
 	}
 	#endregion
 }
