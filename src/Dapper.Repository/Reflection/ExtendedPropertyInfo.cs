@@ -5,8 +5,10 @@ namespace Dapper.Repository.Reflection;
 public class ExtendedPropertyInfo
 {
 	public PropertyInfo Property { get; }
-	public string Name => Property.Name;
+	public string Name => !string.IsNullOrWhiteSpace(Prefix) ? $"{Prefix}_{Property.Name}" : Property.Name;
 	public Type Type => Property.PropertyType;
+
+	public string Prefix { get; set; } = "";
 
 	public bool HasSetter { get; }
 
@@ -41,5 +43,17 @@ public class ExtendedPropertyInfo
 	where T : notnull
 	{
 		_accessor.setter(aggregate, value);
+	}
+
+	public IReadOnlyList<ExtendedPropertyInfo> GetProperties()
+	{
+		var result = TypePropertiesCache.GetProperties(this.Type)
+										.Values
+										.OrderBy(prop => prop.Name)
+										.ToList()
+										.AsReadOnly();
+		foreach (var prop in result)
+			prop.Prefix = this.Name;
+		return result;
 	}
 }

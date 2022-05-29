@@ -10,7 +10,6 @@ internal class SqlQueryGenerator<TAggregate> : IQueryGenerator<TAggregate>
 	private IReadOnlyList<ExtendedPropertyInfo> _identities;
 	private IReadOnlyList<ExtendedPropertyInfo> _keys;
 	private IReadOnlyList<ExtendedPropertyInfo> _defaultConstraints;
-	private IReadOnlyList<ExtendedPropertyInfo> _valueObjects;
 
 	public SqlQueryGenerator(AggregateConfiguration<TAggregate> configuration)
 	{
@@ -25,11 +24,17 @@ internal class SqlQueryGenerator<TAggregate> : IQueryGenerator<TAggregate>
 		_schemaAndTable = $"{EnsureSquareBrackets(configuration.Schema)}.{EnsureSquareBrackets(configuration.TableName)}";
 
 		var readConfiguration = (IReadAggregateConfiguration<TAggregate>)configuration;
-		_properties = readConfiguration.GetProperties();
+		var properties = readConfiguration.GetProperties().ToList();
+		var valueObjects = readConfiguration.GetValueObjects();
+		foreach (var valueObject in valueObjects)
+		{
+			properties.Remove(valueObject);
+			properties.AddRange(valueObject.GetProperties());
+		}
+		_properties = properties;
 		_identities = readConfiguration.GetIdentityProperties();
 		_keys = readConfiguration.GetKeys();
 		_defaultConstraints = readConfiguration.GetPropertiesWithDefaultConstraints();
-		_valueObjects = readConfiguration.GetValueObjects();
 	}
 
 	public string GenerateDeleteQuery()
@@ -86,7 +91,8 @@ internal class SqlQueryGenerator<TAggregate> : IQueryGenerator<TAggregate>
 	{
 		var primaryKeys = _keys;
 		var propertiesToSet = _properties.Where(property => !primaryKeys.Contains(property) && property.HasSetter);
-		return string.Join(", ", propertiesToSet.Select(property => $"{_schemaAndTable}.{AddSquareBrackets(property.Name)} = @{property.Name}"));
+		var result = string.Join(", ", propertiesToSet.Select(property => $"{_schemaAndTable}.{AddSquareBrackets(property.Name)} = @{property.Name}"));
+		return result;
 	}
 
 	private string GenerateWhereClause()
@@ -101,15 +107,12 @@ internal class SqlQueryGenerator<TAggregate> : IQueryGenerator<TAggregate>
 	{
 		tableName = EnsureSquareBrackets(tableName);
 
-		return string.Join(", ", properties
-										.Select(property => IsValueObject(property)
-											? GeneratePropertyList(tableName, TypePropertiesCache.GetProperties(property.Type).Values.OrderBy(prop => prop.Name), $"{property.Name}_")
-											: GeneratePropertyClause(tableName, property, prefix)));
+		return string.Join(", ", properties.Select(property => GeneratePropertyClause(tableName, property, prefix)));
 	}
 
-	private bool IsValueObject(ExtendedPropertyInfo property)
+	private static IOrderedEnumerable<ExtendedPropertyInfo> GetChildProperties(ExtendedPropertyInfo property)
 	{
-		return _valueObjects.Contains(property);
+		return TypePropertiesCache.GetProperties(property.Type).Values.OrderBy(prop => prop.Name);
 	}
 
 	private string GeneratePropertyClause(string tableName, ExtendedPropertyInfo property, string prefix = "")
