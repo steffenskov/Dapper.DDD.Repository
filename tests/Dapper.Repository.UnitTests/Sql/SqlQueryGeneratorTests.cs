@@ -13,7 +13,7 @@ namespace Dapper.Repository.UnitTests.Sql
 		public void Constructor_TableNameIsNull_Throws()
 		{
 			// Arrange
-			var configuration = new AggregateConfiguration<SinglePrimaryKeyAggregate>()
+			var configuration = new TableAggregateConfiguration<SinglePrimaryKeyAggregate>()
 			{
 				Schema = "dbo",
 				TableName = null
@@ -27,7 +27,7 @@ namespace Dapper.Repository.UnitTests.Sql
 		public void Constructor_SchemaIsNull_Throws()
 		{
 			// Arrange
-			var configuration = new AggregateConfiguration<SinglePrimaryKeyAggregate>()
+			var configuration = new TableAggregateConfiguration<SinglePrimaryKeyAggregate>()
 			{
 				Schema = null,
 				TableName = "Users"
@@ -40,7 +40,7 @@ namespace Dapper.Repository.UnitTests.Sql
 		public void Constructor_TableNameIsWhitespace_Throws()
 		{
 			// Arrange
-			var configuration = new AggregateConfiguration<SinglePrimaryKeyAggregate>()
+			var configuration = new TableAggregateConfiguration<SinglePrimaryKeyAggregate>()
 			{
 				Schema = "dbo",
 				TableName = " "
@@ -53,7 +53,7 @@ namespace Dapper.Repository.UnitTests.Sql
 		public void Constructor_SchemaIsWhitespace_Throws()
 		{
 			// Arrange
-			var configuration = new AggregateConfiguration<SinglePrimaryKeyAggregate>()
+			var configuration = new TableAggregateConfiguration<SinglePrimaryKeyAggregate>()
 			{
 				Schema = " ",
 				TableName = "Users"
@@ -325,7 +325,7 @@ namespace Dapper.Repository.UnitTests.Sql
 		public void GenerateUpdateQuery_AllPropertiesHasNoSetter_Throws()
 		{
 			// Arrange
-			var configuration = new AggregateConfiguration<AllPropertiesHasMissingSetterAggregate>()
+			var configuration = new TableAggregateConfiguration<AllPropertiesHasMissingSetterAggregate>()
 			{
 				Schema = "dbo",
 				TableName = "Users"
@@ -342,7 +342,7 @@ namespace Dapper.Repository.UnitTests.Sql
 		public void GenerateUpdateQuery_PropertyHasNoSetter_PropertyIsExcluded()
 		{
 			// Arrange
-			var configuration = new AggregateConfiguration<PropertyHasMissingSetterAggregate>()
+			var configuration = new TableAggregateConfiguration<PropertyHasMissingSetterAggregate>()
 			{
 				Schema = "dbo",
 				TableName = "Users"
@@ -362,7 +362,7 @@ namespace Dapper.Repository.UnitTests.Sql
 		#region Constructors
 		private static SqlQueryGenerator<HasDefaultConstraintAggregate> CreateHasDefaultConstraintAggregateQueryGenerator()
 		{
-			var configuration = new AggregateConfiguration<HasDefaultConstraintAggregate>()
+			var configuration = new TableAggregateConfiguration<HasDefaultConstraintAggregate>()
 			{
 				Schema = "dbo",
 				TableName = "Users"
@@ -375,7 +375,7 @@ namespace Dapper.Repository.UnitTests.Sql
 
 		private static SqlQueryGenerator<SinglePrimaryKeyAggregate> CreateSinglePrimaryKeyAggregateQueryGenerator()
 		{
-			var configuration = new AggregateConfiguration<SinglePrimaryKeyAggregate>()
+			var configuration = new TableAggregateConfiguration<SinglePrimaryKeyAggregate>()
 			{
 				Schema = "dbo",
 				TableName = "Users"
@@ -388,7 +388,7 @@ namespace Dapper.Repository.UnitTests.Sql
 
 		private static SqlQueryGenerator<SinglePrimaryKeyAggregate> CreateSinglePrimaryKeyAggregateWithCustomSchemaQueryGenerator()
 		{
-			var configuration = new AggregateConfiguration<SinglePrimaryKeyAggregate>()
+			var configuration = new TableAggregateConfiguration<SinglePrimaryKeyAggregate>()
 			{
 				Schema = "account",
 				TableName = "Users"
@@ -401,7 +401,7 @@ namespace Dapper.Repository.UnitTests.Sql
 
 		private static SqlQueryGenerator<CompositePrimaryKeyAggregate> CreateCompositePrimaryKeyAggregateQueryGenerator()
 		{
-			var configuration = new AggregateConfiguration<CompositePrimaryKeyAggregate>()
+			var configuration = new TableAggregateConfiguration<CompositePrimaryKeyAggregate>()
 			{
 				Schema = "dbo",
 				TableName = "Users",
@@ -414,7 +414,7 @@ namespace Dapper.Repository.UnitTests.Sql
 
 		private static SqlQueryGenerator<UserAggregate> CreateUserAggregateQueryGenerator()
 		{
-			var config = new AggregateConfiguration<UserAggregate>()
+			var config = new TableAggregateConfiguration<UserAggregate>()
 			{
 				Schema = "dbo",
 				TableName = "Users"

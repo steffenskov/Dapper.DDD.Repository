@@ -14,7 +14,7 @@ namespace Dapper.Repository.UnitTests.MySql
 		public void Constructor_TableNameIsNull_Throws()
 		{
 			// Arrange
-			var configuration = new AggregateConfiguration<SinglePrimaryKeyAggregate>()
+			var configuration = new TableAggregateConfiguration<SinglePrimaryKeyAggregate>()
 			{
 				TableName = null!
 			};
@@ -27,7 +27,7 @@ namespace Dapper.Repository.UnitTests.MySql
 		public void Constructor_TableNameIsWhiteSpace_Throws()
 		{
 			// Arrange
-			var configuration = new AggregateConfiguration<SinglePrimaryKeyAggregate>()
+			var configuration = new TableAggregateConfiguration<SinglePrimaryKeyAggregate>()
 			{
 				TableName = " "
 			};
@@ -37,6 +37,18 @@ namespace Dapper.Repository.UnitTests.MySql
 		#endregion
 
 		#region Delete
+		[Fact]
+		public void GenerateDeleteQuery_HasValueObject_Valid()
+		{
+			var generator = CreateUserAggregateQueryGenerator();
+
+			// Act
+			var query = generator.GenerateDeleteQuery();
+
+			// Assert
+			Assert.Equal($@"SELECT Users.Id, Users.Address_City, Users.Address_Street FROM Users WHERE Users.Id = @Id;
+DELETE FROM Users WHERE Users.Id = @Id;", query);
+		}
 
 		[Fact]
 		public void GenerateDeleteQuery_OnePrimaryKey_Valid()
@@ -69,6 +81,18 @@ DELETE FROM Users WHERE Users.Username = @Username AND Users.Password = @Passwor
 
 		#region GetAll
 		[Fact]
+		public void GenerateGetAllQuery_HasValueObject_Valid()
+		{
+			var generator = CreateUserAggregateQueryGenerator();
+
+			// Act
+			var query = generator.GenerateGetAllQuery();
+
+			// Assert
+			Assert.Equal($"SELECT Users.Id, Users.Address_City, Users.Address_Street FROM Users;", query);
+		}
+
+		[Fact]
 		public void GenerateGetAllQuery_ProperTableName_Valid()
 		{
 			// Arrange
@@ -84,6 +108,18 @@ DELETE FROM Users WHERE Users.Username = @Username AND Users.Password = @Passwor
 		#endregion
 
 		#region Get
+		[Fact]
+		public void GenerateGetQuery_HasValueObject_Valid()
+		{
+			var generator = CreateUserAggregateQueryGenerator();
+
+			// Act
+			var query = generator.GenerateGetQuery();
+
+			// Assert
+			Assert.Equal($"SELECT Users.Id, Users.Address_City, Users.Address_Street FROM Users WHERE Users.Id = @Id;", query);
+		}
+
 		[Fact]
 		public void GenerateGetQuery_SinglePrimaryKey_Valid()
 		{
@@ -113,10 +149,23 @@ DELETE FROM Users WHERE Users.Username = @Username AND Users.Password = @Passwor
 
 		#region Insert
 		[Fact]
+		public void GenerateInsertQuery_HasValueObject_Valid()
+		{
+			var generator = CreateUserAggregateQueryGenerator();
+
+			// Act
+			var query = generator.GenerateInsertQuery(new UserAggregate());
+
+			// Assert
+			Assert.Equal($@"INSERT INTO Users (Id, Address_City, Address_Street) VALUES (@Id, @Address_City, @Address_Street);
+SELECT Users.Id, Users.Address_City, Users.Address_Street FROM Users WHERE Users.Id = @Id;", query);
+		}
+
+		[Fact]
 		public void GenerateInsertQuery_AggregateHasMultipleIdentities_Invalid()
 		{
 			// Arrange
-			var configuration = new AggregateConfiguration<HasMultipleIdentiesAggregate>()
+			var configuration = new TableAggregateConfiguration<HasMultipleIdentiesAggregate>()
 			{
 				TableName = "Users"
 			};
@@ -209,6 +258,18 @@ SELECT Users.Username, Users.Password, Users.DateCreated FROM Users WHERE Users.
 		#endregion
 
 		#region Update
+		[Fact]
+		public void GenerateUpdateQuery_HasValueObject_Valid()
+		{
+			var generator = CreateUserAggregateQueryGenerator();
+
+			// Act
+			var query = generator.GenerateUpdateQuery();
+
+			// Assert
+			Assert.Equal($@"UPDATE Users SET Address_City = @Address_City, Address_Street = @Address_Street WHERE Users.Id = @Id;
+SELECT Users.Id, Users.Address_City, Users.Address_Street FROM Users WHERE Users.Id = @Id;", query);
+		}
 
 		[Fact]
 		public void GenerateUpdateQuery_SinglePrimaryKey_Valid()
@@ -242,7 +303,7 @@ SELECT Users.Username, Users.Password, Users.DateCreated FROM Users WHERE Users.
 		public void GenerateUpdateQuery_AllPropertiesHasNoSetter_Throws()
 		{
 			// Arrange
-			var configuration = new AggregateConfiguration<AllPropertiesHasMissingSetterAggregate>()
+			var configuration = new TableAggregateConfiguration<AllPropertiesHasMissingSetterAggregate>()
 			{
 				TableName = "Users"
 			};
@@ -258,7 +319,7 @@ SELECT Users.Username, Users.Password, Users.DateCreated FROM Users WHERE Users.
 		public void GenerateUpdateQuery_PropertyHasNoSetter_PropertyIsExcluded()
 		{
 			// Arrange
-			var configuration = new AggregateConfiguration<PropertyHasMissingSetterAggregate>()
+			var configuration = new TableAggregateConfiguration<PropertyHasMissingSetterAggregate>()
 			{
 				TableName = "Users"
 			};
@@ -279,7 +340,7 @@ SELECT Users.Id, Users.Age, Users.DateCreated FROM Users WHERE Users.Id = @Id;",
 		#region Constructors
 		private static MySqlQueryGenerator<HasDefaultConstraintAggregate> CreateHasDefaultConstraintAggregateQueryGenerator()
 		{
-			var configuration = new AggregateConfiguration<HasDefaultConstraintAggregate>()
+			var configuration = new TableAggregateConfiguration<HasDefaultConstraintAggregate>()
 			{
 				TableName = "Users"
 			};
@@ -291,7 +352,7 @@ SELECT Users.Id, Users.Age, Users.DateCreated FROM Users WHERE Users.Id = @Id;",
 
 		private static MySqlQueryGenerator<SinglePrimaryKeyAggregate> CreateSinglePrimaryKeyAggregateQueryGenerator()
 		{
-			var configuration = new AggregateConfiguration<SinglePrimaryKeyAggregate>()
+			var configuration = new TableAggregateConfiguration<SinglePrimaryKeyAggregate>()
 			{
 				TableName = "Users"
 			};
@@ -303,7 +364,7 @@ SELECT Users.Id, Users.Age, Users.DateCreated FROM Users WHERE Users.Id = @Id;",
 
 		private static MySqlQueryGenerator<CompositePrimaryKeyAggregate> CreateCompositePrimaryKeyAggregateQueryGenerator()
 		{
-			var configuration = new AggregateConfiguration<CompositePrimaryKeyAggregate>()
+			var configuration = new TableAggregateConfiguration<CompositePrimaryKeyAggregate>()
 			{
 				TableName = "Users",
 			};
@@ -311,7 +372,18 @@ SELECT Users.Id, Users.Age, Users.DateCreated FROM Users WHERE Users.Id = @Id;",
 			var generator = new MySqlQueryGenerator<CompositePrimaryKeyAggregate>(configuration);
 			return generator;
 		}
-		#endregion
 
+		private static MySqlQueryGenerator<UserAggregate> CreateUserAggregateQueryGenerator()
+		{
+			var config = new TableAggregateConfiguration<UserAggregate>()
+			{
+				TableName = "Users"
+			};
+			config.HasKey(x => x.Id);
+			config.HasValueObject(x => x.Address);
+			var generator = new MySqlQueryGenerator<UserAggregate>(config);
+			return generator;
+		}
+		#endregion
 	}
 }

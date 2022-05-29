@@ -29,7 +29,7 @@ public class Startup
 
 		services.AddViewRepository<ProductListView, int>(options =>
 		{
-			options.TableName = "Current Product List";
+			options.ViewName = "Current Product List";
 			options.HasKey(x => x.ProductID);
 		});
 		this.Provider = services.BuildServiceProvider();

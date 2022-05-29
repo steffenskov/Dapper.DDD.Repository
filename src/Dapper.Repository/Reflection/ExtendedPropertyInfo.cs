@@ -45,7 +45,7 @@ public class ExtendedPropertyInfo
 		_accessor.setter(aggregate, value);
 	}
 
-	public IReadOnlyList<ExtendedPropertyInfo> GetProperties()
+	public IReadOnlyList<ExtendedPropertyInfo> GetPropertiesOrdered()
 	{
 		var result = TypePropertiesCache.GetProperties(this.Type)
 										.Values

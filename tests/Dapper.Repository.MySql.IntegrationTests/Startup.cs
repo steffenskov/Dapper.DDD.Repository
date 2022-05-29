@@ -28,7 +28,7 @@ public class Startup
 
 		services.AddViewRepository<ProductListView, int>(options =>
 		{
-			options.TableName = "current_product_list";
+			options.ViewName = "current_product_list";
 			options.HasKey(x => x.ProductID);
 		});
 		this.Provider = services.BuildServiceProvider();

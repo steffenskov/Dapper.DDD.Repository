@@ -1,7 +1,6 @@
 namespace Dapper.Repository.Interfaces;
 
-public interface IViewRepository<TAggregate>
-
+public interface IViewRepository<TAggregate, TAggregateId>
 {
-	Task<IEnumerable<TAggregate>> GetAllAsync();
+	Task<IEnumerable<TAggregate>> GetAllAsync(CancellationToken cancellationToken = default);
 }

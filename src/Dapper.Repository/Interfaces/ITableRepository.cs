@@ -1,7 +1,6 @@
 namespace Dapper.Repository.Interfaces;
 
 public interface ITableRepository<TAggregate, TAggregateId>
-
 {
 	Task<TAggregate?> DeleteAsync(TAggregateId id, CancellationToken cancellationToken = default);
 	Task<TAggregate?> GetAsync(TAggregateId id, CancellationToken cancellationToken = default);

@@ -3,7 +3,7 @@ using Dapper.Repository.Reflection;
 
 namespace Dapper.Repository.Configuration;
 
-public class AggregateConfiguration<TAggregate> : IReadAggregateConfiguration<TAggregate>
+public abstract class BaseAggregateConfiguration<TAggregate> : IReadAggregateConfiguration<TAggregate>
 {
 	private List<ExtendedPropertyInfo>? _keyProperties;
 	private readonly List<ExtendedPropertyInfo> _defaults = new();
@@ -12,10 +12,11 @@ public class AggregateConfiguration<TAggregate> : IReadAggregateConfiguration<TA
 	private readonly List<ExtendedPropertyInfo> _valueObjects = new();
 
 	public string? Schema { get; set; }
-	public string? TableName { get; set; }
 	public IQueryGeneratorFactory? QueryGeneratorFactory { get; set; }
 	public IConnectionFactory? ConnectionFactory { get; set; }
 	public IDapperInjectionFactory? DapperInjectionFactory { get; set; }
+
+	public abstract string EntityName { get; }
 
 	internal void SetDefaults(DefaultConfiguration? defaults)
 	{

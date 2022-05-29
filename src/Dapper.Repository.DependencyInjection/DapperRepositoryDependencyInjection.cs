@@ -18,7 +18,7 @@ public static class DapperRepositoryDependencyInjection
 	/// Add a table repository for the given aggregate type to the dependency injection system.
 	/// You can inject an ITableRepository<TAggregate, TAggregateId> into your own repositories afterwards.
 	/// </summary>
-	public static IServiceCollection AddTableRepository<TAggregate, TAggregateId>(this IServiceCollection services, Action<AggregateConfiguration<TAggregate>> configureOptions)
+	public static IServiceCollection AddTableRepository<TAggregate, TAggregateId>(this IServiceCollection services, Action<TableAggregateConfiguration<TAggregate>> configureOptions)
 	where TAggregate : notnull
 	where TAggregateId : notnull
 	{
@@ -31,12 +31,12 @@ public static class DapperRepositoryDependencyInjection
 	/// Add a view repository for the given aggregate type to the dependency injection system.
 	/// You can inject an IViewRepository<TAggregate, TAggregateId> into your own repositories afterwards.
 	/// </summary>
-	public static IServiceCollection AddViewRepository<TAggregate, TAggregateId>(this IServiceCollection services, Action<AggregateConfiguration<TAggregate>> configureOptions)
+	public static IServiceCollection AddViewRepository<TAggregate, TAggregateId>(this IServiceCollection services, Action<ViewAggregateConfiguration<TAggregate>> configureOptions)
 	where TAggregate : notnull
 	where TAggregateId : notnull
 	{
 		services.Configure(configureOptions);
-		services.AddSingleton<ITableRepository<TAggregate, TAggregateId>, TableRepository<TAggregate, TAggregateId>>(); // TODO: Implement ViewRepository AND a ViewAggregateConfiguration as TableName becomes wrong
+		services.AddSingleton<IViewRepository<TAggregate, TAggregateId>, ViewRepository<TAggregate, TAggregateId>>();
 		return services;
 	}
 }

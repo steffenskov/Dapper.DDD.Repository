@@ -5,23 +5,23 @@ namespace Dapper.Repository.Sql;
 internal class SqlQueryGenerator<TAggregate> : IQueryGenerator<TAggregate>
 	where TAggregate : notnull
 {
-	private readonly string _schemaAndTable;
+	private readonly string _schemaAndEntity;
 	private IReadOnlyList<ExtendedPropertyInfo> _properties;
 	private IReadOnlyList<ExtendedPropertyInfo> _identities;
 	private IReadOnlyList<ExtendedPropertyInfo> _keys;
 	private IReadOnlyList<ExtendedPropertyInfo> _defaultConstraints;
 
-	public SqlQueryGenerator(AggregateConfiguration<TAggregate> configuration)
+	public SqlQueryGenerator(BaseAggregateConfiguration<TAggregate> configuration)
 	{
 		ArgumentNullException.ThrowIfNull(configuration.Schema);
-		ArgumentNullException.ThrowIfNull(configuration.TableName);
+		ArgumentNullException.ThrowIfNull(configuration.EntityName);
 
 		if (string.IsNullOrWhiteSpace(configuration.Schema))
 			throw new ArgumentException("Schema cannot be null or whitespace.", nameof(configuration));
 
-		if (string.IsNullOrWhiteSpace(configuration.TableName))
-			throw new ArgumentException("Table name cannot be null or whitespace.", nameof(configuration));
-		_schemaAndTable = $"{EnsureSquareBrackets(configuration.Schema)}.{EnsureSquareBrackets(configuration.TableName)}";
+		if (string.IsNullOrWhiteSpace(configuration.EntityName))
+			throw new ArgumentException("Entity name cannot be null or whitespace.", nameof(configuration));
+		_schemaAndEntity = $"{EnsureSquareBrackets(configuration.Schema)}.{EnsureSquareBrackets(configuration.EntityName)}";
 
 		var readConfiguration = (IReadAggregateConfiguration<TAggregate>)configuration;
 		var properties = readConfiguration.GetProperties().ToList();
@@ -29,7 +29,7 @@ internal class SqlQueryGenerator<TAggregate> : IQueryGenerator<TAggregate>
 		foreach (var valueObject in valueObjects)
 		{
 			properties.Remove(valueObject);
-			properties.AddRange(valueObject.GetProperties());
+			properties.AddRange(valueObject.GetPropertiesOrdered());
 		}
 		_properties = properties;
 		_identities = readConfiguration.GetIdentityProperties();
@@ -42,7 +42,7 @@ internal class SqlQueryGenerator<TAggregate> : IQueryGenerator<TAggregate>
 		var whereClause = GenerateWhereClause();
 
 		var outputProperties = GeneratePropertyList("deleted", _properties);
-		return $"DELETE FROM {_schemaAndTable} OUTPUT {outputProperties} WHERE {whereClause};";
+		return $"DELETE FROM {_schemaAndEntity} OUTPUT {outputProperties} WHERE {whereClause};";
 	}
 
 	public string GenerateInsertQuery(TAggregate aggregate)
@@ -55,22 +55,22 @@ internal class SqlQueryGenerator<TAggregate> : IQueryGenerator<TAggregate>
 									.ToList();
 
 		var outputProperties = GeneratePropertyList("inserted", _properties);
-		return $"INSERT INTO {_schemaAndTable} ({string.Join(", ", propertiesToInsert.Select(property => AddSquareBrackets(property.Name)))}) OUTPUT {outputProperties} VALUES ({string.Join(", ", propertiesToInsert.Select(property => $"@{property.Name}"))});";
+		return $"INSERT INTO {_schemaAndEntity} ({string.Join(", ", propertiesToInsert.Select(property => AddSquareBrackets(property.Name)))}) OUTPUT {outputProperties} VALUES ({string.Join(", ", propertiesToInsert.Select(property => $"@{property.Name}"))});";
 	}
 
 	public string GenerateGetAllQuery()
 	{
-		var propertyList = GeneratePropertyList(_schemaAndTable, _properties);
-		return $"SELECT {propertyList} FROM {_schemaAndTable};";
+		var propertyList = GeneratePropertyList(_schemaAndEntity, _properties);
+		return $"SELECT {propertyList} FROM {_schemaAndEntity};";
 	}
 
 	public string GenerateGetQuery()
 	{
 		var whereClause = GenerateWhereClause();
 
-		var propertyList = GeneratePropertyList(_schemaAndTable, _properties);
+		var propertyList = GeneratePropertyList(_schemaAndEntity, _properties);
 
-		return $"SELECT {propertyList} FROM {_schemaAndTable} WHERE {whereClause};";
+		return $"SELECT {propertyList} FROM {_schemaAndEntity} WHERE {whereClause};";
 	}
 
 	public string GenerateUpdateQuery()
@@ -84,14 +84,14 @@ internal class SqlQueryGenerator<TAggregate> : IQueryGenerator<TAggregate>
 
 		var outputProperties = GeneratePropertyList("inserted", _properties);
 
-		return $"UPDATE {_schemaAndTable} SET {setClause} OUTPUT {outputProperties} WHERE {GenerateWhereClause()};";
+		return $"UPDATE {_schemaAndEntity} SET {setClause} OUTPUT {outputProperties} WHERE {GenerateWhereClause()};";
 	}
 
 	private string GenerateSetClause()
 	{
 		var primaryKeys = _keys;
 		var propertiesToSet = _properties.Where(property => !primaryKeys.Contains(property) && property.HasSetter);
-		var result = string.Join(", ", propertiesToSet.Select(property => $"{_schemaAndTable}.{AddSquareBrackets(property.Name)} = @{property.Name}"));
+		var result = string.Join(", ", propertiesToSet.Select(property => $"{_schemaAndEntity}.{AddSquareBrackets(property.Name)} = @{property.Name}"));
 		return result;
 	}
 
@@ -99,7 +99,7 @@ internal class SqlQueryGenerator<TAggregate> : IQueryGenerator<TAggregate>
 	{
 		var primaryKeys = _keys;
 
-		return string.Join(" AND ", primaryKeys.Select(property => $"{_schemaAndTable}.{AddSquareBrackets(property.Name)} = @{property.Name}"));
+		return string.Join(" AND ", primaryKeys.Select(property => $"{_schemaAndEntity}.{AddSquareBrackets(property.Name)} = @{property.Name}"));
 	}
 
 
@@ -108,11 +108,6 @@ internal class SqlQueryGenerator<TAggregate> : IQueryGenerator<TAggregate>
 		tableName = EnsureSquareBrackets(tableName);
 
 		return string.Join(", ", properties.Select(property => GeneratePropertyClause(tableName, property, prefix)));
-	}
-
-	private static IOrderedEnumerable<ExtendedPropertyInfo> GetChildProperties(ExtendedPropertyInfo property)
-	{
-		return TypePropertiesCache.GetProperties(property.Type).Values.OrderBy(prop => prop.Name);
 	}
 
 	private string GeneratePropertyClause(string tableName, ExtendedPropertyInfo property, string prefix = "")
