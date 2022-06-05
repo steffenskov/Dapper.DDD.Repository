@@ -1,5 +1,3 @@
-using Dapper.Repository.Interfaces;
-
 namespace Dapper.Repository.IntegrationTests;
 
 public class DapperInjectionFactory : IDapperInjectionFactory

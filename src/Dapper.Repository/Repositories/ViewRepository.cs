@@ -1,8 +1,3 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-
 namespace Dapper.Repository.Repositories;
 public class ViewRepository<TAggregate, TAggregateId> : BaseRepository<TAggregate, TAggregateId>, IViewRepository<TAggregate, TAggregateId>
 where TAggregate : notnull

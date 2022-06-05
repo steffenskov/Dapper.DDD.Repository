@@ -25,7 +25,7 @@ where TAggregateId : notnull
 		_dapperInjectionFactory = configuration.DapperInjectionFactory;
 		_dapperInjection = _dapperInjectionFactory.Create<TAggregate>();
 		_connectionFactory = configuration.ConnectionFactory!;
-		_queryGenerator = configuration.QueryGeneratorFactory.Create<TAggregate>(configuration);
+		_queryGenerator = configuration.QueryGeneratorFactory.Create(configuration);
 		_configuration = configuration;
 		_valueObjects = _configuration.GetValueObjects();
 
@@ -40,19 +40,39 @@ where TAggregateId : notnull
 		var keys = _configuration.GetKeys();
 		if (keys.Count == 1)
 		{
-			AddWrappedId(dictionary, keys.First(), id);
+			AddWrappedValue(dictionary, keys.First(), id);
 		}
 		else
 		{
 			foreach (var key in keys)
 			{
-				AddWrappedId(dictionary, key, key.GetValue(id));
+				AddWrappedValue(dictionary, key, key.GetValue(id));
 			}
 		}
 		return dictionary;
 	}
+	
+	/// <summary>
+	/// Wraps the aggregate for using it as a param to a query.
+	/// </summary>
+	protected IDictionary<string, object?> WrapAggregate(TAggregate aggregate, bool includeIdentities, bool includeDefaults)
+	{
+		var dictionary = new Dictionary<string, object?>();
+		var properties = _configuration.GetProperties();
+		var identities = _configuration.GetIdentityProperties();
+		var defaults = _configuration.GetPropertiesWithDefaultConstraints();
+		foreach (var property in properties)
+		{
+			if (!includeIdentities && identities.Contains(property))
+				continue;
+			if (!includeDefaults && defaults.Contains((property)))
+				continue;
+			AddWrappedValue(dictionary, property, property.GetValue(aggregate));
+		}
+		return dictionary;
+	}
 
-	private void AddWrappedId(Dictionary<string, object?> dictionary, ExtendedPropertyInfo property, object? value)
+	private void AddWrappedValue(IDictionary<string, object?> dictionary, ExtendedPropertyInfo property, object? value)
 	{
 		if (_valueObjects.Contains(property))
 		{
@@ -72,7 +92,10 @@ where TAggregateId : notnull
 		var valueObjectProperties = _configuration.GetValueObjects();
 		var valueTypes = valueObjectProperties.Select(property => property.Type).ToArray();
 		var splitOn = string.Join(",", valueObjectProperties.Select(GetFirstPropertyName));
-		return await QueryWithMapAsync(query, valueTypes, Map, param, splitOn: splitOn);
+		var allTypes = new Type[valueTypes.Length + 1];
+		allTypes[0] = typeof(TAggregate);
+		valueTypes.CopyTo(allTypes, 1);
+		return await QueryWithMapAsync(query, allTypes, Map, param, splitOn: splitOn);
 	}
 
 	private TAggregate Map(object[] args)

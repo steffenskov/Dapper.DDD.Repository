@@ -5,7 +5,7 @@ namespace Dapper.Repository.Reflection;
 public class ExtendedPropertyInfo
 {
 	public PropertyInfo Property { get; }
-	public string Name => !string.IsNullOrWhiteSpace(Prefix) ? $"{Prefix}_{Property.Name}" : Property.Name;
+	public string Name => Property.Name;
 	public Type Type => Property.PropertyType;
 
 	public string Prefix { get; set; } = "";
