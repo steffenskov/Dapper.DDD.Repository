@@ -1,6 +1,5 @@
-using System.Data;
+﻿using System.Data;
 using Dapper.Repository.Interfaces;
-using Microsoft.Data.SqlClient;
 
 namespace Dapper.Repository.Sql.IntegrationTests;
 

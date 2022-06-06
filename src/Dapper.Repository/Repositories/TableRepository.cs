@@ -13,7 +13,9 @@ where TAggregateId : notnull
 	{
 		var query = _queryGenerator.GenerateDeleteQuery();
 
-		return await QuerySingleOrDefaultAsync(query, WrapId(id));
+		return HasValueObjects
+				? (await QueryWithValueObjectsAsync(query, WrapId(id))).FirstOrDefault()
+				: await QuerySingleOrDefaultAsync(query, WrapId(id));
 	}
 
 	public async Task<TAggregate?> GetAsync(TAggregateId id)
@@ -47,7 +49,9 @@ where TAggregateId : notnull
 	{
 		ArgumentNullException.ThrowIfNull(aggregate);
 		var query = _queryGenerator.GenerateUpdateQuery();
-		return await QuerySingleOrDefaultAsync(query, aggregate);
+		return HasValueObjects
+				? (await QueryWithValueObjectsAsync(query, WrapAggregate(aggregate, true, true))).FirstOrDefault()
+				: await QuerySingleOrDefaultAsync(query, aggregate);
 	}
 	#endregion
 }

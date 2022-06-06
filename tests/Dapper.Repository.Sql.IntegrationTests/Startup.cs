@@ -1,4 +1,4 @@
-using Dapper.Repository.DependencyInjection;
+﻿using Dapper.Repository.DependencyInjection;
 
 namespace Dapper.Repository.Sql.IntegrationTests;
 
@@ -21,12 +21,19 @@ public class Startup
 			options.HasKey(x => x.CategoryID);
 			options.HasIdentity(x => x.CategoryID);
 		});
-		_ = services.AddTableRepository<CompositeUser, CompositeUserId>(options => // TODO: how to map TAggregateId?
+		_ = services.AddTableRepository<CompositeUser, CompositeUserId>(options =>
 		{
 			options.TableName = "CompositeUsers";
 			options.HasKey(x => x.Id);
 			options.HasDefault(x => x.DateCreated);
 			options.HasValueObject(x => x.Id);
+		});
+
+		_ = services.AddTableRepository<Customer, Guid>(options =>
+		{
+			options.TableName = "CustomersWithValueObject";
+			options.HasKey(x => x.Id);
+			options.HasValueObject(x => x.Address);
 		});
 
 		_ = services.AddViewRepository<ProductListView, int>(options =>

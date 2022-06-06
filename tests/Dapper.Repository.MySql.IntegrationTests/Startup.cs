@@ -1,4 +1,4 @@
-using Dapper.Repository.DependencyInjection;
+﻿using Dapper.Repository.DependencyInjection;
 
 namespace Dapper.Repository.MySql.IntegrationTests;
 
@@ -26,6 +26,13 @@ public class Startup
 			options.HasKey(x => x.Id);
 			options.HasDefault(x => x.DateCreated);
 			options.HasValueObject(x => x.Id);
+		});
+
+		_ = services.AddTableRepository<Customer, Guid>(options =>
+		{
+			options.TableName = "customers_with_value_object";
+			options.HasKey(x => x.Id);
+			options.HasValueObject(x => x.Address);
 		});
 
 		_ = services.AddViewRepository<ProductListView, int>(options =>

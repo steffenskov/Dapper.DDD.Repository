@@ -1,4 +1,4 @@
-using System.Runtime.CompilerServices;
+﻿using System.Runtime.CompilerServices;
 using AutoFixture;
 using AutoFixture.Xunit2;
 
@@ -12,7 +12,9 @@ public class AutoDomainDataAttribute : AutoDataAttribute
 													  .With(category => category.CategoryID, 0)
 													  .With(category => category.Picture, (byte[]?)null)
 													.With(category => category.CategoryName, Guid.NewGuid().ToString().Remove(15)));
-
+		  fixture.Customize<Customer>(transform => transform
+														.With(customer => customer.Id, Guid.NewGuid())
+														.With(customer => customer.Address, new Address { Street = "Streetname" + Guid.NewGuid(), Zipcode = Random.Shared.Next(int.MaxValue) }));
 		  return fixture;
 	  })
 	{

@@ -36,22 +36,6 @@ where TDbException : Exception
 		Assert.Equal(aggregate.CategoryName, deleted?.CategoryName);
 		Assert.Equal(aggregate.Picture, deleted?.Picture);
 	}
-
-	[Theory, AutoDomainData]
-	public async Task Delete_UseAggregate_Valid(Category aggregate)
-	{
-		// Arrange
-		var insertedAggregate = await _repository.InsertAsync(aggregate);
-
-		// Act
-		var deleted = await _repository.DeleteAsync(insertedAggregate.CategoryID);
-
-		// Assert
-		Assert.Equal(insertedAggregate.CategoryID, deleted?.CategoryID);
-		Assert.Equal(aggregate.Description, deleted?.Description);
-		Assert.Equal(aggregate.CategoryName, deleted?.CategoryName);
-		Assert.Equal(aggregate.Picture, deleted?.Picture);
-	}
 	#endregion
 
 	#region Get
@@ -63,29 +47,12 @@ where TDbException : Exception
 		var insertedAggregate = await _repository.InsertAsync(aggregate);
 
 		// Act
-		var fetchedAggregate = await _repository.GetAsync(insertedAggregate.CategoryID);
+		var gotten = await _repository.GetAsync(insertedAggregate.CategoryID);
 
 		// Assert
-		Assert.Equal(insertedAggregate.Description, fetchedAggregate?.Description);
-		Assert.Equal(insertedAggregate.CategoryName, fetchedAggregate?.CategoryName);
-		Assert.Equal(insertedAggregate.Picture, fetchedAggregate?.Picture);
-
-		_ = await _repository.DeleteAsync(insertedAggregate.CategoryID);
-	}
-
-	[Theory, AutoDomainData]
-	public async Task Get_UseFullAggregate_Valid(Category aggregate)
-	{
-		// Arrange
-		var insertedAggregate = await _repository.InsertAsync(aggregate);
-
-		// Act
-		var fetchedAggregate = await _repository.GetAsync(insertedAggregate.CategoryID);
-
-		// Assert
-		Assert.Equal(insertedAggregate.Description, fetchedAggregate?.Description);
-		Assert.Equal(insertedAggregate.CategoryName, fetchedAggregate?.CategoryName);
-		Assert.Equal(insertedAggregate.Picture, fetchedAggregate?.Picture);
+		Assert.Equal(insertedAggregate.Description, gotten?.Description);
+		Assert.Equal(insertedAggregate.CategoryName, gotten?.CategoryName);
+		Assert.Equal(insertedAggregate.Picture, gotten?.Picture);
 
 		_ = await _repository.DeleteAsync(insertedAggregate.CategoryID);
 	}
@@ -122,7 +89,7 @@ where TDbException : Exception
 	}
 
 	[Fact]
-	public async Task Insert_HasidentityKeyWithValue_Throws()
+	public async Task Insert_HasIdentityKeyWithValue_Throws()
 	{
 		// Arrange
 		var aggregate = new Category
@@ -138,7 +105,7 @@ where TDbException : Exception
 	}
 
 	[Theory, AutoDomainData]
-	public async Task Insert_HasidentityKeyWithoutValue_IsInserted(Category aggregate)
+	public async Task Insert_HasIdentityKeyWithoutValue_IsInserted(Category aggregate)
 	{
 		// Act
 		var insertedAggregate = await _repository.InsertAsync(aggregate);

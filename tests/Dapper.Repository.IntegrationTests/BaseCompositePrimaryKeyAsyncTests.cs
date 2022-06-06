@@ -1,4 +1,4 @@
-namespace Dapper.Repository.IntegrationTests;
+﻿namespace Dapper.Repository.IntegrationTests;
 public abstract class BaseCompositePrimaryKeyAsyncTests
 {
 	private readonly ITableRepository<CompositeUser, CompositeUserId> _repository;
@@ -6,13 +6,6 @@ public abstract class BaseCompositePrimaryKeyAsyncTests
 	protected BaseCompositePrimaryKeyAsyncTests(IServiceProvider serviceProvider)
 	{
 		_repository = serviceProvider.GetService<ITableRepository<CompositeUser, CompositeUserId>>()!;
-	}
-
-	[Fact]
-	public async Task Delete_PrimaryKeyPartiallyNotEntered_Throws()
-	{
-		// Act && Assert
-		_ = await Assert.ThrowsAsync<ArgumentException>(async () => await _repository.DeleteAsync(new CompositeUserId { Username = "async My name" }));
 	}
 
 	[Fact]
@@ -41,13 +34,6 @@ public abstract class BaseCompositePrimaryKeyAsyncTests
 	}
 
 	[Fact]
-	public async Task Get_PrimaryKeyPartiallyNotEntered_Throws()
-	{
-		// Act && Assert
-		_ = await Assert.ThrowsAsync<ArgumentException>(async () => await _repository.GetAsync(new CompositeUserId { Username = "async My name" }));
-	}
-
-	[Fact]
 	public async Task Get_UseMissingPrimaryKeyValue_ReturnsNull()
 	{
 		// Act
@@ -67,28 +53,27 @@ public abstract class BaseCompositePrimaryKeyAsyncTests
 		var gotten = await _repository.GetAsync(aggregate.Id);
 
 		// Assert
+		Assert.Equal(insertedAggregate, gotten);
+		Assert.NotSame(insertedAggregate, gotten);
 		Assert.Equal(aggregate.Id.Username, gotten?.Id.Username);
 		Assert.Equal(aggregate.Id.Password, gotten?.Id.Password);
-		Assert.Equal(insertedAggregate.DateCreated, gotten?.DateCreated);
 
 		_ = await _repository.DeleteAsync(insertedAggregate.Id);
 	}
 
-	[Fact]
-	public async Task Update_PrimaryKeyPartiallyNotEntered_Throws()
+	[Theory, AutoDomainData]
+	public async Task Update_UseMissingPrimaryKeyValue_ReturnsNull(CompositeUser aggregate)
 	{
-		// Act && Assert
-		_ = await Assert.ThrowsAsync<ArgumentException>(async () => await _repository.UpdateAsync(new CompositeUser { Id = new CompositeUserId { Username = "async My name" } }));
-	}
+		// Arrange
+		var insertedAggregate = await _repository.InsertAsync(aggregate);
 
-	[Fact]
-	public async Task Update_UseMissingPrimaryKeyValue_ReturnsNull()
-	{
 		// Act
-		var updated = await _repository.UpdateAsync(new CompositeUser { Id = new CompositeUserId { Username = "Doesnt exist", Password = "Secret" } });
+		var updated = await _repository.UpdateAsync(insertedAggregate with { Id = new CompositeUserId { Username = "Doesnt exist", Password = "Secret" } });
 
 		// Assert
 		Assert.Null(updated);
+
+		_ = await _repository.DeleteAsync(insertedAggregate.Id);
 	}
 
 	[Theory, AutoDomainData]
