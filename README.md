@@ -34,6 +34,12 @@ The library requires .Net 6.
 
 Also it currently only supports Microsoft SQL Server and MySql (MariaDB should work just fine with the MySql version too), but feel free to branch it and create support for PostGre or whatever you're using (as long as Dapper supports it, this library can too)
 
+## Limitations:
+
+Currently the library only supports tables with a primary key (no heap support), views are supported both with and without primary keys.
+Also all the methods are kept `Async` and no synchronous versions are currently planned. This is because database calls (like all I/O) should probably be kept async for improved performance and responsiveness.
+Finally there's currently no support for `CancellationToken` as the latest version of Dapper doesn't support this when dealing with `ValueObjects`. I'll keep an eye out for updates to Dapper in this regard, and add support as soon as Dapper has it.
+
 ## Usage:
 
 In order to avoid building this library for a specific Dapper version, I've added an injection point for injecting the necessary Dapper extension methods into the repositories.  
