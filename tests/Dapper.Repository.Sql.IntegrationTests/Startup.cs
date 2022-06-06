@@ -1,3 +1,5 @@
+using Dapper.Repository.DependencyInjection;
+
 namespace Dapper.Repository.Sql.IntegrationTests;
 
 public class Startup
@@ -5,21 +7,21 @@ public class Startup
 	public Startup()
 	{
 		var services = new ServiceCollection();
-		services.AddOptions();
-		services.ConfigureDapperRepositoryDefaults(options =>
+		_ = services.AddOptions();
+		_ = services.ConfigureDapperRepositoryDefaults(options =>
 		{
-			options.ConnectionFactory = new SqlConnectionFactory("Server=localhost;Database=Northwind;User Id=sa;Password=SqlServer2019;Encrypt=False;");
+			options.ConnectionFactory = new SqlConnectionFactory("Server=127.0.0.1;Database=Northwind;User Id=sa;Password=SqlServer2019;Encrypt=False;");
 			options.DapperInjectionFactory = new DapperInjectionFactory();
 			options.QueryGeneratorFactory = new SqlQueryGeneratorFactory();
 			options.Schema = "dbo";
 		});
-		services.AddTableRepository<Category, int>(options =>
+		_ = services.AddTableRepository<Category, int>(options =>
 		{
 			options.TableName = "Categories";
 			options.HasKey(x => x.CategoryID);
 			options.HasIdentity(x => x.CategoryID);
 		});
-		services.AddTableRepository<CompositeUser, CompositeUserId>(options => // TODO: how to map TAggregateId?
+		_ = services.AddTableRepository<CompositeUser, CompositeUserId>(options => // TODO: how to map TAggregateId?
 		{
 			options.TableName = "CompositeUsers";
 			options.HasKey(x => x.Id);
@@ -27,12 +29,12 @@ public class Startup
 			options.HasValueObject(x => x.Id);
 		});
 
-		services.AddViewRepository<ProductListView, int>(options =>
+		_ = services.AddViewRepository<ProductListView, int>(options =>
 		{
 			options.ViewName = "Current Product List";
 			options.HasKey(x => x.ProductID);
 		});
-		this.Provider = services.BuildServiceProvider();
+		Provider = services.BuildServiceProvider();
 	}
 
 	public ServiceProvider Provider { get; }

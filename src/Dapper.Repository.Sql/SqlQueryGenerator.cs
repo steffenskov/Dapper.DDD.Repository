@@ -1,4 +1,4 @@
-using Dapper.Repository.Reflection;
+﻿using Dapper.Repository.Reflection;
 
 namespace Dapper.Repository.Sql;
 
@@ -6,10 +6,10 @@ internal class SqlQueryGenerator<TAggregate> : IQueryGenerator<TAggregate>
 	where TAggregate : notnull
 {
 	private readonly string _schemaAndEntity;
-	private IReadOnlyList<ExtendedPropertyInfo> _properties;
-	private IReadOnlyList<ExtendedPropertyInfo> _identities;
-	private IReadOnlyList<ExtendedPropertyInfo> _keys;
-	private IReadOnlyList<ExtendedPropertyInfo> _defaultConstraints;
+	private readonly IReadOnlyList<ExtendedPropertyInfo> _properties;
+	private readonly IReadOnlyList<ExtendedPropertyInfo> _identities;
+	private readonly IReadOnlyList<ExtendedPropertyInfo> _keys;
+	private readonly IReadOnlyList<ExtendedPropertyInfo> _defaultConstraints;
 
 	public SqlQueryGenerator(BaseAggregateConfiguration<TAggregate> configuration)
 	{
@@ -17,10 +17,15 @@ internal class SqlQueryGenerator<TAggregate> : IQueryGenerator<TAggregate>
 		ArgumentNullException.ThrowIfNull(configuration.EntityName);
 
 		if (string.IsNullOrWhiteSpace(configuration.Schema))
+		{
 			throw new ArgumentException("Schema cannot be null or whitespace.", nameof(configuration));
+		}
 
 		if (string.IsNullOrWhiteSpace(configuration.EntityName))
+		{
 			throw new ArgumentException("Entity name cannot be null or whitespace.", nameof(configuration));
+		}
+
 		_schemaAndEntity = $"{EnsureSquareBrackets(configuration.Schema)}.{EnsureSquareBrackets(configuration.EntityName)}";
 
 		var readConfiguration = (IReadAggregateConfiguration<TAggregate>)configuration;
@@ -28,7 +33,7 @@ internal class SqlQueryGenerator<TAggregate> : IQueryGenerator<TAggregate>
 		var valueObjects = readConfiguration.GetValueObjects();
 		foreach (var valueObject in valueObjects)
 		{
-			properties.Remove(valueObject);
+			_ = properties.Remove(valueObject);
 			properties.AddRange(valueObject.GetPropertiesOrdered());
 		}
 		_properties = properties;
@@ -117,10 +122,7 @@ internal class SqlQueryGenerator<TAggregate> : IQueryGenerator<TAggregate>
 
 	private string EnsureSquareBrackets(string name)
 	{
-		if (!name.StartsWith('['))
-			return AddSquareBrackets(name);
-		else
-			return name;
+		return !name.StartsWith('[') ? AddSquareBrackets(name) : name;
 	}
 
 	private string AddSquareBrackets(string name)

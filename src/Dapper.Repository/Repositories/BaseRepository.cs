@@ -64,9 +64,15 @@ where TAggregateId : notnull
 		foreach (var property in properties)
 		{
 			if (!includeIdentities && identities.Contains(property))
+			{
 				continue;
-			if (!includeDefaults && defaults.Contains((property)))
+			}
+
+			if (!includeDefaults && defaults.Contains(property))
+			{
 				continue;
+			}
+
 			AddWrappedValue(dictionary, property, property.GetValue(aggregate));
 		}
 		return dictionary;

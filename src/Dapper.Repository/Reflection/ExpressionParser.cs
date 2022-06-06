@@ -9,10 +9,9 @@ internal class ExpressionParser<TAggregate>
 		var properties = TypePropertiesCache.GetProperties<TAggregate>();
 		foreach (var propertyName in propertyNames)
 		{
-			if (!properties.TryGetValue(propertyName, out var property))
-				throw new InvalidOperationException($"{typeof(TAggregate).Name} doesn't contain a property named {propertyName}.");
-
-			yield return property;
+			yield return !properties.TryGetValue(propertyName, out var property)
+				? throw new InvalidOperationException($"{typeof(TAggregate).Name} doesn't contain a property named {propertyName}.")
+				: property;
 		}
 	}
 

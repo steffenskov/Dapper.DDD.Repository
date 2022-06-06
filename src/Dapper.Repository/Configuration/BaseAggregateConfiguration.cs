@@ -21,7 +21,10 @@ public abstract class BaseAggregateConfiguration<TAggregate> : IReadAggregateCon
 	internal void SetDefaults(DefaultConfiguration? defaults)
 	{
 		if (defaults is null)
+		{
 			return;
+		}
+
 		Schema ??= defaults.Schema;
 		QueryGeneratorFactory ??= defaults.QueryGeneratorFactory;
 		ConnectionFactory ??= defaults.ConnectionFactory;
@@ -31,7 +34,9 @@ public abstract class BaseAggregateConfiguration<TAggregate> : IReadAggregateCon
 	public void HasKey(Expression<Func<TAggregate, object>> expression)
 	{
 		if (_keyProperties is not null)
+		{
 			throw new InvalidOperationException("HasKey has already been called once.");
+		}
 
 		_keyProperties = new ExpressionParser<TAggregate>().GetExtendedPropertiesFromExpression(expression).ToList();
 	}
@@ -62,17 +67,18 @@ public abstract class BaseAggregateConfiguration<TAggregate> : IReadAggregateCon
 		var properties = new ExpressionParser<TAggregate>().GetExtendedPropertiesFromExpression(expression);
 		var invalidProperties = properties.Where(property => property.Type.IsPrimitive || property.Type == typeof(string) || property.Type == typeof(Guid));
 		if (invalidProperties.Any())
+		{
 			throw new ArgumentException($"The properties {string.Join(", ", invalidProperties.Select(p => p.Name))} are not value objects.");
+		}
 
 		_valueObjects.AddRange(properties);
 	}
 
 	IReadOnlyList<ExtendedPropertyInfo> IReadAggregateConfiguration<TAggregate>.GetKeys()
 	{
-		if (_keyProperties is null)
-			throw new InvalidOperationException("No key has been specified for this aggregate.");
-
-		return _keyProperties.AsReadOnly();
+		return _keyProperties is null
+			? throw new InvalidOperationException("No key has been specified for this aggregate.")
+			: (IReadOnlyList<ExtendedPropertyInfo>)_keyProperties.AsReadOnly();
 	}
 
 	IReadOnlyList<ExtendedPropertyInfo> IReadAggregateConfiguration<TAggregate>.GetIdentityProperties()
@@ -86,7 +92,7 @@ public abstract class BaseAggregateConfiguration<TAggregate> : IReadAggregateCon
 
 		foreach (var ignore in _ignores)
 		{
-			rawList.Remove(ignore.Name);
+			_ = rawList.Remove(ignore.Name);
 		}
 
 		return rawList.Values.ToList().AsReadOnly();

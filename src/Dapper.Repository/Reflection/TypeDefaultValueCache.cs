@@ -7,9 +7,6 @@ internal static class TypeDefaultValueCache
 
 	public static object? GetDefaultValue(Type type)
 	{
-		if (!type.IsValueType)
-			return null;
-
-		return _defaultValues.GetOrAdd(type, type => TypeInstantiator.New(type));
+		return !type.IsValueType ? null : _defaultValues.GetOrAdd(type, type => TypeInstantiator.New(type));
 	}
 }

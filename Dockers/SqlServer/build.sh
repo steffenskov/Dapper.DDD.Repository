@@ -1,9 +1,9 @@
 #!/bin/sh
 
-docker stop dapper-repo-sql 2> /dev/null
-docker rm dapper-repo-sql 2> /dev/null
+podman stop dapper-repo-sql 2> /dev/null
+podman rm dapper-repo-sql 2> /dev/null
 
-docker image rm dapper-repo-sql
-docker build -t dapper-repo-sql .
+podman image rm dapper-repo-sql
+podman build -t dapper-repo-sql .
 
-docker run -p 1433:1433 --name dapper-repo-sql -h dapper-repo-sql -d dapper-repo-sql:latest
+podman run -p 1433:1433 --name dapper-repo-sql -h dapper-repo-sql -d dapper-repo-sql:latest

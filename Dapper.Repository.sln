@@ -1,35 +1,37 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 16
-VisualStudioVersion = 16.0.30114.105
+# Visual Studio Version 17
+VisualStudioVersion = 17.2.32526.322
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tests", "tests", "{934290D0-B2B8-4BF2-BC3C-518DF7E72177}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Dapper.Repository.UnitTests", "tests\Dapper.Repository.UnitTests\Dapper.Repository.UnitTests.csproj", "{6778D5A4-C71D-4CFA-9004-A7140C702343}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Dapper.Repository.UnitTests", "tests\Dapper.Repository.UnitTests\Dapper.Repository.UnitTests.csproj", "{6778D5A4-C71D-4CFA-9004-A7140C702343}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Dapper.Repository.IntegrationTests", "tests\Dapper.Repository.IntegrationTests\Dapper.Repository.IntegrationTests.csproj", "{51ECE3D2-AED5-4CB8-B498-7F5A2B45A57B}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Dapper.Repository.IntegrationTests", "tests\Dapper.Repository.IntegrationTests\Dapper.Repository.IntegrationTests.csproj", "{51ECE3D2-AED5-4CB8-B498-7F5A2B45A57B}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{F7736B4F-3246-4092-95D9-57263C2E5329}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Dapper.Repository", "src\Dapper.Repository\Dapper.Repository.csproj", "{C4FA9E8A-9162-4DA0-91CF-3CCC531E0AE4}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Dapper.Repository", "src\Dapper.Repository\Dapper.Repository.csproj", "{C4FA9E8A-9162-4DA0-91CF-3CCC531E0AE4}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Dapper.Repository.Sql", "src\Dapper.Repository.Sql\Dapper.Repository.Sql.csproj", "{27594AE2-98B9-472E-B001-5527D56FB677}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Dapper.Repository.Sql", "src\Dapper.Repository.Sql\Dapper.Repository.Sql.csproj", "{27594AE2-98B9-472E-B001-5527D56FB677}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Dapper.Repository.MySql", "src\Dapper.Repository.MySql\Dapper.Repository.MySql.csproj", "{B5991F58-B0FE-418D-995E-9DE4E410439B}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Dapper.Repository.MySql", "src\Dapper.Repository.MySql\Dapper.Repository.MySql.csproj", "{B5991F58-B0FE-418D-995E-9DE4E410439B}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Dapper.Repository.MySql.IntegrationTests", "tests\Dapper.Repository.MySql.IntegrationTests\Dapper.Repository.MySql.IntegrationTests.csproj", "{8408365F-D4EF-4E31-A09D-A7D0B74251A2}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Dapper.Repository.MySql.IntegrationTests", "tests\Dapper.Repository.MySql.IntegrationTests\Dapper.Repository.MySql.IntegrationTests.csproj", "{8408365F-D4EF-4E31-A09D-A7D0B74251A2}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Dapper.Repository.Sql.IntegrationTests", "tests\Dapper.Repository.Sql.IntegrationTests\Dapper.Repository.Sql.IntegrationTests.csproj", "{3B41B286-CFC8-4762-A81F-D9018D4F50DD}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Dapper.Repository.Sql.IntegrationTests", "tests\Dapper.Repository.Sql.IntegrationTests\Dapper.Repository.Sql.IntegrationTests.csproj", "{3B41B286-CFC8-4762-A81F-D9018D4F50DD}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Dapper.Repository.DependencyInjection", "src\Dapper.Repository.DependencyInjection\Dapper.Repository.DependencyInjection.csproj", "{AA496F5F-7F6E-4969-8471-FC4AA54623E8}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Dapper.Repository.DependencyInjection", "src\Dapper.Repository.DependencyInjection\Dapper.Repository.DependencyInjection.csproj", "{AA496F5F-7F6E-4969-8471-FC4AA54623E8}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{22179B28-6DAC-4EE6-9B45-BE4C33385EA1}"
+	ProjectSection(SolutionItems) = preProject
+		.editorconfig = .editorconfig
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
 		Release|Any CPU = Release|Any CPU
-	EndGlobalSection
-	GlobalSection(SolutionProperties) = preSolution
-		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
 		{6778D5A4-C71D-4CFA-9004-A7140C702343}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
@@ -65,6 +67,9 @@ Global
 		{AA496F5F-7F6E-4969-8471-FC4AA54623E8}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{AA496F5F-7F6E-4969-8471-FC4AA54623E8}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{6778D5A4-C71D-4CFA-9004-A7140C702343} = {934290D0-B2B8-4BF2-BC3C-518DF7E72177}
 		{51ECE3D2-AED5-4CB8-B498-7F5A2B45A57B} = {934290D0-B2B8-4BF2-BC3C-518DF7E72177}
@@ -74,5 +79,8 @@ Global
 		{8408365F-D4EF-4E31-A09D-A7D0B74251A2} = {934290D0-B2B8-4BF2-BC3C-518DF7E72177}
 		{3B41B286-CFC8-4762-A81F-D9018D4F50DD} = {934290D0-B2B8-4BF2-BC3C-518DF7E72177}
 		{AA496F5F-7F6E-4969-8471-FC4AA54623E8} = {F7736B4F-3246-4092-95D9-57263C2E5329}
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {5B5D0359-CCE9-41BA-B872-C47174DFF41F}
 	EndGlobalSection
 EndGlobal

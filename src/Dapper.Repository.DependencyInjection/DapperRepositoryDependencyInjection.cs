@@ -1,8 +1,9 @@
 using Dapper.Repository.Configuration;
 using Dapper.Repository.Interfaces;
 using Dapper.Repository.Repositories;
+using Microsoft.Extensions.DependencyInjection;
 
-namespace Microsoft.Extensions.DependencyInjection;
+namespace Dapper.Repository.DependencyInjection;
 
 public static class DapperRepositoryDependencyInjection
 {
@@ -22,8 +23,8 @@ public static class DapperRepositoryDependencyInjection
 	where TAggregate : notnull
 	where TAggregateId : notnull
 	{
-		services.Configure(configureOptions);
-		services.AddSingleton<ITableRepository<TAggregate, TAggregateId>, TableRepository<TAggregate, TAggregateId>>();
+		_ = services.Configure(configureOptions);
+		_ = services.AddSingleton<ITableRepository<TAggregate, TAggregateId>, TableRepository<TAggregate, TAggregateId>>();
 		return services;
 	}
 
@@ -35,8 +36,8 @@ public static class DapperRepositoryDependencyInjection
 	where TAggregate : notnull
 	where TAggregateId : notnull
 	{
-		services.Configure(configureOptions);
-		services.AddSingleton<IViewRepository<TAggregate, TAggregateId>, ViewRepository<TAggregate, TAggregateId>>();
+		_ = services.Configure(configureOptions);
+		_ = services.AddSingleton<IViewRepository<TAggregate, TAggregateId>, ViewRepository<TAggregate, TAggregateId>>();
 		return services;
 	}
 }

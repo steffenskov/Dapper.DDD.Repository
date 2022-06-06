@@ -12,12 +12,12 @@ public class ExpressionParserTests
 	{
 		// Arrange
 		var parser = new ExpressionParser<UserAggregate>();
-		
+
 		// Act
 		var propertyInfos = parser.GetExtendedPropertiesFromExpression(user => user.Id).ToList();
-		
+
 		// Assert
-		Assert.Single(propertyInfos);
+		_ = Assert.Single(propertyInfos);
 		Assert.Equal(nameof(UserAggregate.Id), propertyInfos.Single().Name);
 	}
 
@@ -31,7 +31,7 @@ public class ExpressionParserTests
 		var propertyInfos = parser.GetExtendedPropertiesFromExpression(user => new { user.Id }).ToList();
 
 		// Assert
-		Assert.Single(propertyInfos);
+		_ = Assert.Single(propertyInfos);
 		Assert.Equal(nameof(UserAggregate.Id), propertyInfos.Single().Name);
 	}
 
@@ -56,10 +56,10 @@ public class ExpressionParserTests
 	{
 		// Arrange
 		var parser = new ExpressionParser<UserAggregate>();
-		int id = 42;
+		var id = 42;
 
 		// Act && Assert
-		Assert.Throws<InvalidOperationException>(() => parser.GetExtendedPropertiesFromExpression(user => id).ToList());
+		_ = Assert.Throws<InvalidOperationException>(() => parser.GetExtendedPropertiesFromExpression(user => id).ToList());
 	}
 
 	[Fact]
@@ -70,7 +70,7 @@ public class ExpressionParserTests
 		const int id = 42;
 
 		// Act && Assert
-		Assert.Throws<NotSupportedException>(() => parser.GetExtendedPropertiesFromExpression(user => id).ToList());
+		_ = Assert.Throws<NotSupportedException>(() => parser.GetExtendedPropertiesFromExpression(user => id).ToList());
 	}
 
 	[Fact]
@@ -80,6 +80,6 @@ public class ExpressionParserTests
 		var parser = new ExpressionParser<UserAggregate>();
 
 		// Act && Assert
-		Assert.Throws<InvalidOperationException>(() => parser.GetExtendedPropertiesFromExpression(user => new { id = user.Id}).ToList());
+		_ = Assert.Throws<InvalidOperationException>(() => parser.GetExtendedPropertiesFromExpression(user => new { id = user.Id }).ToList());
 	}
 }

@@ -1,12 +1,11 @@
 ﻿using System;
 
-namespace Dapper.Repository.UnitTests.Aggregates
-{
-	internal record CompositePrimaryKeyAggregate
-	{
-		public string Username { get; init; } = default!;
-		public string Password { get; init; } = default!;
+namespace Dapper.Repository.UnitTests.Aggregates;
 
-		public DateTime DateCreated { get; init; }
-	}
+internal record CompositePrimaryKeyAggregate
+{
+	public string Username { get; init; } = default!;
+	public string Password { get; init; } = default!;
+
+	public DateTime DateCreated { get; init; }
 }

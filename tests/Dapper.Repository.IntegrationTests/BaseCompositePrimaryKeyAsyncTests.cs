@@ -12,7 +12,7 @@ public abstract class BaseCompositePrimaryKeyAsyncTests
 	public async Task Delete_PrimaryKeyPartiallyNotEntered_Throws()
 	{
 		// Act && Assert
-		await Assert.ThrowsAsync<ArgumentException>(async () => await _repository.DeleteAsync(new CompositeUserId { Username = "async My name" }));
+		_ = await Assert.ThrowsAsync<ArgumentException>(async () => await _repository.DeleteAsync(new CompositeUserId { Username = "async My name" }));
 	}
 
 	[Fact]
@@ -44,7 +44,7 @@ public abstract class BaseCompositePrimaryKeyAsyncTests
 	public async Task Get_PrimaryKeyPartiallyNotEntered_Throws()
 	{
 		// Act && Assert
-		await Assert.ThrowsAsync<ArgumentException>(async () => await _repository.GetAsync(new CompositeUserId { Username = "async My name" }));
+		_ = await Assert.ThrowsAsync<ArgumentException>(async () => await _repository.GetAsync(new CompositeUserId { Username = "async My name" }));
 	}
 
 	[Fact]
@@ -71,14 +71,14 @@ public abstract class BaseCompositePrimaryKeyAsyncTests
 		Assert.Equal(aggregate.Id.Password, gotten?.Id.Password);
 		Assert.Equal(insertedAggregate.DateCreated, gotten?.DateCreated);
 
-		await _repository.DeleteAsync(insertedAggregate.Id);
+		_ = await _repository.DeleteAsync(insertedAggregate.Id);
 	}
 
 	[Fact]
 	public async Task Update_PrimaryKeyPartiallyNotEntered_Throws()
 	{
 		// Act && Assert
-		await Assert.ThrowsAsync<ArgumentException>(async () => await _repository.UpdateAsync(new CompositeUser { Id = new CompositeUserId { Username = "async My name" } }));
+		_ = await Assert.ThrowsAsync<ArgumentException>(async () => await _repository.UpdateAsync(new CompositeUser { Id = new CompositeUserId { Username = "async My name" } }));
 	}
 
 	[Fact]
@@ -107,6 +107,6 @@ public abstract class BaseCompositePrimaryKeyAsyncTests
 		Assert.Equal(42, updated?.Age);
 		Assert.Equal(insertedAggregate.DateCreated, updated?.DateCreated);
 
-		await _repository.DeleteAsync(insertedAggregate.Id);
+		_ = await _repository.DeleteAsync(insertedAggregate.Id);
 	}
 }

@@ -1,8 +1,7 @@
-using System;
+﻿using System;
 using Dapper.Repository.Configuration;
 using Dapper.Repository.Sql;
 using Dapper.Repository.UnitTests.Aggregates;
-using Xunit;
 
 namespace Dapper.Repository.UnitTests.Sql
 {
@@ -20,7 +19,7 @@ namespace Dapper.Repository.UnitTests.Sql
 			};
 
 			// Act && assert
-			Assert.Throws<ArgumentNullException>(() => new SqlQueryGenerator<SinglePrimaryKeyAggregate>(configuration));
+			_ = Assert.Throws<ArgumentNullException>(() => new SqlQueryGenerator<SinglePrimaryKeyAggregate>(configuration));
 		}
 
 		[Fact]
@@ -33,7 +32,7 @@ namespace Dapper.Repository.UnitTests.Sql
 				TableName = "Users"
 			};
 			// Act && assert
-			Assert.Throws<ArgumentNullException>(() => new SqlQueryGenerator<SinglePrimaryKeyAggregate>(configuration));
+			_ = Assert.Throws<ArgumentNullException>(() => new SqlQueryGenerator<SinglePrimaryKeyAggregate>(configuration));
 		}
 
 		[Fact]
@@ -46,7 +45,7 @@ namespace Dapper.Repository.UnitTests.Sql
 				TableName = " "
 			};
 			// Act && assert
-			Assert.Throws<ArgumentException>(() => new SqlQueryGenerator<SinglePrimaryKeyAggregate>(configuration));
+			_ = Assert.Throws<ArgumentException>(() => new SqlQueryGenerator<SinglePrimaryKeyAggregate>(configuration));
 		}
 
 		[Fact]
@@ -59,11 +58,24 @@ namespace Dapper.Repository.UnitTests.Sql
 				TableName = "Users"
 			};
 			// Act && assert
-			Assert.Throws<ArgumentException>(() => new SqlQueryGenerator<SinglePrimaryKeyAggregate>(configuration));
+			_ = Assert.Throws<ArgumentException>(() => new SqlQueryGenerator<SinglePrimaryKeyAggregate>(configuration));
 		}
 		#endregion
 
 		#region Delete
+		[Fact]
+		public void GenerateDeleteQuery_HasValueObjectAsId_Valid()
+		{
+			// Arrange
+			var generator = CreateAggregateWithValueObjectIdQueryGenerator();
+
+			// Act
+			var query = generator.GenerateDeleteQuery();
+
+			// Assert
+			Assert.Equal($"DELETE FROM [dbo].[Users] OUTPUT [deleted].[Age], [deleted].[Password], [deleted].[Username] WHERE [dbo].[Users].[Password] = @Password AND [dbo].[Users].[Username] = @Username);", query);
+		}
+
 		[Fact]
 		public void GenerateDeleteQuery_HasValueObject_Valid()
 		{
@@ -118,10 +130,118 @@ namespace Dapper.Repository.UnitTests.Sql
 		}
 		#endregion
 
+		#region GetAll
+		[Fact]
+		public void GenerateGetAllQuery_HasValueObjectAsId_Valid()
+		{
+			// Arrange
+			var generator = CreateAggregateWithValueObjectIdQueryGenerator();
+
+			// Act
+			var query = generator.GenerateGetAllQuery();
+
+			// Assert
+			Assert.Equal($"SELECT [dbo].[Users].[Age], [dbo].[Users].[Password], [dbo].[Users].[Username] FROM [dbo].[Users];", query);
+		}
+
+		[Fact]
+		public void GenerateGetAllQuery_HasValueObject_Valid()
+		{
+			var generator = CreateUserAggregateQueryGenerator();
+
+			// Act
+			var query = generator.GenerateGetAllQuery();
+
+			// Assert
+			Assert.Equal($"SELECT [dbo].[Users].[Id], [dbo].[Users].[City], [dbo].[Users].[Street] FROM [dbo].[Users];", query);
+		}
+
+		[Fact]
+		public void GenerateGetAllQuery_ProperTableName_Valid()
+		{
+			// Arrange
+			var generator = CreateSinglePrimaryKeyAggregateQueryGenerator();
+
+			// Act
+			var selectQuery = generator.GenerateGetAllQuery();
+
+			// Assert
+			Assert.Equal($"SELECT [dbo].[Users].[Id], [dbo].[Users].[Username], [dbo].[Users].[Password] FROM [dbo].[Users];", selectQuery);
+		}
+
+		#endregion
+
+		#region Get
+		[Fact]
+		public void GenerateGetQuery_HasValueObjectAsId_Valid()
+		{
+			// Arrange
+			var generator = CreateAggregateWithValueObjectIdQueryGenerator();
+
+			// Act
+			var query = generator.GenerateGetQuery();
+
+			// Assert
+			Assert.Equal($"SELECT [dbo].[Users].[Age], [dbo].[Users].[Password], [dbo].[Users].[Username] FROM [dbo].[Users] WHERE [dbo].[Users].[Password] = @Password AND [dbo].[Users].[Username] = @Username;", query);
+		}
+
+		[Fact]
+		public void GenerateGetQuery_HasValueObject_Valid()
+		{
+			var generator = CreateUserAggregateQueryGenerator();
+
+			// Act
+			var query = generator.GenerateGetQuery();
+
+			// Assert
+			Assert.Equal($"SELECT [dbo].[Users].[Id], [dbo].[Users].[City], [dbo].[Users].[Street] FROM [dbo].[Users] WHERE [dbo].[Users].[Id] = @Id;", query);
+		}
+
+		[Fact]
+		public void GenerateGetQuery_SinglePrimaryKey_Valid()
+		{
+			// Arrange
+			var generator = CreateSinglePrimaryKeyAggregateQueryGenerator();
+
+			// Act
+			var selectQuery = generator.GenerateGetQuery();
+
+			// Assert
+			Assert.Equal($"SELECT [dbo].[Users].[Id], [dbo].[Users].[Username], [dbo].[Users].[Password] FROM [dbo].[Users] WHERE [dbo].[Users].[Id] = @Id;", selectQuery);
+		}
+
+		[Fact]
+		public void GenerateGetQuery_CompositePrimaryKey_Valid()
+		{
+			// Arrange
+			var generator = CreateCompositePrimaryKeyAggregateQueryGenerator();
+
+			// Act
+			var selectQuery = generator.GenerateGetQuery();
+
+			// Assert
+			Assert.Equal($"SELECT [dbo].[Users].[Username], [dbo].[Users].[Password], [dbo].[Users].[DateCreated] FROM [dbo].[Users] WHERE [dbo].[Users].[Username] = @Username AND [dbo].[Users].[Password] = @Password;", selectQuery);
+		}
+		#endregion
+
 		#region Insert
+		[Fact]
+		public void GenerateInsertQuery_HasValueObjectAsId_Valid()
+		{
+			// Arrange
+			var generator = CreateAggregateWithValueObjectIdQueryGenerator();
+
+			// Act
+			var query = generator.GenerateInsertQuery(new AggregateWithValueObjectId());
+
+			// Assert
+			Assert.Equal($"INSERT INTO [dbo].[Users] ([Age], [Password], [Username]) OUTPUT [inserted].[Age], [inserted].[Password], [inserted].[Username] VALUES (@Age, @Password, @Username);", query);
+		}
+
 		[Fact]
 		public void GenerateInsertQuery_HasValueObject_Valid()
 		{
+			// Arrange
 			var generator = CreateUserAggregateQueryGenerator();
 
 			// Act
@@ -135,7 +255,7 @@ namespace Dapper.Repository.UnitTests.Sql
 		public void GenerateInsertQuery_CustomSchema_Valid()
 		{
 			// Arrange
-			SqlQueryGenerator<SinglePrimaryKeyAggregate> generator = CreateSinglePrimaryKeyAggregateWithCustomSchemaQueryGenerator();
+			var generator = CreateSinglePrimaryKeyAggregateWithCustomSchemaQueryGenerator();
 
 			// Act
 			var query = generator.GenerateInsertQuery(new SinglePrimaryKeyAggregate());
@@ -215,75 +335,20 @@ namespace Dapper.Repository.UnitTests.Sql
 		}
 		#endregion
 
-		#region GetAll
-		[Fact]
-		public void GenerateGetAllQuery_HasValueObject_Valid()
-		{
-			var generator = CreateUserAggregateQueryGenerator();
-
-			// Act
-			var query = generator.GenerateGetAllQuery();
-
-			// Assert
-			Assert.Equal($"SELECT [dbo].[Users].[Id], [dbo].[Users].[City], [dbo].[Users].[Street] FROM [dbo].[Users];", query);
-		}
-
-		[Fact]
-		public void GenerateGetAllQuery_ProperTableName_Valid()
-		{
-			// Arrange
-			var generator = CreateSinglePrimaryKeyAggregateQueryGenerator();
-
-			// Act
-			var selectQuery = generator.GenerateGetAllQuery();
-
-			// Assert
-			Assert.Equal($"SELECT [dbo].[Users].[Id], [dbo].[Users].[Username], [dbo].[Users].[Password] FROM [dbo].[Users];", selectQuery);
-		}
-
-		#endregion
-
-		#region Get
-		[Fact]
-		public void GenerateGetQuery_HasValueObject_Valid()
-		{
-			var generator = CreateUserAggregateQueryGenerator();
-
-			// Act
-			var query = generator.GenerateGetQuery();
-
-			// Assert
-			Assert.Equal($"SELECT [dbo].[Users].[Id], [dbo].[Users].[City], [dbo].[Users].[Street] FROM [dbo].[Users] WHERE [dbo].[Users].[Id] = @Id;", query);
-		}
-
-		[Fact]
-		public void GenerateGetQuery_SinglePrimaryKey_Valid()
-		{
-			// Arrange
-			var generator = CreateSinglePrimaryKeyAggregateQueryGenerator();
-
-			// Act
-			var selectQuery = generator.GenerateGetQuery();
-
-			// Assert
-			Assert.Equal($"SELECT [dbo].[Users].[Id], [dbo].[Users].[Username], [dbo].[Users].[Password] FROM [dbo].[Users] WHERE [dbo].[Users].[Id] = @Id;", selectQuery);
-		}
-
-		[Fact]
-		public void GenerateGetQuery_CompositePrimaryKey_Valid()
-		{
-			// Arrange
-			var generator = CreateCompositePrimaryKeyAggregateQueryGenerator();
-
-			// Act
-			var selectQuery = generator.GenerateGetQuery();
-
-			// Assert
-			Assert.Equal($"SELECT [dbo].[Users].[Username], [dbo].[Users].[Password], [dbo].[Users].[DateCreated] FROM [dbo].[Users] WHERE [dbo].[Users].[Username] = @Username AND [dbo].[Users].[Password] = @Password;", selectQuery);
-		}
-		#endregion
-
 		#region Update
+		[Fact]
+		public void GenerateUpdateQuery_HasValueObjectAsId_Valid()
+		{
+			// Arrange
+			var generator = CreateAggregateWithValueObjectIdQueryGenerator();
+
+			// Act
+			var query = generator.GenerateUpdateQuery();
+
+			// Assert
+			Assert.Equal($"UPDATE [dbo].[Users] SET [dbo].[Users].[Age] = @Age OUTPUT [inserted].[Age], [inserted].[Password], [inserted].[Username] WHERE [dbo].[Users].[Password] = @Password AND [dbo].[Users].[Username] = @Username;", query);
+		}
+
 		[Fact]
 		public void GenerateUpdateQuery_HasValueObject_Valid()
 		{
@@ -335,7 +400,7 @@ namespace Dapper.Repository.UnitTests.Sql
 			var generator = new SqlQueryGenerator<AllPropertiesHasMissingSetterAggregate>(configuration);
 
 			// Act && Assert
-			Assert.Throws<InvalidOperationException>(() => generator.GenerateUpdateQuery());
+			_ = Assert.Throws<InvalidOperationException>(() => generator.GenerateUpdateQuery());
 		}
 
 		[Fact]
@@ -422,6 +487,19 @@ namespace Dapper.Repository.UnitTests.Sql
 			config.HasKey(x => x.Id);
 			config.HasValueObject(x => x.Address);
 			var generator = new SqlQueryGenerator<UserAggregate>(config);
+			return generator;
+		}
+
+		private static SqlQueryGenerator<AggregateWithValueObjectId> CreateAggregateWithValueObjectIdQueryGenerator()
+		{
+			var config = new TableAggregateConfiguration<AggregateWithValueObjectId>()
+			{
+				Schema = "dbo",
+				TableName = "Users"
+			};
+			config.HasKey(x => x.Id);
+			config.HasValueObject(x => x.Id);
+			var generator = new SqlQueryGenerator<AggregateWithValueObjectId>(config);
 			return generator;
 		}
 		#endregion

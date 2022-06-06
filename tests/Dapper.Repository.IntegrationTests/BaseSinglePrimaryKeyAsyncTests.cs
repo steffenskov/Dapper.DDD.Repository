@@ -1,4 +1,4 @@
-namespace Dapper.Repository.IntegrationTests;
+﻿namespace Dapper.Repository.IntegrationTests;
 public abstract class BaseSinglePrimaryKeyAsyncTests<TDbException>
 where TDbException : Exception
 {
@@ -70,7 +70,7 @@ where TDbException : Exception
 		Assert.Equal(insertedAggregate.CategoryName, fetchedAggregate?.CategoryName);
 		Assert.Equal(insertedAggregate.Picture, fetchedAggregate?.Picture);
 
-		await _repository.DeleteAsync(insertedAggregate.CategoryID);
+		_ = await _repository.DeleteAsync(insertedAggregate.CategoryID);
 	}
 
 	[Theory, AutoDomainData]
@@ -87,7 +87,7 @@ where TDbException : Exception
 		Assert.Equal(insertedAggregate.CategoryName, fetchedAggregate?.CategoryName);
 		Assert.Equal(insertedAggregate.Picture, fetchedAggregate?.Picture);
 
-		await _repository.DeleteAsync(insertedAggregate.CategoryID);
+		_ = await _repository.DeleteAsync(insertedAggregate.CategoryID);
 	}
 
 	[Fact]
@@ -118,7 +118,7 @@ where TDbException : Exception
 	public async Task Insert_InputIsNull_Throws()
 	{
 		// Act && Assert
-		await Assert.ThrowsAsync<ArgumentNullException>(async () => await _repository.InsertAsync(null!));
+		_ = await Assert.ThrowsAsync<ArgumentNullException>(async () => await _repository.InsertAsync(null!));
 	}
 
 	[Fact]
@@ -134,7 +134,7 @@ where TDbException : Exception
 		};
 
 		// Act && Assert
-		await Assert.ThrowsAsync<ArgumentException>(async () => await _repository.InsertAsync(aggregate));
+		_ = await Assert.ThrowsAsync<ArgumentException>(async () => await _repository.InsertAsync(aggregate));
 	}
 
 	[Theory, AutoDomainData]
@@ -152,7 +152,7 @@ where TDbException : Exception
 		}
 		finally
 		{
-			await _repository.DeleteAsync(insertedAggregate.CategoryID);
+			_ = await _repository.DeleteAsync(insertedAggregate.CategoryID);
 		}
 	}
 
@@ -168,7 +168,7 @@ where TDbException : Exception
 		};
 
 		// Act && Assert
-		await Assert.ThrowsAsync<TDbException>(async () => await _repository.InsertAsync(aggregate));
+		_ = await Assert.ThrowsAsync<TDbException>(async () => await _repository.InsertAsync(aggregate));
 	}
 	#endregion
 
@@ -177,7 +177,7 @@ where TDbException : Exception
 	public async Task Update_InputIsNull_Throws()
 	{
 		// Act && Assert
-		await Assert.ThrowsAsync<ArgumentNullException>(async () => await _repository.UpdateAsync(null!));
+		_ = await Assert.ThrowsAsync<ArgumentNullException>(async () => await _repository.UpdateAsync(null!));
 	}
 
 	[Theory, AutoDomainData]
@@ -194,7 +194,7 @@ where TDbException : Exception
 		// Assert
 		Assert.Equal("Something else", updatedAggregate?.Description);
 
-		await _repository.DeleteAsync(insertedAggregate.CategoryID);
+		_ = await _repository.DeleteAsync(insertedAggregate.CategoryID);
 	}
 
 	[Fact]

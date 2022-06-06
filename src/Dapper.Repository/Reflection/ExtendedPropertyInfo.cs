@@ -47,13 +47,16 @@ public class ExtendedPropertyInfo
 
 	public IReadOnlyList<ExtendedPropertyInfo> GetPropertiesOrdered()
 	{
-		var result = TypePropertiesCache.GetProperties(this.Type)
+		var result = TypePropertiesCache.GetProperties(Type)
 										.Values
 										.OrderBy(prop => prop.Name)
 										.ToList()
 										.AsReadOnly();
 		foreach (var prop in result)
-			prop.Prefix = this.Name;
+		{
+			prop.Prefix = Name;
+		}
+
 		return result;
 	}
 }

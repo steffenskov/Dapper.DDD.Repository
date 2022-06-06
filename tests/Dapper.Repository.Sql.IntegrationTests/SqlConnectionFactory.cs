@@ -11,7 +11,9 @@ public class SqlConnectionFactory : IConnectionFactory
 	public SqlConnectionFactory(string connectionString)
 	{
 		if (string.IsNullOrWhiteSpace(connectionString))
+		{
 			throw new ArgumentException("Connectionstring cannot be null or whitespace.", nameof(connectionString));
+		}
 
 		_connectionString = connectionString;
 	}

@@ -1,4 +1,4 @@
-namespace Dapper.Repository.Repositories;
+﻿namespace Dapper.Repository.Repositories;
 
 public class TableRepository<TAggregate, TAggregateId> : BaseRepository<TAggregate, TAggregateId>, ITableRepository<TAggregate, TAggregateId>
 where TAggregate : notnull
@@ -20,12 +20,9 @@ where TAggregateId : notnull
 	{
 		var query = _queryGenerator.GenerateGetQuery();
 
-		if (HasValueObjects)
-		{
-			return (await QueryWithValueObjectsAsync(query, id)).FirstOrDefault();
-		}
-		else
-			return await QuerySingleOrDefaultAsync(query, id);
+		return HasValueObjects
+				? (await QueryWithValueObjectsAsync(query, WrapId(id))).FirstOrDefault()
+				: await QuerySingleOrDefaultAsync(query, WrapId(id));
 	}
 
 	public async Task<TAggregate> InsertAsync(TAggregate aggregate)
@@ -41,14 +38,9 @@ where TAggregateId : notnull
 		}
 
 		var query = _queryGenerator.GenerateInsertQuery(aggregate);
-		if (HasValueObjects)
-		{
-			return (await QueryWithValueObjectsAsync(query, WrapAggregate(aggregate, false, false))).First();
-		}
-		else
-		{
-			return await QuerySingleAsync(query, aggregate);
-		}
+		return HasValueObjects
+				? (await QueryWithValueObjectsAsync(query, WrapAggregate(aggregate, false, false))).First()
+				: await QuerySingleAsync(query, aggregate);
 	}
 
 	public async Task<TAggregate?> UpdateAsync(TAggregate aggregate)

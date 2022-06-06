@@ -5,20 +5,24 @@ namespace Dapper.Repository.MySql;
 internal class MySqlQueryGenerator<TAggregate> : IQueryGenerator<TAggregate>
 	where TAggregate : notnull
 {
-	private IReadOnlyList<ExtendedPropertyInfo> _properties;
-	private IReadOnlyList<ExtendedPropertyInfo> _identities;
-	private IReadOnlyList<ExtendedPropertyInfo> _keys;
-	private IReadOnlyList<ExtendedPropertyInfo> _defaultConstraints;
+	private readonly IReadOnlyList<ExtendedPropertyInfo> _properties;
+	private readonly IReadOnlyList<ExtendedPropertyInfo> _identities;
+	private readonly IReadOnlyList<ExtendedPropertyInfo> _keys;
+	private readonly IReadOnlyList<ExtendedPropertyInfo> _defaultConstraints;
 	private readonly string _entityName;
 
 	public MySqlQueryGenerator(BaseAggregateConfiguration<TAggregate> configuration)
 	{
 		if (configuration.Schema is not null)
+		{
 			throw new ArgumentException("MySql doesn't support Schema.", nameof(configuration));
+		}
 
 		ArgumentNullException.ThrowIfNull(configuration.EntityName);
 		if (string.IsNullOrWhiteSpace(configuration.EntityName))
+		{
 			throw new ArgumentException("Table name cannot be null or whitespace.", nameof(configuration));
+		}
 
 		_entityName = configuration.EntityName;
 
@@ -27,7 +31,7 @@ internal class MySqlQueryGenerator<TAggregate> : IQueryGenerator<TAggregate>
 		var valueObjects = readConfiguration.GetValueObjects();
 		foreach (var valueObject in valueObjects)
 		{
-			properties.Remove(valueObject);
+			_ = properties.Remove(valueObject);
 			properties.AddRange(valueObject.GetPropertiesOrdered());
 		}
 		_properties = properties;
@@ -69,7 +73,7 @@ DELETE FROM {_entityName} WHERE {whereClause};";
 									.Where(property => !identityProperties.Contains(property) && (!propertiesWithDefaultValues.Contains(property) || !property.HasDefaultValue(aggregate)))
 									.ToList();
 
-		string selectStatement = "";
+		var selectStatement = "";
 		if (identityProperties.Any())
 		{
 			if (identityProperties.Count > 1)
@@ -98,7 +102,7 @@ DELETE FROM {_entityName} WHERE {whereClause};";
 			throw new InvalidOperationException($"GenerateGetQuery for aggregate of type {typeof(TAggregate).FullName} failed as the type has no properties with a setter.");
 		}
 
-		var outputProperties = GeneratePropertyList("inserted", _properties);
+		_ = GeneratePropertyList("inserted", _properties);
 		var selectStatement = GenerateGetQuery();
 		return $@"UPDATE {_entityName} SET {setClause} WHERE {GenerateWhereClause()};
 {selectStatement}";

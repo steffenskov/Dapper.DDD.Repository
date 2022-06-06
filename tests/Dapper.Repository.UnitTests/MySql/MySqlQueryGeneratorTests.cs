@@ -2,7 +2,6 @@ using System;
 using Dapper.Repository.Configuration;
 using Dapper.Repository.MySql;
 using Dapper.Repository.UnitTests.Aggregates;
-using Xunit;
 
 namespace Dapper.Repository.UnitTests.MySql
 {
@@ -20,7 +19,7 @@ namespace Dapper.Repository.UnitTests.MySql
 			};
 
 			// Act && Assert
-			Assert.Throws<ArgumentNullException>(() => new MySqlQueryGenerator<SinglePrimaryKeyAggregate>(configuration));
+			_ = Assert.Throws<ArgumentNullException>(() => new MySqlQueryGenerator<SinglePrimaryKeyAggregate>(configuration));
 		}
 
 		[Fact]
@@ -32,11 +31,25 @@ namespace Dapper.Repository.UnitTests.MySql
 				TableName = " "
 			};
 			// Act && Assert
-			Assert.Throws<ArgumentException>(() => new MySqlQueryGenerator<SinglePrimaryKeyAggregate>(configuration));
+			_ = Assert.Throws<ArgumentException>(() => new MySqlQueryGenerator<SinglePrimaryKeyAggregate>(configuration));
 		}
 		#endregion
 
 		#region Delete
+		[Fact]
+		public void GenerateDeleteQuery_HasValueObjectAsId_Valid()
+		{
+			// Arrange
+			var generator = CreateAggregateWithValueObjectIdQueryGenerator();
+
+			// Act
+			var query = generator.GenerateDeleteQuery();
+
+			// Assert
+			Assert.Equal($@"SELECT Users.Age, Users.Password, Users.Username FROM Users WHERE Users.Password = @Password AND Users.Username = @Username;
+DELETE FROM Users WHERE Users.Password = @Password AND Users.Username = @Username);", query);
+		}
+
 		[Fact]
 		public void GenerateDeleteQuery_HasValueObject_Valid()
 		{
@@ -81,6 +94,19 @@ DELETE FROM Users WHERE Users.Username = @Username AND Users.Password = @Passwor
 
 		#region GetAll
 		[Fact]
+		public void GenerateGetAllQuery_HasValueObjectAsId_Valid()
+		{
+			// Arrange
+			var generator = CreateAggregateWithValueObjectIdQueryGenerator();
+
+			// Act
+			var query = generator.GenerateGetAllQuery();
+
+			// Assert
+			Assert.Equal($"SELECT Users.Age, Users.Password, Users.Username FROM Users;", query);
+		}
+
+		[Fact]
 		public void GenerateGetAllQuery_HasValueObject_Valid()
 		{
 			var generator = CreateUserAggregateQueryGenerator();
@@ -108,6 +134,19 @@ DELETE FROM Users WHERE Users.Username = @Username AND Users.Password = @Passwor
 		#endregion
 
 		#region Get
+		[Fact]
+		public void GenerateGetQuery_HasValueObjectAsId_Valid()
+		{
+			// Arrange
+			var generator = CreateAggregateWithValueObjectIdQueryGenerator();
+
+			// Act
+			var query = generator.GenerateGetQuery();
+
+			// Assert
+			Assert.Equal($"SELECT Users.Age, Users.Password, Users.Username FROM Users WHERE Users.Password = @Password AND Users.Username = @Username;", query);
+		}
+
 		[Fact]
 		public void GenerateGetQuery_HasValueObject_Valid()
 		{
@@ -148,6 +187,20 @@ DELETE FROM Users WHERE Users.Username = @Username AND Users.Password = @Passwor
 		#endregion
 
 		#region Insert
+		[Fact]
+		public void GenerateInsertQuery_HasValueObjectAsId_Valid()
+		{
+			// Arrange
+			var generator = CreateAggregateWithValueObjectIdQueryGenerator();
+
+			// Act
+			var query = generator.GenerateInsertQuery(new AggregateWithValueObjectId());
+
+			// Assert
+			Assert.Equal($@"INSERT INTO Users (Age, Password, Username) VALUES (@Age, @Password, @Username);
+SELECT Users.Age, Users.Password, Users.Username FROM Users WHERE Users.Password = @Password AND Users.Username = @Username;", query);
+		}
+
 		[Fact]
 		public void GenerateInsertQuery_HasValueObject_Valid()
 		{
@@ -259,6 +312,20 @@ SELECT Users.Username, Users.Password, Users.DateCreated FROM Users WHERE Users.
 
 		#region Update
 		[Fact]
+		public void GenerateUpdateQuery_HasValueObjectAsId_Valid()
+		{
+			// Arrange
+			var generator = CreateAggregateWithValueObjectIdQueryGenerator();
+
+			// Act
+			var query = generator.GenerateUpdateQuery();
+
+			// Assert
+			Assert.Equal($@"UPDATE Users SET Users.Age = @Age WHERE Users.Password = @Password AND Users.Username = @Username;
+SELECT Users.Age, Users.Password, Users.Username FROM Users WHERE Users.Password = @Password AND Users.Username = @Username;", query);
+		}
+
+		[Fact]
 		public void GenerateUpdateQuery_HasValueObject_Valid()
 		{
 			var generator = CreateUserAggregateQueryGenerator();
@@ -312,7 +379,7 @@ SELECT Users.Username, Users.Password, Users.DateCreated FROM Users WHERE Users.
 			var generator = new MySqlQueryGenerator<AllPropertiesHasMissingSetterAggregate>(configuration);
 
 			// Act && Assert
-			Assert.Throws<InvalidOperationException>(() => generator.GenerateUpdateQuery());
+			_ = Assert.Throws<InvalidOperationException>(() => generator.GenerateUpdateQuery());
 		}
 
 		[Fact]
@@ -335,7 +402,6 @@ SELECT Users.Username, Users.Password, Users.DateCreated FROM Users WHERE Users.
 SELECT Users.Id, Users.Age, Users.DateCreated FROM Users WHERE Users.Id = @Id;", query);
 		}
 		#endregion
-
 
 		#region Constructors
 		private static MySqlQueryGenerator<HasDefaultConstraintAggregate> CreateHasDefaultConstraintAggregateQueryGenerator()
@@ -382,6 +448,18 @@ SELECT Users.Id, Users.Age, Users.DateCreated FROM Users WHERE Users.Id = @Id;",
 			config.HasKey(x => x.Id);
 			config.HasValueObject(x => x.Address);
 			var generator = new MySqlQueryGenerator<UserAggregate>(config);
+			return generator;
+		}
+
+		private static MySqlQueryGenerator<AggregateWithValueObjectId> CreateAggregateWithValueObjectIdQueryGenerator()
+		{
+			var config = new TableAggregateConfiguration<AggregateWithValueObjectId>()
+			{
+				TableName = "Users"
+			};
+			config.HasKey(x => x.Id);
+			config.HasValueObject(x => x.Id);
+			var generator = new MySqlQueryGenerator<AggregateWithValueObjectId>(config);
 			return generator;
 		}
 		#endregion
