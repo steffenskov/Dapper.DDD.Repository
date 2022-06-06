@@ -1,7 +1,7 @@
 using System.Linq.Expressions;
 
 namespace Dapper.Repository.Reflection;
-public class ExpressionParser<TAggregate>
+internal class ExpressionParser<TAggregate>
 {
 	public IEnumerable<ExtendedPropertyInfo> GetExtendedPropertiesFromExpression(Expression<Func<TAggregate, object>> expression)
 	{
@@ -16,20 +16,15 @@ public class ExpressionParser<TAggregate>
 		}
 	}
 
-	private IEnumerable<string> GetMemberName(Expression expression)
+	private static IEnumerable<string> GetMemberName(Expression expression)
 	{
-		switch (expression.NodeType)
+		return expression.NodeType switch
 		{
-			case ExpressionType.Lambda:
-				return GetMemberName(((LambdaExpression)expression).Body);
-			case ExpressionType.MemberAccess:
-				return new[] { ((MemberExpression)expression).Member.Name };
-			case ExpressionType.Convert:
-				return GetMemberName(((UnaryExpression)expression).Operand);
-			case ExpressionType.New:
-				return ((NewExpression)expression).Members!.Select(m => m.Name);
-			default:
-				throw new NotSupportedException(expression.NodeType.ToString());
-		}
+			ExpressionType.Lambda => GetMemberName(((LambdaExpression)expression).Body),
+			ExpressionType.MemberAccess => new[] { ((MemberExpression)expression).Member.Name },
+			ExpressionType.Convert => GetMemberName(((UnaryExpression)expression).Operand),
+			ExpressionType.New => ((NewExpression)expression).Members!.Select(m => m.Name),
+			_ => throw new NotSupportedException($"Unsupported node type: {expression.NodeType}")
+		};
 	}
 }
