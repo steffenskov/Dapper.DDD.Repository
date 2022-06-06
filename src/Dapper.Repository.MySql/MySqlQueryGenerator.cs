@@ -1,4 +1,4 @@
-using Dapper.Repository.Reflection;
+﻿using Dapper.Repository.Reflection;
 
 namespace Dapper.Repository.MySql;
 
@@ -28,15 +28,21 @@ internal class MySqlQueryGenerator<TAggregate> : IQueryGenerator<TAggregate>
 
 		var readConfiguration = (IReadAggregateConfiguration<TAggregate>)configuration;
 		var properties = readConfiguration.GetProperties().ToList();
+		var keys = readConfiguration.GetKeys().ToList();
 		var valueObjects = readConfiguration.GetValueObjects();
 		foreach (var valueObject in valueObjects)
 		{
 			_ = properties.Remove(valueObject);
 			properties.AddRange(valueObject.GetPropertiesOrdered());
+			if (keys.Contains(valueObject))
+			{
+				_ = keys.Remove(valueObject);
+				keys.AddRange(valueObject.GetPropertiesOrdered());
+			}
 		}
 		_properties = properties;
 		_identities = readConfiguration.GetIdentityProperties();
-		_keys = readConfiguration.GetKeys();
+		_keys = keys;
 		_defaultConstraints = readConfiguration.GetPropertiesWithDefaultConstraints();
 	}
 

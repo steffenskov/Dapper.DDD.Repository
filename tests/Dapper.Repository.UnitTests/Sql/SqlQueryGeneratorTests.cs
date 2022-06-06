@@ -73,7 +73,7 @@ namespace Dapper.Repository.UnitTests.Sql
 			var query = generator.GenerateDeleteQuery();
 
 			// Assert
-			Assert.Equal($"DELETE FROM [dbo].[Users] OUTPUT [deleted].[Age], [deleted].[Password], [deleted].[Username] WHERE [dbo].[Users].[Password] = @Password AND [dbo].[Users].[Username] = @Username);", query);
+			Assert.Equal($"DELETE FROM [dbo].[Users] OUTPUT [deleted].[Age], [deleted].[Password], [deleted].[Username] WHERE [dbo].[Users].[Password] = @Password AND [dbo].[Users].[Username] = @Username;", query);
 		}
 
 		[Fact]

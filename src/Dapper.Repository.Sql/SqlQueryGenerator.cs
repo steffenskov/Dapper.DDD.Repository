@@ -30,15 +30,21 @@ internal class SqlQueryGenerator<TAggregate> : IQueryGenerator<TAggregate>
 
 		var readConfiguration = (IReadAggregateConfiguration<TAggregate>)configuration;
 		var properties = readConfiguration.GetProperties().ToList();
+		var keys = readConfiguration.GetKeys().ToList();
 		var valueObjects = readConfiguration.GetValueObjects();
 		foreach (var valueObject in valueObjects)
 		{
 			_ = properties.Remove(valueObject);
 			properties.AddRange(valueObject.GetPropertiesOrdered());
+			if (keys.Contains(valueObject))
+			{
+				_ = keys.Remove(valueObject);
+				keys.AddRange(valueObject.GetPropertiesOrdered());
+			}
 		}
 		_properties = properties;
 		_identities = readConfiguration.GetIdentityProperties();
-		_keys = readConfiguration.GetKeys();
+		_keys = keys;
 		_defaultConstraints = readConfiguration.GetPropertiesWithDefaultConstraints();
 	}
 
@@ -102,9 +108,7 @@ internal class SqlQueryGenerator<TAggregate> : IQueryGenerator<TAggregate>
 
 	private string GenerateWhereClause()
 	{
-		var primaryKeys = _keys;
-
-		return string.Join(" AND ", primaryKeys.Select(property => $"{_schemaAndEntity}.{AddSquareBrackets(property.Name)} = @{property.Name}"));
+		return string.Join(" AND ", _keys.Select(property => $"{_schemaAndEntity}.{AddSquareBrackets(property.Name)} = @{property.Name}"));
 	}
 
 

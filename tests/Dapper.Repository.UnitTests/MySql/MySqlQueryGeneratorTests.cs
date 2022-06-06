@@ -47,7 +47,7 @@ namespace Dapper.Repository.UnitTests.MySql
 
 			// Assert
 			Assert.Equal($@"SELECT Users.Age, Users.Password, Users.Username FROM Users WHERE Users.Password = @Password AND Users.Username = @Username;
-DELETE FROM Users WHERE Users.Password = @Password AND Users.Username = @Username);", query);
+DELETE FROM Users WHERE Users.Password = @Password AND Users.Username = @Username;", query);
 		}
 
 		[Fact]
@@ -321,7 +321,7 @@ SELECT Users.Username, Users.Password, Users.DateCreated FROM Users WHERE Users.
 			var query = generator.GenerateUpdateQuery();
 
 			// Assert
-			Assert.Equal($@"UPDATE Users SET Users.Age = @Age WHERE Users.Password = @Password AND Users.Username = @Username;
+			Assert.Equal($@"UPDATE Users SET Age = @Age WHERE Users.Password = @Password AND Users.Username = @Username;
 SELECT Users.Age, Users.Password, Users.Username FROM Users WHERE Users.Password = @Password AND Users.Username = @Username;", query);
 		}
 
