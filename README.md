@@ -10,6 +10,7 @@ Also it's somewhat inspired by [Domain-Driven Design](https://en.wikipedia.org/w
 - Cleaning up in general
 - Performance optimization of property lists (will be changed into dictionaries for O(1) lookups in the future)
 - Integration tests of IViewRepository
+- Sample project showing how to use the library
 
 ## Installation:
 
