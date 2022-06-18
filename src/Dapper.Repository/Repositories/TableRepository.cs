@@ -13,18 +13,14 @@ where TAggregateId : notnull
 	{
 		var query = _queryGenerator.GenerateDeleteQuery();
 
-		return HasValueObjects
-				? (await QueryWithValueObjectsAsync(query, WrapId(id))).FirstOrDefault()
-				: await QuerySingleOrDefaultAsync(query, WrapId(id));
+		return await QuerySingleOrDefaultAsync(query, WrapId(id));
 	}
 
 	public async Task<TAggregate?> GetAsync(TAggregateId id)
 	{
 		var query = _queryGenerator.GenerateGetQuery();
 
-		return HasValueObjects
-				? (await QueryWithValueObjectsAsync(query, WrapId(id))).FirstOrDefault()
-				: await QuerySingleOrDefaultAsync(query, WrapId(id));
+		return await QuerySingleOrDefaultAsync(query, WrapId(id));
 	}
 
 	public async Task<TAggregate> InsertAsync(TAggregate aggregate)
@@ -40,18 +36,14 @@ where TAggregateId : notnull
 		}
 
 		var query = _queryGenerator.GenerateInsertQuery(aggregate);
-		return HasValueObjects
-				? (await QueryWithValueObjectsAsync(query, WrapAggregate(aggregate, false, false))).First()
-				: await QuerySingleAsync(query, aggregate);
+		return await QuerySingleAsync(query, WrapAggregateIfNecessary(aggregate, false, false));
 	}
 
 	public async Task<TAggregate?> UpdateAsync(TAggregate aggregate)
 	{
 		ArgumentNullException.ThrowIfNull(aggregate);
 		var query = _queryGenerator.GenerateUpdateQuery();
-		return HasValueObjects
-				? (await QueryWithValueObjectsAsync(query, WrapAggregate(aggregate, true, true))).FirstOrDefault()
-				: await QuerySingleOrDefaultAsync(query, aggregate);
+		return await QuerySingleOrDefaultAsync(query, WrapAggregateIfNecessary(aggregate, true, true));
 	}
 	#endregion
 }
