@@ -1,4 +1,4 @@
-using Dapper.Repository.Reflection;
+﻿using Dapper.Repository.Reflection;
 
 namespace Dapper.Repository.Repositories;
 public abstract class BaseRepository<TAggregate, TAggregateId>
@@ -7,11 +7,12 @@ where TAggregateId : notnull
 {
 	private readonly IDapperInjectionFactory _dapperInjectionFactory;
 	private readonly IDapperInjection<TAggregate> _dapperInjection;
-	protected readonly IReadAggregateConfiguration<TAggregate> _configuration;
-	protected bool HasValueObjects => _valueObjects.Count > 0;
+	private protected readonly IReadAggregateConfiguration<TAggregate> _configuration;
+	private bool HasValueObjects => _valueObjects.Count > 0;
 	private readonly IReadOnlyList<ExtendedPropertyInfo> _valueObjects;
 	private readonly IConnectionFactory _connectionFactory;
-	protected readonly IQueryGenerator<TAggregate> _queryGenerator;
+	private protected readonly IQueryGenerator<TAggregate> _queryGenerator;
+	protected string EntityName { get; }
 
 	protected BaseRepository(BaseAggregateConfiguration<TAggregate> configuration, DefaultConfiguration? defaultConfiguration)
 	{
@@ -28,19 +29,25 @@ where TAggregateId : notnull
 		_queryGenerator = configuration.QueryGeneratorFactory.Create(configuration);
 		_configuration = configuration;
 		_valueObjects = _configuration.GetValueObjects();
+		EntityName = configuration.EntityName;
+	}
 
+	public async Task<IEnumerable<TAggregate>> GetAllAsync()
+	{
+		var query = _queryGenerator.GenerateGetAllQuery();
+		return await QueryAsync(query);
 	}
 
 	/// <summary>
 	/// Wraps the id for using it as a param to a query.
 	/// </summary>
-	protected IDictionary<string, object?> WrapId(TAggregateId id)
+	private protected IDictionary<string, object?> WrapId(TAggregateId id)
 	{
 		var dictionary = new Dictionary<string, object?>();
 		var keys = _configuration.GetKeys();
 		if (keys.Count == 1)
 		{
-			AddWrappedValue(dictionary, keys.First(), id);
+			AddWrappedValue(dictionary, keys[0], id);
 		}
 		else
 		{
@@ -53,10 +60,15 @@ where TAggregateId : notnull
 	}
 
 	/// <summary>
-	/// Wraps the aggregate for using it as a param to a query.
+	/// Wraps the aggregate for using it as a param to a query if it holds any value objects.
 	/// </summary>
-	protected IDictionary<string, object?> WrapAggregate(TAggregate aggregate, bool includeIdentities, bool includeDefaults)
+	private protected object WrapAggregateIfNecessary(TAggregate aggregate, bool includeIdentities, bool includeDefaults)
 	{
+		if (!HasValueObjects)
+		{
+			return aggregate;
+		}
+
 		var dictionary = new Dictionary<string, object?>();
 		var properties = _configuration.GetProperties();
 		var identities = _configuration.GetIdentityProperties();
@@ -93,7 +105,7 @@ where TAggregateId : notnull
 		}
 	}
 
-	protected async Task<IEnumerable<TAggregate>> QueryWithValueObjectsAsync(string query, object? param = null)
+	private async Task<IEnumerable<TAggregate>> QueryWithValueObjectsAsync(string query, object? param = null, IDbTransaction? transaction = null, int? commandTimeout = null, CommandType? commandType = null)
 	{
 		var valueObjectProperties = _configuration.GetValueObjects();
 		var valueTypes = valueObjectProperties.Select(property => property.Type).ToArray();
@@ -101,7 +113,7 @@ where TAggregateId : notnull
 		var allTypes = new Type[valueTypes.Length + 1];
 		allTypes[0] = typeof(TAggregate);
 		valueTypes.CopyTo(allTypes, 1);
-		return await QueryWithMapAsync(query, allTypes, Map, param, splitOn: splitOn);
+		return await QueryWithMapAsync(query, allTypes, Map, param, transaction, buffered: true, splitOn: splitOn, commandTimeout, commandType);
 	}
 
 	private TAggregate Map(object[] args)
@@ -121,37 +133,52 @@ where TAggregateId : notnull
 		return properties.First().Name;
 	}
 
-	public async Task<IEnumerable<TAggregate>> GetAllAsync()
-	{
-		var query = _queryGenerator.GenerateGetAllQuery();
-		return await QueryAsync(query);
-	}
-
 	#region Dapper methods
-	public async Task<IEnumerable<TAggregate>> QueryWithMapAsync(string query, Type[] types, Func<object[], TAggregate> map, object? param = null, IDbTransaction? transaction = null, bool buffered = true, string splitOn = "Id", int? commandTimeout = null, CommandType? commandType = null)
+	protected async Task<IEnumerable<TAggregate>> QueryWithMapAsync(string query, Type[] types, Func<object[], TAggregate> map, object? param = null, IDbTransaction? transaction = null, bool buffered = true, string splitOn = "Id", int? commandTimeout = null, CommandType? commandType = null)
 	{
 		using var connection = _connectionFactory.CreateConnection();
 		return await _dapperInjection.QueryAsync(connection, query, types, map, param, transaction, buffered, splitOn, commandTimeout, commandType);
 	}
-	public async Task<IEnumerable<TAggregate>> QueryAsync(string query, object? param = null, IDbTransaction? transaction = null, int? commandTimeout = null, CommandType? commandType = null)
+	protected async Task<IEnumerable<TAggregate>> QueryAsync(string query, object? param = null, IDbTransaction? transaction = null, int? commandTimeout = null, CommandType? commandType = null)
 	{
-		using var connection = _connectionFactory.CreateConnection();
-		return await _dapperInjection.QueryAsync(connection, query, param, transaction, commandTimeout, commandType);
+		if (HasValueObjects)
+		{
+			return await QueryWithValueObjectsAsync(query, param, transaction, commandTimeout, commandType);
+		}
+		else
+		{
+			using var connection = _connectionFactory.CreateConnection();
+			return await _dapperInjection.QueryAsync(connection, query, param, transaction, commandTimeout, commandType);
+		}
 	}
 
-	public async Task<TAggregate?> QuerySingleOrDefaultAsync(string query, object? param = null, IDbTransaction? transaction = null, int? commandTimeout = null, CommandType? commandType = null)
+	protected async Task<TAggregate?> QuerySingleOrDefaultAsync(string query, object? param = null, IDbTransaction? transaction = null, int? commandTimeout = null, CommandType? commandType = null)
 	{
-		using var connection = _connectionFactory.CreateConnection();
-		return await _dapperInjection.QuerySingleOrDefaultAsync(connection, query, param, transaction, commandTimeout, commandType);
+		if (HasValueObjects)
+		{
+			return (await QueryWithValueObjectsAsync(query, param, transaction, commandTimeout, commandType)).FirstOrDefault();
+		}
+		else
+		{
+			using var connection = _connectionFactory.CreateConnection();
+			return await _dapperInjection.QuerySingleOrDefaultAsync(connection, query, param, transaction, commandTimeout, commandType);
+		}
 	}
 
-	public async Task<TAggregate> QuerySingleAsync(string query, object? param = null, IDbTransaction? transaction = null, int? commandTimeout = null, CommandType? commandType = null)
+	protected async Task<TAggregate> QuerySingleAsync(string query, object? param = null, IDbTransaction? transaction = null, int? commandTimeout = null, CommandType? commandType = null)
 	{
-		using var connection = _connectionFactory.CreateConnection();
-		return await _dapperInjection.QuerySingleAsync(connection, query, param, transaction, commandTimeout, commandType);
+		if (HasValueObjects)
+		{
+			return (await QueryWithValueObjectsAsync(query, param, transaction, commandTimeout, commandType)).Single();
+		}
+		else
+		{
+			using var connection = _connectionFactory.CreateConnection();
+			return await _dapperInjection.QuerySingleAsync(connection, query, param, transaction, commandTimeout, commandType);
+		}
 	}
 
-	public async Task<IEnumerable<TResult>> ScalarMultipleAsync<TResult>(string query, object? param, IDbTransaction? transaction = null, int? commandTimeout = null, CommandType? commandType = null)
+	protected async Task<IEnumerable<TResult>> ScalarMultipleAsync<TResult>(string query, object? param, IDbTransaction? transaction = null, int? commandTimeout = null, CommandType? commandType = null)
 	where TResult : notnull
 	{
 		using var connection = _connectionFactory.CreateConnection();
@@ -159,7 +186,7 @@ where TAggregateId : notnull
 		return await dapperInjection.QueryAsync(connection, query, param, transaction, commandTimeout, commandType);
 	}
 
-	public async Task<TResult?> ScalarSingleOrDefaultAsync<TResult>(string query, object? param, IDbTransaction? transaction = null, int? commandTimeout = null, CommandType? commandType = null)
+	protected async Task<TResult?> ScalarSingleOrDefaultAsync<TResult>(string query, object? param, IDbTransaction? transaction = null, int? commandTimeout = null, CommandType? commandType = null)
 	where TResult : notnull
 	{
 		using var connection = _connectionFactory.CreateConnection();
@@ -167,7 +194,7 @@ where TAggregateId : notnull
 		return await dapperInjection.QuerySingleOrDefaultAsync(connection, query, param, transaction, commandTimeout, commandType);
 	}
 
-	public async Task<TResult> ScalarSingleAsync<TResult>(string query, object? param, IDbTransaction? transaction = null, int? commandTimeout = null, CommandType? commandType = null)
+	protected async Task<TResult> ScalarSingleAsync<TResult>(string query, object? param, IDbTransaction? transaction = null, int? commandTimeout = null, CommandType? commandType = null)
 	where TResult : notnull
 	{
 		using var connection = _connectionFactory.CreateConnection();
@@ -175,7 +202,7 @@ where TAggregateId : notnull
 		return await dapperInjection.QuerySingleAsync(connection, query, param, transaction, commandTimeout, commandType);
 	}
 
-	public async Task<int> ExecuteAsync(string query, object? param = null, IDbTransaction? transaction = null, int? commandTimeout = null, CommandType? commandType = null)
+	protected async Task<int> ExecuteAsync(string query, object? param = null, IDbTransaction? transaction = null, int? commandTimeout = null, CommandType? commandType = null)
 	{
 		using var connection = _connectionFactory.CreateConnection();
 		return await _dapperInjection.ExecuteAsync(connection, query, param, transaction, commandTimeout, commandType);

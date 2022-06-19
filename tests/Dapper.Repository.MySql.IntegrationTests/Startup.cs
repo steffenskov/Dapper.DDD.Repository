@@ -1,4 +1,5 @@
 ﻿using Dapper.Repository.DependencyInjection;
+using Dapper.Repository.IntegrationTests.Repositories;
 
 namespace Dapper.Repository.MySql.IntegrationTests;
 
@@ -20,7 +21,7 @@ public class Startup
 			options.HasKey(x => x.CategoryID);
 			options.HasIdentity(x => x.CategoryID);
 		});
-		_ = services.AddTableRepository<CompositeUser, CompositeUserId>(options => // TODO: how to map TAggregateId?
+		_ = services.AddTableRepository<CompositeUser, CompositeUserId>(options =>
 		{
 			options.TableName = "composite_users";
 			options.HasKey(x => x.Id);
@@ -28,17 +29,17 @@ public class Startup
 			options.HasValueObject(x => x.Id);
 		});
 
-		_ = services.AddTableRepository<Customer, Guid>(options =>
-		{
-			options.TableName = "customers_with_value_object";
-			options.HasKey(x => x.Id);
-			options.HasValueObject(x => x.Address);
-		});
-
 		_ = services.AddViewRepository<ProductListView, int>(options =>
 		{
 			options.ViewName = "current_product_list";
 			options.HasKey(x => x.ProductID);
+		});
+
+		_ = services.AddTableRepository<Customer, Guid, ICustomerRepository, CustomerRepository>(options =>
+		{
+			options.TableName = "customers_with_value_object";
+			options.HasKey(x => x.Id);
+			options.HasValueObject(x => x.Address);
 		});
 		Provider = services.BuildServiceProvider();
 	}

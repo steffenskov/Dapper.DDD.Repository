@@ -1,4 +1,5 @@
 ﻿using Dapper.Repository.DependencyInjection;
+using Dapper.Repository.IntegrationTests.Repositories;
 
 namespace Dapper.Repository.Sql.IntegrationTests;
 
@@ -29,17 +30,17 @@ public class Startup
 			options.HasValueObject(x => x.Id);
 		});
 
-		_ = services.AddTableRepository<Customer, Guid>(options =>
-		{
-			options.TableName = "CustomersWithValueObject";
-			options.HasKey(x => x.Id);
-			options.HasValueObject(x => x.Address);
-		});
-
 		_ = services.AddViewRepository<ProductListView, int>(options =>
 		{
 			options.ViewName = "Current Product List";
 			options.HasKey(x => x.ProductID);
+		});
+
+		_ = services.AddTableRepository<Customer, Guid, ICustomerRepository, CustomerRepository>(options =>
+		{
+			options.TableName = "CustomersWithValueObject";
+			options.HasKey(x => x.Id);
+			options.HasValueObject(x => x.Address);
 		});
 		Provider = services.BuildServiceProvider();
 	}

@@ -1,4 +1,4 @@
-using System.Linq.Expressions;
+﻿using System.Linq.Expressions;
 using Dapper.Repository.Reflection;
 
 namespace Dapper.Repository.Configuration;

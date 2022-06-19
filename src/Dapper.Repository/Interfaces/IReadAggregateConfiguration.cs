@@ -1,4 +1,4 @@
-using Dapper.Repository.Reflection;
+﻿using Dapper.Repository.Reflection;
 
 namespace Dapper.Repository.Interfaces;
 
