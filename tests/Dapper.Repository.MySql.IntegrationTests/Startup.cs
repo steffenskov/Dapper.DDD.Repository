@@ -21,7 +21,7 @@ public class Startup
 			options.HasKey(x => x.CategoryID);
 			options.HasIdentity(x => x.CategoryID);
 		});
-		_ = services.AddTableRepository<CompositeUser, CompositeUserId>(options => // TODO: how to map TAggregateId?
+		_ = services.AddTableRepository<CompositeUser, CompositeUserId>(options =>
 		{
 			options.TableName = "composite_users";
 			options.HasKey(x => x.Id);
