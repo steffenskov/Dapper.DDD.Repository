@@ -7,11 +7,11 @@ where TAggregateId : notnull
 {
 	private readonly IDapperInjectionFactory _dapperInjectionFactory;
 	private readonly IDapperInjection<TAggregate> _dapperInjection;
-	protected readonly IReadAggregateConfiguration<TAggregate> _configuration;
+	private protected readonly IReadAggregateConfiguration<TAggregate> _configuration;
 	private bool HasValueObjects => _valueObjects.Count > 0;
 	private readonly IReadOnlyList<ExtendedPropertyInfo> _valueObjects;
 	private readonly IConnectionFactory _connectionFactory;
-	protected readonly IQueryGenerator<TAggregate> _queryGenerator;
+	private protected readonly IQueryGenerator<TAggregate> _queryGenerator;
 	protected string EntityName { get; }
 
 	protected BaseRepository(BaseAggregateConfiguration<TAggregate> configuration, DefaultConfiguration? defaultConfiguration)
@@ -41,7 +41,7 @@ where TAggregateId : notnull
 	/// <summary>
 	/// Wraps the id for using it as a param to a query.
 	/// </summary>
-	protected IDictionary<string, object?> WrapId(TAggregateId id)
+	private protected IDictionary<string, object?> WrapId(TAggregateId id)
 	{
 		var dictionary = new Dictionary<string, object?>();
 		var keys = _configuration.GetKeys();
@@ -62,7 +62,7 @@ where TAggregateId : notnull
 	/// <summary>
 	/// Wraps the aggregate for using it as a param to a query if it holds any value objects.
 	/// </summary>
-	protected object WrapAggregateIfNecessary(TAggregate aggregate, bool includeIdentities, bool includeDefaults)
+	private protected object WrapAggregateIfNecessary(TAggregate aggregate, bool includeIdentities, bool includeDefaults)
 	{
 		if (!HasValueObjects)
 		{

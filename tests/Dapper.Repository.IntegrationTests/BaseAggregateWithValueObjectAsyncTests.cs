@@ -1,12 +1,14 @@
-﻿namespace Dapper.Repository.IntegrationTests;
+﻿using Dapper.Repository.IntegrationTests.Repositories;
+
+namespace Dapper.Repository.IntegrationTests;
 public abstract class BaseAggregateWithValueObjectAsyncTests<TDbException>
 where TDbException : Exception
 {
-	private readonly ITableRepository<Customer, Guid> _repository;
+	private readonly ICustomerRepository _repository;
 
 	protected BaseAggregateWithValueObjectAsyncTests(IServiceProvider serviceProvider)
 	{
-		_repository = serviceProvider.GetService<ITableRepository<Customer, Guid>>()!;
+		_repository = serviceProvider.GetService<ICustomerRepository>()!;
 	}
 
 	#region Delete

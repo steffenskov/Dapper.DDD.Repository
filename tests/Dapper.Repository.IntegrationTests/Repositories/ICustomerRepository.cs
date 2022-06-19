@@ -1,5 +1,5 @@
 ﻿namespace Dapper.Repository.IntegrationTests.Repositories;
 
-internal interface ICustomerRepository : ITableRepository<Customer, Guid>
+public interface ICustomerRepository : ITableRepository<Customer, Guid>
 {
 }

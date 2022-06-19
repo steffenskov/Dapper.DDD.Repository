@@ -4,7 +4,7 @@ using Microsoft.Extensions.Options;
 
 namespace Dapper.Repository.IntegrationTests.Repositories;
 
-internal class CustomerRepository : TableRepository<Customer, Guid>, ICustomerRepository
+public class CustomerRepository : TableRepository<Customer, Guid>, ICustomerRepository
 {
 	public CustomerRepository(IOptions<TableAggregateConfiguration<Customer>> options, IOptions<DefaultConfiguration> defaultOptions) : base(options, defaultOptions)
 	{

@@ -6,7 +6,6 @@ Also it's somewhat inspired by [Domain-Driven Design](https://en.wikipedia.org/w
 
 **NOTICE**: The current codebase is still very much "work-in-progress", as such these features are still not fully implemented, but are being worked on:
 - Prefixing ValueObject columns in the database (e.g. Address_Road, Address_Zipcode, Address_City)
-- Inheritance of repositories for usage with own interfaces
 - Cleaning up in general
 - Performance optimization of property lists (will be changed into dictionaries for O(1) lookups in the future)
 - Integration tests of IViewRepository
