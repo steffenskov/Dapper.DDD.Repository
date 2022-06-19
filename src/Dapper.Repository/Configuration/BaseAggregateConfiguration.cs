@@ -65,7 +65,7 @@ public abstract class BaseAggregateConfiguration<TAggregate> : IReadAggregateCon
 	public void HasValueObject(Expression<Func<TAggregate, object>> expression)
 	{
 		var properties = new ExpressionParser<TAggregate>().GetExtendedPropertiesFromExpression(expression);
-		var invalidProperties = properties.Where(property => property.Type.IsPrimitive || property.Type == typeof(string) || property.Type == typeof(Guid));
+		var invalidProperties = properties.Where(property => property.Type.IsSimpleType());
 		if (invalidProperties.Any())
 		{
 			throw new ArgumentException($"The properties {string.Join(", ", invalidProperties.Select(p => p.Name))} are not value objects.");
