@@ -556,8 +556,8 @@ CREATE TABLE IF NOT EXISTS `northwind`.`categories` (
 
 
 CREATE TABLE IF NOT EXISTS `northwind`.`composite_users` (
-	`Username` VARCHAR(50) NOT NULL,
-	`Password` VARCHAR(50) NOT NULL,
+	`Id_Username` VARCHAR(50) NOT NULL,
+	`Id_Password` VARCHAR(50) NOT NULL,
 	Age INT(11) NULL,
 	DateCreated DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
 	PRIMARY KEY (`Username`, `Password`))
@@ -567,8 +567,8 @@ CREATE TABLE IF NOT EXISTS `northwind`.`composite_users` (
 CREATE TABLE IF NOT EXISTS `northwind`.`customers_with_value_object` (
 	`Id` CHAR(36) NOT NULL, -- UUID
 	`Name` VARCHAR(100) NOT NULL,
-  `Zipcode` INT(11) NOT NULL,
-  `Street` VARCHAR(200) NOT NULL,
+  `Address_Zipcode` INT(11) NOT NULL,
+  `Address_Street` VARCHAR(200) NOT NULL,
 	PRIMARY KEY (`Id`))
 	ENGINE = InnoDB
 	DEFAULT CHARACTER SET = utf8;
