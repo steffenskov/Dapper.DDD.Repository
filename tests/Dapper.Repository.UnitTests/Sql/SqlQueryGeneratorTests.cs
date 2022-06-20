@@ -1,5 +1,4 @@
-﻿using System;
-using Dapper.Repository.Configuration;
+﻿using Dapper.Repository.Configuration;
 using Dapper.Repository.Sql;
 using Dapper.Repository.UnitTests.Aggregates;
 
@@ -73,7 +72,7 @@ namespace Dapper.Repository.UnitTests.Sql
 			var query = generator.GenerateDeleteQuery();
 
 			// Assert
-			Assert.Equal($"DELETE FROM [dbo].[Users] OUTPUT [deleted].[Age], [deleted].[Password], [deleted].[Username] WHERE [dbo].[Users].[Password] = @Password AND [dbo].[Users].[Username] = @Username;", query);
+			Assert.Equal($"DELETE FROM [dbo].[Users] OUTPUT [deleted].[Age], [deleted].[Id_Password], [deleted].[Id_Username] WHERE [dbo].[Users].[Id_Password] = @Id_Password AND [dbo].[Users].[Id_Username] = @Id_Username;", query);
 		}
 
 		[Fact]
@@ -85,7 +84,7 @@ namespace Dapper.Repository.UnitTests.Sql
 			var query = generator.GenerateDeleteQuery();
 
 			// Assert
-			Assert.Equal($"DELETE FROM [dbo].[Users] OUTPUT [deleted].[Id], [deleted].[City], [deleted].[Street] WHERE [dbo].[Users].[Id] = @Id;", query);
+			Assert.Equal($"DELETE FROM [dbo].[Users] OUTPUT [deleted].[Id], [deleted].[Address_City], [deleted].[Address_Street] WHERE [dbo].[Users].[Id] = @Id;", query);
 		}
 
 		[Fact]
@@ -141,7 +140,7 @@ namespace Dapper.Repository.UnitTests.Sql
 			var query = generator.GenerateGetAllQuery();
 
 			// Assert
-			Assert.Equal($"SELECT [dbo].[Users].[Age], [dbo].[Users].[Password], [dbo].[Users].[Username] FROM [dbo].[Users];", query);
+			Assert.Equal($"SELECT [dbo].[Users].[Age], [dbo].[Users].[Id_Password], [dbo].[Users].[Id_Username] FROM [dbo].[Users];", query);
 		}
 
 		[Fact]
@@ -153,7 +152,7 @@ namespace Dapper.Repository.UnitTests.Sql
 			var query = generator.GenerateGetAllQuery();
 
 			// Assert
-			Assert.Equal($"SELECT [dbo].[Users].[Id], [dbo].[Users].[City], [dbo].[Users].[Street] FROM [dbo].[Users];", query);
+			Assert.Equal($"SELECT [dbo].[Users].[Id], [dbo].[Users].[Address_City], [dbo].[Users].[Address_Street] FROM [dbo].[Users];", query);
 		}
 
 		[Fact]
@@ -182,7 +181,7 @@ namespace Dapper.Repository.UnitTests.Sql
 			var query = generator.GenerateGetQuery();
 
 			// Assert
-			Assert.Equal($"SELECT [dbo].[Users].[Age], [dbo].[Users].[Password], [dbo].[Users].[Username] FROM [dbo].[Users] WHERE [dbo].[Users].[Password] = @Password AND [dbo].[Users].[Username] = @Username;", query);
+			Assert.Equal($"SELECT [dbo].[Users].[Age], [dbo].[Users].[Id_Password], [dbo].[Users].[Id_Username] FROM [dbo].[Users] WHERE [dbo].[Users].[Id_Password] = @Id_Password AND [dbo].[Users].[Id_Username] = @Id_Username;", query);
 		}
 
 		[Fact]
@@ -194,7 +193,7 @@ namespace Dapper.Repository.UnitTests.Sql
 			var query = generator.GenerateGetQuery();
 
 			// Assert
-			Assert.Equal($"SELECT [dbo].[Users].[Id], [dbo].[Users].[City], [dbo].[Users].[Street] FROM [dbo].[Users] WHERE [dbo].[Users].[Id] = @Id;", query);
+			Assert.Equal($"SELECT [dbo].[Users].[Id], [dbo].[Users].[Address_City], [dbo].[Users].[Address_Street] FROM [dbo].[Users] WHERE [dbo].[Users].[Id] = @Id;", query);
 		}
 
 		[Fact]
@@ -235,7 +234,7 @@ namespace Dapper.Repository.UnitTests.Sql
 			var query = generator.GenerateInsertQuery(new AggregateWithValueObjectId());
 
 			// Assert
-			Assert.Equal($"INSERT INTO [dbo].[Users] ([Age], [Password], [Username]) OUTPUT [inserted].[Age], [inserted].[Password], [inserted].[Username] VALUES (@Age, @Password, @Username);", query);
+			Assert.Equal($"INSERT INTO [dbo].[Users] ([Age], [Id_Password], [Id_Username]) OUTPUT [inserted].[Age], [inserted].[Id_Password], [inserted].[Id_Username] VALUES (@Age, @Id_Password, @Id_Username);", query);
 		}
 
 		[Fact]
@@ -248,7 +247,7 @@ namespace Dapper.Repository.UnitTests.Sql
 			var query = generator.GenerateInsertQuery(new UserAggregate());
 
 			// Assert
-			Assert.Equal($"INSERT INTO [dbo].[Users] ([Id], [City], [Street]) OUTPUT [inserted].[Id], [inserted].[City], [inserted].[Street] VALUES (@Id, @City, @Street);", query);
+			Assert.Equal($"INSERT INTO [dbo].[Users] ([Id], [Address_City], [Address_Street]) OUTPUT [inserted].[Id], [inserted].[Address_City], [inserted].[Address_Street] VALUES (@Id, @Address_City, @Address_Street);", query);
 		}
 
 		[Fact]
@@ -346,7 +345,7 @@ namespace Dapper.Repository.UnitTests.Sql
 			var query = generator.GenerateUpdateQuery();
 
 			// Assert
-			Assert.Equal($"UPDATE [dbo].[Users] SET [dbo].[Users].[Age] = @Age OUTPUT [inserted].[Age], [inserted].[Password], [inserted].[Username] WHERE [dbo].[Users].[Password] = @Password AND [dbo].[Users].[Username] = @Username;", query);
+			Assert.Equal($"UPDATE [dbo].[Users] SET [dbo].[Users].[Age] = @Age OUTPUT [inserted].[Age], [inserted].[Id_Password], [inserted].[Id_Username] WHERE [dbo].[Users].[Id_Password] = @Id_Password AND [dbo].[Users].[Id_Username] = @Id_Username;", query);
 		}
 
 		[Fact]
@@ -358,7 +357,7 @@ namespace Dapper.Repository.UnitTests.Sql
 			var query = generator.GenerateUpdateQuery();
 
 			// Assert
-			Assert.Equal($"UPDATE [dbo].[Users] SET [dbo].[Users].[City] = @City, [dbo].[Users].[Street] = @Street OUTPUT [inserted].[Id], [inserted].[City], [inserted].[Street] WHERE [dbo].[Users].[Id] = @Id;", query);
+			Assert.Equal($"UPDATE [dbo].[Users] SET [dbo].[Users].[Address_City] = @Address_City, [dbo].[Users].[Address_Street] = @Address_Street OUTPUT [inserted].[Id], [inserted].[Address_City], [inserted].[Address_Street] WHERE [dbo].[Users].[Id] = @Id;", query);
 		}
 
 		[Fact]

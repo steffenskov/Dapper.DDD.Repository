@@ -1,5 +1,4 @@
-using System;
-using Dapper.Repository.Configuration;
+﻿using Dapper.Repository.Configuration;
 using Dapper.Repository.MySql;
 using Dapper.Repository.UnitTests.Aggregates;
 
@@ -46,8 +45,8 @@ namespace Dapper.Repository.UnitTests.MySql
 			var query = generator.GenerateDeleteQuery();
 
 			// Assert
-			Assert.Equal($@"SELECT Users.Age, Users.Password, Users.Username FROM Users WHERE Users.Password = @Password AND Users.Username = @Username;
-DELETE FROM Users WHERE Users.Password = @Password AND Users.Username = @Username;", query);
+			Assert.Equal($@"SELECT Users.Age, Users.Id_Password, Users.Id_Username FROM Users WHERE Users.Id_Password = @Id_Password AND Users.Id_Username = @Id_Username;
+DELETE FROM Users WHERE Users.Id_Password = @Id_Password AND Users.Id_Username = @Id_Username;", query);
 		}
 
 		[Fact]
@@ -59,7 +58,7 @@ DELETE FROM Users WHERE Users.Password = @Password AND Users.Username = @Usernam
 			var query = generator.GenerateDeleteQuery();
 
 			// Assert
-			Assert.Equal($@"SELECT Users.Id, Users.City, Users.Street FROM Users WHERE Users.Id = @Id;
+			Assert.Equal($@"SELECT Users.Id, Users.Address_City, Users.Address_Street FROM Users WHERE Users.Id = @Id;
 DELETE FROM Users WHERE Users.Id = @Id;", query);
 		}
 
@@ -103,7 +102,7 @@ DELETE FROM Users WHERE Users.Username = @Username AND Users.Password = @Passwor
 			var query = generator.GenerateGetAllQuery();
 
 			// Assert
-			Assert.Equal($"SELECT Users.Age, Users.Password, Users.Username FROM Users;", query);
+			Assert.Equal($"SELECT Users.Age, Users.Id_Password, Users.Id_Username FROM Users;", query);
 		}
 
 		[Fact]
@@ -115,7 +114,7 @@ DELETE FROM Users WHERE Users.Username = @Username AND Users.Password = @Passwor
 			var query = generator.GenerateGetAllQuery();
 
 			// Assert
-			Assert.Equal($"SELECT Users.Id, Users.City, Users.Street FROM Users;", query);
+			Assert.Equal($"SELECT Users.Id, Users.Address_City, Users.Address_Street FROM Users;", query);
 		}
 
 		[Fact]
@@ -144,7 +143,7 @@ DELETE FROM Users WHERE Users.Username = @Username AND Users.Password = @Passwor
 			var query = generator.GenerateGetQuery();
 
 			// Assert
-			Assert.Equal($"SELECT Users.Age, Users.Password, Users.Username FROM Users WHERE Users.Password = @Password AND Users.Username = @Username;", query);
+			Assert.Equal($"SELECT Users.Age, Users.Id_Password, Users.Id_Username FROM Users WHERE Users.Id_Password = @Id_Password AND Users.Id_Username = @Id_Username;", query);
 		}
 
 		[Fact]
@@ -156,7 +155,7 @@ DELETE FROM Users WHERE Users.Username = @Username AND Users.Password = @Passwor
 			var query = generator.GenerateGetQuery();
 
 			// Assert
-			Assert.Equal($"SELECT Users.Id, Users.City, Users.Street FROM Users WHERE Users.Id = @Id;", query);
+			Assert.Equal($"SELECT Users.Id, Users.Address_City, Users.Address_Street FROM Users WHERE Users.Id = @Id;", query);
 		}
 
 		[Fact]
@@ -197,8 +196,8 @@ DELETE FROM Users WHERE Users.Username = @Username AND Users.Password = @Passwor
 			var query = generator.GenerateInsertQuery(new AggregateWithValueObjectId());
 
 			// Assert
-			Assert.Equal($@"INSERT INTO Users (Age, Password, Username) VALUES (@Age, @Password, @Username);
-SELECT Users.Age, Users.Password, Users.Username FROM Users WHERE Users.Password = @Password AND Users.Username = @Username;", query);
+			Assert.Equal($@"INSERT INTO Users (Age, Id_Password, Id_Username) VALUES (@Age, @Id_Password, @Id_Username);
+SELECT Users.Age, Users.Id_Password, Users.Id_Username FROM Users WHERE Users.Id_Password = @Id_Password AND Users.Id_Username = @Id_Username;", query);
 		}
 
 		[Fact]
@@ -210,8 +209,8 @@ SELECT Users.Age, Users.Password, Users.Username FROM Users WHERE Users.Password
 			var query = generator.GenerateInsertQuery(new UserAggregate());
 
 			// Assert
-			Assert.Equal($@"INSERT INTO Users (Id, City, Street) VALUES (@Id, @City, @Street);
-SELECT Users.Id, Users.City, Users.Street FROM Users WHERE Users.Id = @Id;", query);
+			Assert.Equal($@"INSERT INTO Users (Id, Address_City, Address_Street) VALUES (@Id, @Address_City, @Address_Street);
+SELECT Users.Id, Users.Address_City, Users.Address_Street FROM Users WHERE Users.Id = @Id;", query);
 		}
 
 		[Fact]
@@ -321,8 +320,8 @@ SELECT Users.Username, Users.Password, Users.DateCreated FROM Users WHERE Users.
 			var query = generator.GenerateUpdateQuery();
 
 			// Assert
-			Assert.Equal($@"UPDATE Users SET Age = @Age WHERE Users.Password = @Password AND Users.Username = @Username;
-SELECT Users.Age, Users.Password, Users.Username FROM Users WHERE Users.Password = @Password AND Users.Username = @Username;", query);
+			Assert.Equal($@"UPDATE Users SET Age = @Age WHERE Users.Id_Password = @Id_Password AND Users.Id_Username = @Id_Username;
+SELECT Users.Age, Users.Id_Password, Users.Id_Username FROM Users WHERE Users.Id_Password = @Id_Password AND Users.Id_Username = @Id_Username;", query);
 		}
 
 		[Fact]
@@ -334,8 +333,8 @@ SELECT Users.Age, Users.Password, Users.Username FROM Users WHERE Users.Password
 			var query = generator.GenerateUpdateQuery();
 
 			// Assert
-			Assert.Equal($@"UPDATE Users SET City = @City, Street = @Street WHERE Users.Id = @Id;
-SELECT Users.Id, Users.City, Users.Street FROM Users WHERE Users.Id = @Id;", query);
+			Assert.Equal($@"UPDATE Users SET Address_City = @Address_City, Address_Street = @Address_Street WHERE Users.Id = @Id;
+SELECT Users.Id, Users.Address_City, Users.Address_Street FROM Users WHERE Users.Id = @Id;", query);
 		}
 
 		[Fact]
