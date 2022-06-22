@@ -1,4 +1,4 @@
-using System.Reflection;
+﻿using System.Reflection;
 
 namespace Dapper.Repository.Reflection;
 
@@ -8,7 +8,7 @@ public class ExtendedPropertyInfo
 	public string Name => !string.IsNullOrWhiteSpace(Prefix) ? $"{Prefix}_{Property.Name}" : Property.Name;
 	public Type Type => Property.PropertyType;
 
-	public string Prefix { get; set; } = "";
+	//public string Prefix { get; set; } = "";
 
 	public bool HasSetter { get; }
 
@@ -36,13 +36,13 @@ public class ExtendedPropertyInfo
 	public object? GetValue<T>(T aggregate)
 	where T : notnull
 	{
-		return _accessor.getter(aggregate);
+		return _accessor._getter(aggregate);
 	}
 
 	public void SetValue<T>(T aggregate, object? value)
 	where T : notnull
 	{
-		_accessor.setter(aggregate, value);
+		_accessor._setter(aggregate, value);
 	}
 
 	public IReadOnlyList<ExtendedPropertyInfo> GetPropertiesOrdered()
@@ -52,6 +52,8 @@ public class ExtendedPropertyInfo
 										.OrderBy(prop => prop.Name)
 										.ToList()
 										.AsReadOnly();
+
+		// TODO: Clone property before assigning prefix
 		foreach (var prop in result)
 		{
 			prop.Prefix = Name;

@@ -111,7 +111,7 @@ where TDbException : Exception
 	public async Task Insert_NonNullPropertyMissing_Throws(Customer aggregate)
 	{
 		// Arrange
-		aggregate = aggregate with { Address = aggregate.Address with { Street = null! } };
+		aggregate = aggregate with { InvoiceAddress = aggregate.InvoiceAddress with { Street = null! } };
 
 		// Act && Assert
 		_ = await Assert.ThrowsAsync<TDbException>(async () => await _repository.InsertAsync(aggregate));
@@ -151,7 +151,7 @@ where TDbException : Exception
 		{
 			Id = Guid.NewGuid(),
 			Name = "Hello world",
-			Address = new Address
+			InvoiceAddress = new Address
 			{
 				Street = "Road",
 				Zipcode = 1200

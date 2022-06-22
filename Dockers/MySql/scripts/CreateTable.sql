@@ -560,15 +560,17 @@ CREATE TABLE IF NOT EXISTS `northwind`.`composite_users` (
 	`Id_Password` VARCHAR(50) NOT NULL,
 	Age INT(11) NULL,
 	DateCreated DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-	PRIMARY KEY (`Username`, `Password`))
+	PRIMARY KEY (`Id_Username`, `Id_Password`))
 	ENGINE = InnoDB
 	DEFAULT CHARACTER SET = utf8;
 
 CREATE TABLE IF NOT EXISTS `northwind`.`customers_with_value_object` (
 	`Id` CHAR(36) NOT NULL, -- UUID
 	`Name` VARCHAR(100) NOT NULL,
-  `Address_Zipcode` INT(11) NOT NULL,
-  `Address_Street` VARCHAR(200) NOT NULL,
+  `InvoiceAddress_Zipcode` INT(11) NOT NULL,
+  `InvoiceAddress_Street` VARCHAR(200) NOT NULL,
+	`DeliveryAddress_Zipcode` INT(11) NOT NULL,
+  `DeliveryAddress_Street` VARCHAR(200) NOT NULL,
 	PRIMARY KEY (`Id`))
 	ENGINE = InnoDB
 	DEFAULT CHARACTER SET = utf8;

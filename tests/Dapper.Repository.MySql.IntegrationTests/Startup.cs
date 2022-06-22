@@ -39,7 +39,8 @@ public class Startup
 		{
 			options.TableName = "customers_with_value_object";
 			options.HasKey(x => x.Id);
-			options.HasValueObject(x => x.Address);
+			options.HasValueObject(x => x.InvoiceAddress);
+			options.HasValueObject(x => x.DeliveryAddress);
 		});
 		Provider = services.BuildServiceProvider();
 	}

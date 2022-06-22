@@ -107,24 +107,13 @@ where TAggregateId : notnull
 
 	private async Task<IEnumerable<TAggregate>> QueryWithValueObjectsAsync(string query, object? param = null, IDbTransaction? transaction = null, int? commandTimeout = null, CommandType? commandType = null)
 	{
-		var valueObjectProperties = _configuration.GetValueObjects();
-		var valueTypes = valueObjectProperties.Select(property => property.Type).ToArray();
-		var splitOn = string.Join(",", valueObjectProperties.Select(GetFirstPropertyName));
-		var allTypes = new Type[valueTypes.Length + 1];
-		allTypes[0] = typeof(TAggregate);
-		valueTypes.CopyTo(allTypes, 1);
-		return await QueryWithMapAsync(query, allTypes, Map, param, transaction, buffered: true, splitOn: splitOn, commandTimeout, commandType);
+		var allTypes = new[] { ObjectFlattener.GetFlattenedType<TAggregate>() };
+		return await QueryWithMapAsync(query, allTypes, Map, param, transaction, buffered: true, splitOn: string.Empty, commandTimeout, commandType);
 	}
 
 	private TAggregate Map(object[] args)
 	{
-		var result = (TAggregate)args.First(arg => arg is TAggregate);
-		foreach (var valueObjectProperty in _configuration.GetValueObjects())
-		{
-			var valueObject = args.First(arg => arg.GetType() == valueObjectProperty.Type);
-			valueObjectProperty.SetValue(result, valueObject);
-		}
-		return result;
+		return ObjectFlattener.Unflatten<TAggregate>(args[0]);
 	}
 
 	private string GetFirstPropertyName(ExtendedPropertyInfo property)

@@ -445,7 +445,8 @@ SELECT Users.Id, Users.Age, Users.DateCreated FROM Users WHERE Users.Id = @Id;",
 				TableName = "Users"
 			};
 			config.HasKey(x => x.Id);
-			config.HasValueObject(x => x.Address);
+			config.HasValueObject(x => x.DeliveryAddress);
+			config.HasValueObject(x => x.InvoiceAddress);
 			var generator = new MySqlQueryGenerator<UserAggregate>(config);
 			return generator;
 		}

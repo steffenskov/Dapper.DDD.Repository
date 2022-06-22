@@ -1,42 +1,20 @@
-using System.Reflection;
+﻿using System.Reflection;
 using System.Reflection.Emit;
 
 namespace Dapper.Repository.Reflection;
 
 internal class MemberAccessor
 {
-	internal readonly string name;
-	public string Name => name;
-	private static readonly Func<object, object?> NoGetter =
-		obj => { throw new InvalidOperationException("No getter for property"); };
-	private static readonly Action<object, object?> NoSetter =
-		(obj, val) => { throw new InvalidOperationException("No setter for property"); };
+	#region Static
+	private static readonly Func<object, object?> NoGetter = obj => { throw new InvalidOperationException("No getter for property"); };
+	private static readonly Action<object, object?> NoSetter = (obj, val) => { throw new InvalidOperationException("No setter for property"); };
 
-	public object? GetValue(object target) { return getter(target); }
-	public void SetValue(object target, object? value) { setter(target, value); }
-	internal readonly Func<object, object?> getter;
-	internal readonly Action<object, object?> setter;
-
-	public bool HasGetter => getter != NoGetter;
-	public bool HasSetter => setter != NoSetter;
-
-	public MemberAccessor(PropertyInfo property)
+	private static Func<object, object?> GetGetMethod(PropertyInfo property)
 	{
-		if (property is null)
-		{
-			throw new ArgumentNullException(nameof(property));
-		}
-
-		if (property.DeclaringType is null)
-		{
-			throw new ArgumentException($"property.DeclaringType is null", nameof(property));
-		}
-
-		name = property.Name;
 		var method = property.GetGetMethod(true);
 		if (method is null)
 		{
-			getter = NoGetter;
+			return NoGetter;
 		}
 		else
 		{
@@ -55,12 +33,16 @@ internal class MemberAccessor
 				il.Emit(OpCodes.Box, property.PropertyType);
 			}
 			il.Emit(OpCodes.Ret);
-			getter = (Func<object, object?>)dm.CreateDelegate(typeof(Func<object, object?>));
+			return (Func<object, object?>)dm.CreateDelegate(typeof(Func<object, object?>));
 		}
-		method = property.GetSetMethod(true);
+	}
+
+	private static Action<object, object?> GetSetMethod(PropertyInfo property)
+	{
+		var method = property.GetSetMethod(true);
 		if (method is null)
 		{
-			setter = NoSetter;
+			return NoSetter;
 		}
 		else
 		{
@@ -84,7 +66,42 @@ internal class MemberAccessor
 			}
 			il.Emit(OpCodes.Callvirt, method);
 			il.Emit(OpCodes.Ret);
-			setter = (Action<object, object?>)dm.CreateDelegate(typeof(Action<object, object?>));
+			return (Action<object, object?>)dm.CreateDelegate(typeof(Action<object, object?>));
 		}
+	}
+	#endregion
+
+	internal readonly Func<object, object?> _getter;
+	internal readonly Action<object, object?> _setter;
+
+	public bool HasGetter => _getter != NoGetter;
+	public bool HasSetter => _setter != NoSetter;
+	public string Name { get; }
+
+	public MemberAccessor(PropertyInfo property)
+	{
+		if (property is null)
+		{
+			throw new ArgumentNullException(nameof(property));
+		}
+
+		if (property.DeclaringType is null)
+		{
+			throw new ArgumentException($"property.DeclaringType is null", nameof(property));
+		}
+
+		Name = property.Name;
+		_getter = GetGetMethod(property);
+		_setter = GetSetMethod(property);
+	}
+
+	public object? GetValue(object target)
+	{
+		return _getter(target);
+	}
+
+	public void SetValue(object target, object? value)
+	{
+		_setter(target, value);
 	}
 }

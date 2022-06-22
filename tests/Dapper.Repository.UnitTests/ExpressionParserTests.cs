@@ -1,5 +1,4 @@
-using System;
-using System.Linq;
+﻿using System.Linq;
 using Dapper.Repository.Reflection;
 using Dapper.Repository.UnitTests.Aggregates;
 
@@ -42,13 +41,13 @@ public class ExpressionParserTests
 		var parser = new ExpressionParser<UserAggregate>();
 
 		// Act
-		var propertyInfos = parser.GetExtendedPropertiesFromExpression(user => new { user.Id, user.Address }).ToList();
+		var propertyInfos = parser.GetExtendedPropertiesFromExpression(user => new { user.Id, user.InvoiceAddress }).ToList();
 
 		// Assert
 		Assert.Equal(2, propertyInfos.Count);
 		var propertyNames = propertyInfos.Select(property => property.Name).ToList();
 		Assert.Contains(nameof(UserAggregate.Id), propertyNames);
-		Assert.Contains(nameof(UserAggregate.Address), propertyNames);
+		Assert.Contains(nameof(UserAggregate.InvoiceAddress), propertyNames);
 	}
 
 	[Fact]

@@ -1,16 +1,23 @@
-using System.Collections.Concurrent;
+﻿using System.Collections.Concurrent;
 using System.Reflection;
 using System.Reflection.Emit;
 
 namespace Dapper.Repository.Reflection;
 internal static class TypeInstantiator
 {
-	private static ConcurrentDictionary<Type, Func<object>> _constructors = new();
+	private static readonly ConcurrentDictionary<Type, Func<object>> _constructors = new();
+
+	public static T CreateInstance<T>()
+	{
+		return (T)CreateInstance(typeof(T));
+	}
 
 	public static object CreateInstance(Type type)
 	{
 		if (type.IsValueType)
+		{
 			return Activator.CreateInstance(type)!; // Value types don't necessarily have a proper default constructor for the IL generation to work, so this is a safe workaround albeit slower than IL.
+		}
 
 		var ctor = _constructors.GetOrAdd(type, CreateConstructorDelegate);
 		return ctor();

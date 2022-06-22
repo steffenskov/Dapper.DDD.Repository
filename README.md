@@ -5,12 +5,13 @@ It uses a Fluent syntax for configuring your repositories through the built-in D
 Also it's somewhat inspired by [Domain-Driven Design](https://en.wikipedia.org/wiki/Domain-driven_design) and as such uses the word `Aggregate` rather than `Entity` as well as the term `ValueObject`. It also allows you to configure everything strictly outside your `Domain` layer, in order to keep the domain free from information about how your persistance works. This makes it easier to replace the persistance, should you ever want to do that.
 
 **NOTICE**: The current codebase is still very much "work-in-progress", as such these features are still not fully implemented, but are being worked on:
-- Prefixing ValueObject columns in the database (e.g. Address_Road, Address_Zipcode, Address_City)
 - Cleaning up in general
 - Performance optimization of property lists (will be changed into dictionaries for O(1) lookups in the future)
 - Integration tests of IViewRepository
 - Abstracting dealing with ValueObjects away from the end user
 - Improvements to AggregateConfiguration injection, as the current "explicit interface" approach is a bit annoying for when adding support for new databases.
+- Further testing of deep nesting of ValueObjects
+- Further testing of multiple ValueObject properties of the same type
 - Sample project showing how to use the library
 
 ## Installation:

@@ -84,7 +84,7 @@ namespace Dapper.Repository.UnitTests.Sql
 			var query = generator.GenerateDeleteQuery();
 
 			// Assert
-			Assert.Equal($"DELETE FROM [dbo].[Users] OUTPUT [deleted].[Id], [deleted].[Address_City], [deleted].[Address_Street] WHERE [dbo].[Users].[Id] = @Id;", query);
+			Assert.Equal($"DELETE FROM [dbo].[Users] OUTPUT [deleted].[Id], [deleted].[InvoiceAddress_City], [deleted].[InvoiceAddress_Street] WHERE [dbo].[Users].[Id] = @Id;", query);
 		}
 
 		[Fact]
@@ -152,7 +152,7 @@ namespace Dapper.Repository.UnitTests.Sql
 			var query = generator.GenerateGetAllQuery();
 
 			// Assert
-			Assert.Equal($"SELECT [dbo].[Users].[Id], [dbo].[Users].[Address_City], [dbo].[Users].[Address_Street] FROM [dbo].[Users];", query);
+			Assert.Equal($"SELECT [dbo].[Users].[Id], [dbo].[Users].[InvoiceAddress_City], [dbo].[Users].[InvoiceAddress_Street] FROM [dbo].[Users];", query);
 		}
 
 		[Fact]
@@ -193,7 +193,7 @@ namespace Dapper.Repository.UnitTests.Sql
 			var query = generator.GenerateGetQuery();
 
 			// Assert
-			Assert.Equal($"SELECT [dbo].[Users].[Id], [dbo].[Users].[Address_City], [dbo].[Users].[Address_Street] FROM [dbo].[Users] WHERE [dbo].[Users].[Id] = @Id;", query);
+			Assert.Equal($"SELECT [dbo].[Users].[Id], [dbo].[Users].[InvoiceAddress_City], [dbo].[Users].[InvoiceAddress_Street] FROM [dbo].[Users] WHERE [dbo].[Users].[Id] = @Id;", query);
 		}
 
 		[Fact]
@@ -247,7 +247,7 @@ namespace Dapper.Repository.UnitTests.Sql
 			var query = generator.GenerateInsertQuery(new UserAggregate());
 
 			// Assert
-			Assert.Equal($"INSERT INTO [dbo].[Users] ([Id], [Address_City], [Address_Street]) OUTPUT [inserted].[Id], [inserted].[Address_City], [inserted].[Address_Street] VALUES (@Id, @Address_City, @Address_Street);", query);
+			Assert.Equal($"INSERT INTO [dbo].[Users] ([Id], [InvoiceAddress_City], [InvoiceAddress_Street]) OUTPUT [inserted].[Id], [inserted].[InvoiceAddress_City], [inserted].[InvoiceAddress_Street] VALUES (@Id, @InvoiceAddress_City, @InvoiceAddress_Street);", query);
 		}
 
 		[Fact]
@@ -357,7 +357,7 @@ namespace Dapper.Repository.UnitTests.Sql
 			var query = generator.GenerateUpdateQuery();
 
 			// Assert
-			Assert.Equal($"UPDATE [dbo].[Users] SET [dbo].[Users].[Address_City] = @Address_City, [dbo].[Users].[Address_Street] = @Address_Street OUTPUT [inserted].[Id], [inserted].[Address_City], [inserted].[Address_Street] WHERE [dbo].[Users].[Id] = @Id;", query);
+			Assert.Equal($"UPDATE [dbo].[Users] SET [dbo].[Users].[InvoiceAddress_City] = @InvoiceAddress_City, [dbo].[Users].[InvoiceAddress_Street] = @InvoiceAddress_Street OUTPUT [inserted].[Id], [inserted].[InvoiceAddress_City], [inserted].[InvoiceAddress_Street] WHERE [dbo].[Users].[Id] = @Id;", query);
 		}
 
 		[Fact]
@@ -484,7 +484,8 @@ namespace Dapper.Repository.UnitTests.Sql
 				TableName = "Users"
 			};
 			config.HasKey(x => x.Id);
-			config.HasValueObject(x => x.Address);
+			config.HasValueObject(x => x.DeliveryAddress);
+			config.HasValueObject(x => x.InvoiceAddress);
 			var generator = new SqlQueryGenerator<UserAggregate>(config);
 			return generator;
 		}

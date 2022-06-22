@@ -1,5 +1,4 @@
-using System.Reflection;
-using Dapper.Repository.Reflection;
+﻿using Dapper.Repository.Reflection;
 
 namespace Dapper.Repository.UnitTests.Reflection;
 
@@ -50,7 +49,10 @@ public class ObjectFlattenerTests
 		var result = ObjectFlattener.Flatten(obj);
 		var resultType = result.GetType();
 
-		object getResultValue(string name) => resultType!.GetField(name)!.GetValue(result)!;
+		object getResultValue(string name)
+		{
+			return resultType!.GetProperty(name)!.GetValue(result)!;
+		}
 
 		// Assert
 		Assert.NotSame(obj, result);
