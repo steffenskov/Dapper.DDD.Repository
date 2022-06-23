@@ -6,10 +6,10 @@ internal class SqlQueryGenerator<TAggregate> : IQueryGenerator<TAggregate>
 	where TAggregate : notnull
 {
 	private readonly string _schemaAndEntity;
-	private readonly IReadOnlyList<ExtendedPropertyInfo> _properties;
-	private readonly IReadOnlyList<ExtendedPropertyInfo> _identities;
-	private readonly IReadOnlyList<ExtendedPropertyInfo> _keys;
-	private readonly IReadOnlyList<ExtendedPropertyInfo> _defaultConstraints;
+	private readonly ExtendedPropertyInfoCollection _properties;
+	private readonly ExtendedPropertyInfoCollection _identities;
+	private readonly ExtendedPropertyInfoCollection _keys;
+	private readonly ExtendedPropertyInfoCollection _defaultConstraints;
 
 	public SqlQueryGenerator(BaseAggregateConfiguration<TAggregate> configuration)
 	{
@@ -41,6 +41,7 @@ internal class SqlQueryGenerator<TAggregate> : IQueryGenerator<TAggregate>
 				_ = keys.Remove(valueObject);
 				keys.AddRange(valueObject.GetPropertiesOrdered());
 			}
+
 		}
 		_properties = properties;
 		_identities = readConfiguration.GetIdentityProperties();

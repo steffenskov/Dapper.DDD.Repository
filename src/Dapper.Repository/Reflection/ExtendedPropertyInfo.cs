@@ -4,25 +4,28 @@ namespace Dapper.Repository.Reflection;
 
 public class ExtendedPropertyInfo
 {
-	public PropertyInfo Property { get; }
-	public string Name => !string.IsNullOrWhiteSpace(Prefix) ? $"{Prefix}_{Property.Name}" : Property.Name;
-	public Type Type => Property.PropertyType;
+	public string Name { get; }
+	public Type Type { get; }
 
-	//public string Prefix { get; set; } = "";
-
-	public bool HasSetter { get; }
+	public bool HasSetter => _accessor.HasSetter;
 
 	private readonly object? _defaultValue;
 	private readonly MemberAccessor _accessor;
 
 	public ExtendedPropertyInfo(PropertyInfo property)
 	{
-		Property = property;
-		var type = property.PropertyType;
-
+		Type = property.PropertyType;
+		Name = property.Name;
 		_accessor = new MemberAccessor(property);
-		_defaultValue = TypeDefaultValueCache.GetDefaultValue(type);
-		HasSetter = _accessor.HasSetter;
+		_defaultValue = TypeDefaultValueCache.GetDefaultValue(Type);
+	}
+
+	private ExtendedPropertyInfo(ExtendedPropertyInfo property, string prefix)
+	{
+		Type = property.Type;
+		Name = $"{prefix}_{property.Name}";
+		_accessor = property._accessor;
+		_defaultValue = property._defaultValue;
 	}
 
 	public bool HasDefaultValue<T>(T aggregate)
@@ -47,18 +50,11 @@ public class ExtendedPropertyInfo
 
 	public IReadOnlyList<ExtendedPropertyInfo> GetPropertiesOrdered()
 	{
-		var result = TypePropertiesCache.GetProperties(Type)
-										.Values
-										.OrderBy(prop => prop.Name)
-										.ToList()
-										.AsReadOnly();
-
-		// TODO: Clone property before assigning prefix
-		foreach (var prop in result)
-		{
-			prop.Prefix = Name;
-		}
-
-		return result;
+		return TypePropertiesCache.GetProperties(Type)
+									.Values
+									.Select(prop => new ExtendedPropertyInfo(prop, Name))
+									.OrderBy(prop => prop.Name)
+									.ToList()
+									.AsReadOnly();
 	}
 }
