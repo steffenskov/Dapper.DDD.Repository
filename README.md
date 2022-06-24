@@ -6,7 +6,7 @@ Also it's somewhat inspired by [Domain-Driven Design](https://en.wikipedia.org/w
 
 **NOTICE**: The current codebase is still very much "work-in-progress", as such these features are still not fully implemented, but are being worked on:
 - Cleaning up in general
-- Performance optimization of property lists (will be changed into dictionaries for O(1) lookups in the future)
+- Unit testing of ObjectFlattener as well as ExtendedPropertyInfoCollection
 - Integration tests of IViewRepository
 - Abstracting dealing with ValueObjects away from the end user
 - Improvements to AggregateConfiguration injection, as the current "explicit interface" approach is a bit annoying for when adding support for new databases.
