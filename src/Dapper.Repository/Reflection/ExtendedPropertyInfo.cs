@@ -48,13 +48,12 @@ public class ExtendedPropertyInfo
 		_accessor._setter(aggregate, value);
 	}
 
-	public IReadOnlyList<ExtendedPropertyInfo> GetPropertiesOrdered()
+	public IReadOnlyExtendedPropertyInfoCollection GetPropertiesOrdered()
 	{
-		return TypePropertiesCache.GetProperties(Type)
-									.Values
-									.Select(prop => new ExtendedPropertyInfo(prop, Name))
-									.OrderBy(prop => prop.Name)
-									.ToList()
-									.AsReadOnly();
+		return new ExtendedPropertyInfoCollection(
+					TypePropertiesCache.GetProperties(Type)
+					.Values
+					.Select(prop => new ExtendedPropertyInfo(prop, Name))
+					.OrderBy(prop => prop.Name));
 	}
 }

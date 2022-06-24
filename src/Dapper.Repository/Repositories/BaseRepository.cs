@@ -9,7 +9,7 @@ where TAggregateId : notnull
 	private readonly IDapperInjection<TAggregate> _dapperInjection;
 	private protected readonly IReadAggregateConfiguration<TAggregate> _configuration;
 	private bool HasValueObjects => _valueObjects.Count > 0;
-	private readonly IReadOnlyList<ExtendedPropertyInfo> _valueObjects;
+	private readonly IReadOnlyExtendedPropertyInfoCollection _valueObjects;
 	private readonly IConnectionFactory _connectionFactory;
 	private protected readonly IQueryGenerator<TAggregate> _queryGenerator;
 	protected string EntityName { get; }
@@ -119,7 +119,7 @@ where TAggregateId : notnull
 	private string GetFirstPropertyName(ExtendedPropertyInfo property)
 	{
 		var properties = property.GetPropertiesOrdered();
-		return properties.First().Name;
+		return properties[0].Name;
 	}
 
 	#region Dapper methods

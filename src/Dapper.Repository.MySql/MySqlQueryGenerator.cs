@@ -5,10 +5,10 @@ namespace Dapper.Repository.MySql;
 internal class MySqlQueryGenerator<TAggregate> : IQueryGenerator<TAggregate>
 	where TAggregate : notnull
 {
-	private readonly IReadOnlyList<ExtendedPropertyInfo> _properties;
-	private readonly IReadOnlyList<ExtendedPropertyInfo> _identities;
-	private readonly IReadOnlyList<ExtendedPropertyInfo> _keys;
-	private readonly IReadOnlyList<ExtendedPropertyInfo> _defaultConstraints;
+	private readonly IReadOnlyExtendedPropertyInfoCollection _properties;
+	private readonly IReadOnlyExtendedPropertyInfoCollection _identities;
+	private readonly IReadOnlyExtendedPropertyInfoCollection _keys;
+	private readonly IReadOnlyExtendedPropertyInfoCollection _defaultConstraints;
 	private readonly string _entityName;
 
 	public MySqlQueryGenerator(BaseAggregateConfiguration<TAggregate> configuration)
@@ -27,16 +27,16 @@ internal class MySqlQueryGenerator<TAggregate> : IQueryGenerator<TAggregate>
 		_entityName = configuration.EntityName;
 
 		var readConfiguration = (IReadAggregateConfiguration<TAggregate>)configuration;
-		var properties = readConfiguration.GetProperties().ToList();
-		var keys = readConfiguration.GetKeys().ToList();
+		var properties = new ExtendedPropertyInfoCollection(readConfiguration.GetProperties());
+		var keys = new ExtendedPropertyInfoCollection(readConfiguration.GetKeys());
 		var valueObjects = readConfiguration.GetValueObjects();
 		foreach (var valueObject in valueObjects)
 		{
-			_ = properties.Remove(valueObject);
+			properties.Remove(valueObject);
 			properties.AddRange(valueObject.GetPropertiesOrdered());
 			if (keys.Contains(valueObject))
 			{
-				_ = keys.Remove(valueObject);
+				keys.Remove(valueObject);
 				keys.AddRange(valueObject.GetPropertiesOrdered());
 			}
 		}
@@ -51,8 +51,7 @@ internal class MySqlQueryGenerator<TAggregate> : IQueryGenerator<TAggregate>
 		var whereClause = GenerateWhereClause();
 
 		var outputProperties = GeneratePropertyList(_entityName, _properties);
-		return $@"SELECT {outputProperties} FROM {_entityName} WHERE {whereClause};
-DELETE FROM {_entityName} WHERE {whereClause};";
+		return $@"SELECT {outputProperties} FROM {_entityName} WHERE {whereClause};DELETE FROM {_entityName} WHERE {whereClause};";
 	}
 
 	public string GenerateGetAllQuery()
@@ -94,8 +93,7 @@ DELETE FROM {_entityName} WHERE {whereClause};";
 		{
 			selectStatement = GenerateGetQuery();
 		}
-		return $@"INSERT INTO {_entityName} ({string.Join(", ", propertiesToInsert.Select(property => property.Name))}) VALUES ({string.Join(", ", propertiesToInsert.Select(property => $"@{property.Name}"))});
-{selectStatement}";
+		return $@"INSERT INTO {_entityName} ({string.Join(", ", propertiesToInsert.Select(property => property.Name))}) VALUES ({string.Join(", ", propertiesToInsert.Select(property => $"@{property.Name}"))});{selectStatement}";
 
 	}
 
@@ -110,8 +108,7 @@ DELETE FROM {_entityName} WHERE {whereClause};";
 
 		_ = GeneratePropertyList("inserted", _properties);
 		var selectStatement = GenerateGetQuery();
-		return $@"UPDATE {_entityName} SET {setClause} WHERE {GenerateWhereClause()};
-{selectStatement}";
+		return $@"UPDATE {_entityName} SET {setClause} WHERE {GenerateWhereClause()};{selectStatement}";
 	}
 
 	#region Helpers

@@ -1,8 +1,13 @@
 ﻿namespace Dapper.Repository.Reflection
 {
-	public interface IReadOnlyExtendedPropertyInfoCollection
+	public interface IReadOnlyExtendedPropertyInfoCollection : IEnumerable<ExtendedPropertyInfo>
 	{
+		int Count { get; }
+		ExtendedPropertyInfo this[int index] { get; }
+		ExtendedPropertyInfo this[string propertyName] { get; }
+
 		bool Contains(ExtendedPropertyInfo property);
-		IEnumerator<ExtendedPropertyInfo> GetEnumerator();
+
+		bool TryGetValue(string propertyName, out ExtendedPropertyInfo? property);
 	}
 }
