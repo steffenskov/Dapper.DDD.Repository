@@ -17,4 +17,4 @@ services:
     build:
       context: ./SqlServer
     ports:
-      - 1431:1433
+      - 1433:1433
