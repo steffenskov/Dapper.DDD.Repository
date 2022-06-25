@@ -14,7 +14,8 @@ public class AutoDomainDataAttribute : AutoDataAttribute
 													.With(category => category.CategoryName, Guid.NewGuid().ToString().Remove(15)));
 		  fixture.Customize<Customer>(transform => transform
 														.With(customer => customer.Id, Guid.NewGuid())
-														.With(customer => customer.Address, new Address { Street = "Streetname" + Guid.NewGuid(), Zipcode = Random.Shared.Next(int.MaxValue) }));
+														.With(customer => customer.InvoiceAddress, new Address { Street = "Streetname" + Guid.NewGuid(), Zipcode = Random.Shared.Next(int.MaxValue) })
+														.With(customer => customer.DeliveryAddress, new Address { Street = "Streetname" + Guid.NewGuid(), Zipcode = Random.Shared.Next(int.MaxValue) }));
 		  return fixture;
 	  })
 	{

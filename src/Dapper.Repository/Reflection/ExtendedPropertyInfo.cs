@@ -1,28 +1,31 @@
-using System.Reflection;
+﻿using System.Reflection;
 
 namespace Dapper.Repository.Reflection;
 
 public class ExtendedPropertyInfo
 {
-	public PropertyInfo Property { get; }
-	public string Name => Property.Name;
-	public Type Type => Property.PropertyType;
+	public string Name { get; }
+	public Type Type { get; }
 
-	public string Prefix { get; set; } = "";
-
-	public bool HasSetter { get; }
+	public bool HasSetter => _accessor.HasSetter;
 
 	private readonly object? _defaultValue;
 	private readonly MemberAccessor _accessor;
 
 	public ExtendedPropertyInfo(PropertyInfo property)
 	{
-		Property = property;
-		var type = property.PropertyType;
-
+		Type = property.PropertyType;
+		Name = property.Name;
 		_accessor = new MemberAccessor(property);
-		_defaultValue = TypeDefaultValueCache.GetDefaultValue(type);
-		HasSetter = _accessor.HasSetter;
+		_defaultValue = TypeDefaultValueCache.GetDefaultValue(Type);
+	}
+
+	private ExtendedPropertyInfo(ExtendedPropertyInfo property, string prefix)
+	{
+		Type = property.Type;
+		Name = $"{prefix}_{property.Name}";
+		_accessor = property._accessor;
+		_defaultValue = property._defaultValue;
 	}
 
 	public bool HasDefaultValue<T>(T aggregate)
@@ -36,27 +39,21 @@ public class ExtendedPropertyInfo
 	public object? GetValue<T>(T aggregate)
 	where T : notnull
 	{
-		return _accessor.getter(aggregate);
+		return _accessor._getter(aggregate);
 	}
 
 	public void SetValue<T>(T aggregate, object? value)
 	where T : notnull
 	{
-		_accessor.setter(aggregate, value);
+		_accessor._setter(aggregate, value);
 	}
 
-	public IReadOnlyList<ExtendedPropertyInfo> GetPropertiesOrdered()
+	public IReadOnlyExtendedPropertyInfoCollection GetPropertiesOrdered()
 	{
-		var result = TypePropertiesCache.GetProperties(Type)
-										.Values
-										.OrderBy(prop => prop.Name)
-										.ToList()
-										.AsReadOnly();
-		foreach (var prop in result)
-		{
-			prop.Prefix = Name;
-		}
-
-		return result;
+		return new ExtendedPropertyInfoCollection(
+					TypePropertiesCache.GetProperties(Type)
+					.Values
+					.Select(prop => new ExtendedPropertyInfo(prop, Name))
+					.OrderBy(prop => prop.Name));
 	}
 }

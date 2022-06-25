@@ -5,11 +5,11 @@ namespace Dapper.Repository.Configuration;
 
 public abstract class BaseAggregateConfiguration<TAggregate> : IReadAggregateConfiguration<TAggregate>
 {
-	private List<ExtendedPropertyInfo>? _keyProperties;
-	private readonly List<ExtendedPropertyInfo> _defaults = new();
-	private readonly List<ExtendedPropertyInfo> _identities = new();
-	private readonly List<ExtendedPropertyInfo> _ignores = new();
-	private readonly List<ExtendedPropertyInfo> _valueObjects = new();
+	private ExtendedPropertyInfoCollection? _keyProperties;
+	private readonly ExtendedPropertyInfoCollection _defaults = new();
+	private readonly ExtendedPropertyInfoCollection _identities = new();
+	private readonly ExtendedPropertyInfoCollection _ignores = new();
+	private readonly ExtendedPropertyInfoCollection _valueObjects = new();
 
 	public string? Schema { get; set; }
 	public IQueryGeneratorFactory? QueryGeneratorFactory { get; set; }
@@ -38,7 +38,7 @@ public abstract class BaseAggregateConfiguration<TAggregate> : IReadAggregateCon
 			throw new InvalidOperationException("HasKey has already been called once.");
 		}
 
-		_keyProperties = new ExpressionParser<TAggregate>().GetExtendedPropertiesFromExpression(expression).ToList();
+		_keyProperties = new(new ExpressionParser<TAggregate>().GetExtendedPropertiesFromExpression(expression));
 	}
 
 	public void Ignore(Expression<Func<TAggregate, object>> expression)
@@ -65,7 +65,7 @@ public abstract class BaseAggregateConfiguration<TAggregate> : IReadAggregateCon
 	public void HasValueObject(Expression<Func<TAggregate, object>> expression)
 	{
 		var properties = new ExpressionParser<TAggregate>().GetExtendedPropertiesFromExpression(expression);
-		var invalidProperties = properties.Where(property => property.Type.IsPrimitive || property.Type == typeof(string) || property.Type == typeof(Guid));
+		var invalidProperties = properties.Where(property => property.Type.IsSimpleType());
 		if (invalidProperties.Any())
 		{
 			throw new ArgumentException($"The properties {string.Join(", ", invalidProperties.Select(p => p.Name))} are not value objects.");
@@ -74,19 +74,17 @@ public abstract class BaseAggregateConfiguration<TAggregate> : IReadAggregateCon
 		_valueObjects.AddRange(properties);
 	}
 
-	IReadOnlyList<ExtendedPropertyInfo> IReadAggregateConfiguration<TAggregate>.GetKeys()
+	IReadOnlyExtendedPropertyInfoCollection IReadAggregateConfiguration<TAggregate>.GetKeys()
 	{
-		return _keyProperties is null
-			? throw new InvalidOperationException("No key has been specified for this aggregate.")
-			: (IReadOnlyList<ExtendedPropertyInfo>)_keyProperties.AsReadOnly();
+		return _keyProperties ?? throw new InvalidOperationException("No key has been specified for this aggregate.");
 	}
 
-	IReadOnlyList<ExtendedPropertyInfo> IReadAggregateConfiguration<TAggregate>.GetIdentityProperties()
+	IReadOnlyExtendedPropertyInfoCollection IReadAggregateConfiguration<TAggregate>.GetIdentityProperties()
 	{
-		return _identities.AsReadOnly();
+		return _identities;
 	}
 
-	IReadOnlyList<ExtendedPropertyInfo> IReadAggregateConfiguration<TAggregate>.GetProperties()
+	IReadOnlyExtendedPropertyInfoCollection IReadAggregateConfiguration<TAggregate>.GetProperties()
 	{
 		var rawList = TypePropertiesCache.GetProperties<TAggregate>().Values.ToDictionary(prop => prop.Name); // Clone dictionary so we can mutate it
 
@@ -95,16 +93,16 @@ public abstract class BaseAggregateConfiguration<TAggregate> : IReadAggregateCon
 			_ = rawList.Remove(ignore.Name);
 		}
 
-		return rawList.Values.ToList().AsReadOnly();
+		return new ExtendedPropertyInfoCollection(rawList.Values);
 	}
 
-	IReadOnlyList<ExtendedPropertyInfo> IReadAggregateConfiguration<TAggregate>.GetPropertiesWithDefaultConstraints()
+	IReadOnlyExtendedPropertyInfoCollection IReadAggregateConfiguration<TAggregate>.GetPropertiesWithDefaultConstraints()
 	{
-		return _defaults.AsReadOnly();
+		return _defaults;
 	}
 
-	IReadOnlyList<ExtendedPropertyInfo> IReadAggregateConfiguration<TAggregate>.GetValueObjects()
+	IReadOnlyExtendedPropertyInfoCollection IReadAggregateConfiguration<TAggregate>.GetValueObjects()
 	{
-		return _valueObjects.AsReadOnly();
+		return _valueObjects;
 	}
 }

@@ -11,7 +11,7 @@ public class Startup
 		_ = services.AddOptions();
 		_ = services.ConfigureDapperRepositoryDefaults(options =>
 		{
-			options.ConnectionFactory = new MySqlConnectionFactory("Server=localhost;Port=33060;Database=northwind;Uid=root;Pwd=mysql1337;");
+			options.ConnectionFactory = new MySqlConnectionFactory("Server=localhost;Port=33060;Database=northwind;Uid=root;Pwd=mysql1337;AllowPublicKeyRetrieval=true;");
 			options.DapperInjectionFactory = new DapperInjectionFactory();
 			options.QueryGeneratorFactory = new MySqlQueryGeneratorFactory();
 		});
@@ -39,7 +39,8 @@ public class Startup
 		{
 			options.TableName = "customers_with_value_object";
 			options.HasKey(x => x.Id);
-			options.HasValueObject(x => x.Address);
+			options.HasValueObject(x => x.InvoiceAddress);
+			options.HasValueObject(x => x.DeliveryAddress);
 		});
 		Provider = services.BuildServiceProvider();
 	}

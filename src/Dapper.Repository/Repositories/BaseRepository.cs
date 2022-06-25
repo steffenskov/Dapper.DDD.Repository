@@ -9,7 +9,7 @@ where TAggregateId : notnull
 	private readonly IDapperInjection<TAggregate> _dapperInjection;
 	private protected readonly IReadAggregateConfiguration<TAggregate> _configuration;
 	private bool HasValueObjects => _valueObjects.Count > 0;
-	private readonly IReadOnlyList<ExtendedPropertyInfo> _valueObjects;
+	private readonly IReadOnlyExtendedPropertyInfoCollection _valueObjects;
 	private readonly IConnectionFactory _connectionFactory;
 	private protected readonly IQueryGenerator<TAggregate> _queryGenerator;
 	protected string EntityName { get; }
@@ -107,30 +107,19 @@ where TAggregateId : notnull
 
 	private async Task<IEnumerable<TAggregate>> QueryWithValueObjectsAsync(string query, object? param = null, IDbTransaction? transaction = null, int? commandTimeout = null, CommandType? commandType = null)
 	{
-		var valueObjectProperties = _configuration.GetValueObjects();
-		var valueTypes = valueObjectProperties.Select(property => property.Type).ToArray();
-		var splitOn = string.Join(",", valueObjectProperties.Select(GetFirstPropertyName));
-		var allTypes = new Type[valueTypes.Length + 1];
-		allTypes[0] = typeof(TAggregate);
-		valueTypes.CopyTo(allTypes, 1);
-		return await QueryWithMapAsync(query, allTypes, Map, param, transaction, buffered: true, splitOn: splitOn, commandTimeout, commandType);
+		var allTypes = new[] { ObjectFlattener.GetFlattenedType<TAggregate>() };
+		return await QueryWithMapAsync(query, allTypes, Map, param, transaction, buffered: true, splitOn: string.Empty, commandTimeout, commandType);
 	}
 
 	private TAggregate Map(object[] args)
 	{
-		var result = (TAggregate)args.First(arg => arg is TAggregate);
-		foreach (var valueObjectProperty in _configuration.GetValueObjects())
-		{
-			var valueObject = args.First(arg => arg.GetType() == valueObjectProperty.Type);
-			valueObjectProperty.SetValue(result, valueObject);
-		}
-		return result;
+		return ObjectFlattener.Unflatten<TAggregate>(args[0]);
 	}
 
 	private string GetFirstPropertyName(ExtendedPropertyInfo property)
 	{
 		var properties = property.GetPropertiesOrdered();
-		return properties.First().Name;
+		return properties[0].Name;
 	}
 
 	#region Dapper methods

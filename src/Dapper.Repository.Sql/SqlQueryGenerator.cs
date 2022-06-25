@@ -6,10 +6,10 @@ internal class SqlQueryGenerator<TAggregate> : IQueryGenerator<TAggregate>
 	where TAggregate : notnull
 {
 	private readonly string _schemaAndEntity;
-	private readonly IReadOnlyList<ExtendedPropertyInfo> _properties;
-	private readonly IReadOnlyList<ExtendedPropertyInfo> _identities;
-	private readonly IReadOnlyList<ExtendedPropertyInfo> _keys;
-	private readonly IReadOnlyList<ExtendedPropertyInfo> _defaultConstraints;
+	private readonly IReadOnlyExtendedPropertyInfoCollection _properties;
+	private readonly IReadOnlyExtendedPropertyInfoCollection _identities;
+	private readonly IReadOnlyExtendedPropertyInfoCollection _keys;
+	private readonly IReadOnlyExtendedPropertyInfoCollection _defaultConstraints;
 
 	public SqlQueryGenerator(BaseAggregateConfiguration<TAggregate> configuration)
 	{
@@ -29,18 +29,19 @@ internal class SqlQueryGenerator<TAggregate> : IQueryGenerator<TAggregate>
 		_schemaAndEntity = $"{EnsureSquareBrackets(configuration.Schema)}.{EnsureSquareBrackets(configuration.EntityName)}";
 
 		var readConfiguration = (IReadAggregateConfiguration<TAggregate>)configuration;
-		var properties = readConfiguration.GetProperties().ToList();
-		var keys = readConfiguration.GetKeys().ToList();
+		var properties = new ExtendedPropertyInfoCollection(readConfiguration.GetProperties());
+		var keys = new ExtendedPropertyInfoCollection(readConfiguration.GetKeys());
 		var valueObjects = readConfiguration.GetValueObjects();
 		foreach (var valueObject in valueObjects)
 		{
-			_ = properties.Remove(valueObject);
+			properties.Remove(valueObject);
 			properties.AddRange(valueObject.GetPropertiesOrdered());
 			if (keys.Contains(valueObject))
 			{
-				_ = keys.Remove(valueObject);
+				keys.Remove(valueObject);
 				keys.AddRange(valueObject.GetPropertiesOrdered());
 			}
+
 		}
 		_properties = properties;
 		_identities = readConfiguration.GetIdentityProperties();
