@@ -18,3 +18,5 @@ services:
       context: ./SqlServer
     ports:
       - 1433:1433
+    environment:
+      - T7806
