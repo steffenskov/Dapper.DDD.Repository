@@ -2,6 +2,7 @@ FROM mcr.microsoft.com/mssql/server:2019-CU10-ubuntu-20.04
 
 ENV ACCEPT_EULA="Y"
 ENV MSSQL_SA_PASSWORD=SqlServer2019
+ENV SA_PASSWORD=SqlServer2019
 ENV MSSQL_PID="Express"
 
 ENV PATH=$PATH:/opt/mssql-tools/bin
