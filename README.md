@@ -13,7 +13,7 @@ Also it's somewhat inspired by [Domain-Driven Design](https://en.wikipedia.org/w
 - Further testing of deep nesting of ValueObjects
 - Further testing of multiple ValueObject properties of the same type
 - Sample project showing how to use the library
-- Benchmark project showing how it performans compared to manually written Dapper code
+- Benchmark project showing how it performs compared to manually written Dapper code
 
 ## Installation:
 

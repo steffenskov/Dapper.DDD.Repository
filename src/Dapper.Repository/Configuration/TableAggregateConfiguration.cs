@@ -3,5 +3,5 @@ public class TableAggregateConfiguration<TAggregate> : BaseAggregateConfiguratio
 {
 	public string? TableName { get; set; }
 
-	public override string EntityName => TableName!;
+	protected override string EntityName => TableName!;
 }

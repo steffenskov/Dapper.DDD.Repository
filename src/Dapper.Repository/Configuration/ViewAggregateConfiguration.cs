@@ -3,5 +3,5 @@ public class ViewAggregateConfiguration<TAggregate> : BaseAggregateConfiguration
 {
 	public string? ViewName { get; set; }
 
-	public override string EntityName => ViewName!;
+	protected override string EntityName => ViewName!;
 }

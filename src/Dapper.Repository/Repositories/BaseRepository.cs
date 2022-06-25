@@ -29,7 +29,7 @@ where TAggregateId : notnull
 		_queryGenerator = configuration.QueryGeneratorFactory.Create(configuration);
 		_configuration = configuration;
 		_valueObjects = _configuration.GetValueObjects();
-		EntityName = configuration.EntityName;
+		EntityName = _configuration.EntityName;
 	}
 
 	public async Task<IEnumerable<TAggregate>> GetAllAsync()

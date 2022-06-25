@@ -16,7 +16,7 @@ public abstract class BaseAggregateConfiguration<TAggregate> : IReadAggregateCon
 	public IConnectionFactory? ConnectionFactory { get; set; }
 	public IDapperInjectionFactory? DapperInjectionFactory { get; set; }
 
-	public abstract string EntityName { get; }
+	protected abstract string EntityName { get; }
 
 	internal void SetDefaults(DefaultConfiguration? defaults)
 	{
@@ -73,6 +73,8 @@ public abstract class BaseAggregateConfiguration<TAggregate> : IReadAggregateCon
 
 		_valueObjects.AddRange(properties);
 	}
+
+	string IReadAggregateConfiguration<TAggregate>.EntityName => this.EntityName;
 
 	IReadOnlyExtendedPropertyInfoCollection IReadAggregateConfiguration<TAggregate>.GetKeys()
 	{
