@@ -1,0 +1,36 @@
+name: "Continuous Integration"
+
+on: [push]
+    
+env:
+  PROJECT_PATH: 'src/Dapper.Repository/Dapper.Repository.csproj'
+  SOLUTION_PATH: 'Dapper.Repository.sln'
+  PACKAGE_OUTPUT_DIRECTORY: ${{ github.workspace }}\output
+  NUGET_SOURCE_URL: 'https://api.nuget.org/v3/index.json'
+
+jobs:
+  test:
+    name: 'test'
+    runs-on: 'ubuntu-latest'
+        
+    steps:
+    - name: 'Checkout'
+      uses: actions/checkout@v2
+      
+    - name: 'Docker compose'
+      working-directory: 'Pods'
+      run: docker-compose up -d --build
+
+    - name: 'Install dotnet'
+      uses: actions/setup-dotnet@v1
+      with:
+        dotnet-version: 6.0.x
+
+    - name: 'Restore packages'
+      run: dotnet restore ${{ env.PROJECT_PATH }}
+
+    - name: Test
+      run: dotnet test ${{ env.SOLUTION_PATH }}
+
+    - name: 'Build release'
+      run: dotnet build ${{ env.PROJECT_PATH }} --no-restore --configuration Release
