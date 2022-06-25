@@ -28,9 +28,9 @@ jobs:
     - name: 'Build project'
       run: dotnet build ${{ env.PROJECT_PATH }} --no-restore --configuration Release
       
-		- name: 'Docker compose'
-			working-directory: '/Pods'
-			run: docker-compose up -d --build
-			
+    - name: 'Docker compose'
+      working-directory: '/Pods'
+      run: docker-compose up -d --build
+      
     - name: Test
       run: dotnet test --no-build --verbosity normal ${{ env.SOLUTION_PATH }}
