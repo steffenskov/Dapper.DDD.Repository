@@ -29,7 +29,7 @@ jobs:
       run: dotnet build ${{ env.PROJECT_PATH }} --no-restore --configuration Release
       
     - name: 'Docker compose'
-      working-directory: '/Pods'
+      working-directory: 'Pods'
       run: docker-compose up -d --build
       
     - name: Test
