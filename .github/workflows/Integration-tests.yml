@@ -3,8 +3,8 @@ name: "Run integration + unit tests"
 on: [push]
     
 env:
-  PROJECT_PATH: 'src/PerformantReflection/PerformantReflection.csproj'
-  SOLUTION_PATH: 'PerformantReflection.sln'
+  PROJECT_PATH: 'src/Dapper.Repository/Dapper.Repository.csproj'
+  SOLUTION_PATH: 'Dapper.Repository.sln'
   PACKAGE_OUTPUT_DIRECTORY: ${{ github.workspace }}\output
   NUGET_SOURCE_URL: 'https://api.nuget.org/v3/index.json'
 
