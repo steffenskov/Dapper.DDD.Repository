@@ -82,7 +82,7 @@ internal static class ObjectFlattener
 			}
 			else // We're dealing with a value object which means a nested destination
 			{
-				CopyValueToNestedDestination(result, sourceProperty.Name, sourceValue);
+				CopyValueToNestedDestination(result, sourceProperty.Name, sourceValue); // TODO: Speed this up, maybe by using a binary search tree for props?
 			}
 		}
 		return result;
