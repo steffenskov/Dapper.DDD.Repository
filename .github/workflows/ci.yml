@@ -1,4 +1,4 @@
-name: "Run integration + unit tests"
+name: "Continuous Integration"
 
 on: [push]
     
