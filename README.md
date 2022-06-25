@@ -13,6 +13,7 @@ Also it's somewhat inspired by [Domain-Driven Design](https://en.wikipedia.org/w
 - Further testing of deep nesting of ValueObjects
 - Further testing of multiple ValueObject properties of the same type
 - Sample project showing how to use the library
+- Performance optimization of ObjectFlattener.Unflatten by storing a complete tree of the non-flat object which can instantiate all non-leafs via TypeInstantiator, and then we can simply loop over the flat type and copy the property values
 
 ## Installation:
 
