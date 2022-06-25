@@ -3,7 +3,11 @@ public class ViewRepository<TAggregate, TAggregateId> : BaseRepository<TAggregat
 where TAggregate : notnull
 where TAggregateId : notnull
 {
-	public ViewRepository(IOptions<TableAggregateConfiguration<TAggregate>> options, IOptions<DefaultConfiguration> defaultOptions) : base(options.Value, defaultOptions.Value)
+
+	protected string ViewName { get; }
+
+	public ViewRepository(IOptions<ViewAggregateConfiguration<TAggregate>> options, IOptions<DefaultConfiguration> defaultOptions) : base(options.Value, defaultOptions.Value)
 	{
+		ViewName = options.Value.ViewName;
 	}
 }

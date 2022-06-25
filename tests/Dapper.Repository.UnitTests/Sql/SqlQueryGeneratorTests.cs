@@ -14,7 +14,7 @@ namespace Dapper.Repository.UnitTests.Sql
 			var configuration = new TableAggregateConfiguration<SinglePrimaryKeyAggregate>()
 			{
 				Schema = "dbo",
-				TableName = null
+				TableName = null!
 			};
 
 			// Act && assert

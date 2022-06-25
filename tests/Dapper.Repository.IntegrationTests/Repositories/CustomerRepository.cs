@@ -12,6 +12,6 @@ public class CustomerRepository : TableRepository<Customer, Guid>, ICustomerRepo
 
 	public async Task<Customer?> GetByNameAsync(string name)
 	{
-		return await QuerySingleOrDefaultAsync($"SELECT * FROM {EntityName} WHERE Name = @name", new { name });
+		return await QuerySingleOrDefaultAsync($"SELECT * FROM {TableName} WHERE Name = @name", new { name });
 	}
 }

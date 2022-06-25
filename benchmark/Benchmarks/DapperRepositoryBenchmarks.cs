@@ -12,6 +12,7 @@ namespace benchmark.Benchmarks;
 public class DapperRepositoryBenchmarks
 {
 	private CustomerRepository _repo;
+	private readonly string _tableName;
 	private static object _lock = new();
 	private readonly string _connectionString = "Server=127.0.0.1;Database=Northwind;User Id=sa;Password=SqlServer2019;Encrypt=False;";
 
@@ -31,6 +32,7 @@ public class DapperRepositoryBenchmarks
 			DapperInjectionFactory = new DapperInjectionFactory(),
 			QueryGeneratorFactory = new SqlQueryGeneratorFactory()
 		}));
+		_tableName = _repo.GetTableName();
 	}
 
 	public async Task ReseedTable()
@@ -42,7 +44,7 @@ public class DapperRepositoryBenchmarks
 	public async Task Raw_GetAll()
 	{
 		using var connection = new SqlConnection(_connectionString);
-		await connection.QueryAsync<CustomerFlat>("SELECT * FROM CustomersWithValueObject");
+		await connection.QueryAsync<CustomerFlat>($"SELECT * FROM {_tableName}");
 	}
 
 	[Benchmark]
@@ -51,7 +53,7 @@ public class DapperRepositoryBenchmarks
 		await _repo.GetAllAsync();
 	}
 
-	/*[Benchmark]
+	[Benchmark]
 	public async Task Raw_Insert()
 	{
 		using var connection = new SqlConnection(_connectionString);
@@ -65,7 +67,7 @@ public class DapperRepositoryBenchmarks
 			InvoiceAddress_Street = $"Street #{i}",
 			InvoiceAddress_Zipcode = Random.Shared.Next(),
 		};
-		await connection.ExecuteAsync("INSERT INTO CustomersWithValueObject(Id, Name, DeliveryAddress_Street, DeliveryAddress_Zipcode, InvoiceAddress_Street, InvoiceAddress_Zipcode) VALUES (@Id, @Name, @DeliveryAddress_Street, @DeliveryAddress_Zipcode, @InvoiceAddress_Street, @InvoiceAddress_Zipcode);", customer);
+		await connection.ExecuteAsync($"INSERT INTO {_tableName} (Id, Name, DeliveryAddress_Street, DeliveryAddress_Zipcode, InvoiceAddress_Street, InvoiceAddress_Zipcode) VALUES (@Id, @Name, @DeliveryAddress_Street, @DeliveryAddress_Zipcode, @InvoiceAddress_Street, @InvoiceAddress_Zipcode);", customer);
 	}
 
 	[Benchmark]
@@ -95,7 +97,7 @@ public class DapperRepositoryBenchmarks
 	{
 		var id = await GetGuidAsync();
 		using var connection = new SqlConnection(_connectionString);
-		await connection.ExecuteAsync("DELETE FROM CustomersWithValueObject WHERE Id = @Id", new { Id = id });
+		await connection.ExecuteAsync($"DELETE FROM {_tableName} WHERE Id = @Id", new { Id = id });
 	}
 
 	[Benchmark]
@@ -119,7 +121,7 @@ public class DapperRepositoryBenchmarks
 			InvoiceAddress_Zipcode = 1337
 		};
 		using var connection = new SqlConnection(_connectionString);
-		await connection.ExecuteAsync($@"UPDATE CustomersWithValueObject 
+		await connection.ExecuteAsync($@"UPDATE {_tableName} 
 SET Name = @Name,
 DeliveryAddress_Street = @DeliveryAddress_Street,
 DeliveryAddress_Zipcode = @DeliveryAddress_Zipcode,
@@ -153,6 +155,6 @@ WHERE Id = @Id", customer);
 	private async Task<Guid> GetGuidAsync()
 	{
 		using var connection = new SqlConnection(_connectionString);
-		return await connection.ExecuteScalarAsync<Guid>("SELECT TOP 1 Id FROM CustomersWithValueObject");
-	}*/
+		return await connection.ExecuteScalarAsync<Guid>($"SELECT TOP 1 Id FROM {_tableName}");
+	}
 }
