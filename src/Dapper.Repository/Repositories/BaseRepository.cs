@@ -12,7 +12,6 @@ where TAggregateId : notnull
 	private readonly IReadOnlyExtendedPropertyInfoCollection _valueObjects;
 	private readonly IConnectionFactory _connectionFactory;
 	private protected readonly IQueryGenerator<TAggregate> _queryGenerator;
-	protected string EntityName { get; }
 
 	protected BaseRepository(BaseAggregateConfiguration<TAggregate> configuration, DefaultConfiguration? defaultConfiguration)
 	{
@@ -29,7 +28,6 @@ where TAggregateId : notnull
 		_queryGenerator = configuration.QueryGeneratorFactory.Create(configuration);
 		_configuration = configuration;
 		_valueObjects = _configuration.GetValueObjects();
-		EntityName = configuration.EntityName;
 	}
 
 	public async Task<IEnumerable<TAggregate>> GetAllAsync()

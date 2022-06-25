@@ -82,7 +82,7 @@ internal static class ObjectFlattener
 			}
 			else // We're dealing with a value object which means a nested destination
 			{
-				CopyValueToNestedDestination(result, sourceProperty.Name, sourceValue);
+				CopyValueToNestedDestination(result, sourceProperty.Name, sourceValue); // TODO: Speed this up, maybe by using a tree for props?
 			}
 		}
 		return result;
@@ -95,12 +95,12 @@ internal static class ObjectFlattener
 		var destinationProperties = TypePropertiesCache.GetProperties(destinationObject.GetType());
 		foreach (var part in parts[..^1]) // Ensure properties exist for everything up til the one to set the source property on
 		{
-			var localDestinationProperty = destinationProperties[part];
-			var existingValue = localDestinationProperty.GetValue(destinationObject);
+			var destinationProperty = destinationProperties[part];
+			var existingValue = destinationProperty.GetValue(destinationObject);
 			if (existingValue is null)
 			{
-				existingValue = TypeInstantiator.CreateInstance(localDestinationProperty.Type);
-				localDestinationProperty.SetValue(destinationObject, existingValue);
+				existingValue = TypeInstantiator.CreateInstance(destinationProperty.Type);
+				destinationProperty.SetValue(destinationObject, existingValue);
 			}
 			destinationObject = existingValue;
 			destinationProperties = TypePropertiesCache.GetProperties(destinationObject.GetType());

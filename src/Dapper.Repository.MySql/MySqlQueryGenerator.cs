@@ -13,20 +13,20 @@ internal class MySqlQueryGenerator<TAggregate> : IQueryGenerator<TAggregate>
 
 	public MySqlQueryGenerator(BaseAggregateConfiguration<TAggregate> configuration)
 	{
+		var readConfiguration = (IReadAggregateConfiguration<TAggregate>)configuration;
 		if (configuration.Schema is not null)
 		{
 			throw new ArgumentException("MySql doesn't support Schema.", nameof(configuration));
 		}
 
-		ArgumentNullException.ThrowIfNull(configuration.EntityName);
-		if (string.IsNullOrWhiteSpace(configuration.EntityName))
+		ArgumentNullException.ThrowIfNull(readConfiguration.EntityName);
+		if (string.IsNullOrWhiteSpace(readConfiguration.EntityName))
 		{
 			throw new ArgumentException("Table name cannot be null or whitespace.", nameof(configuration));
 		}
 
-		_entityName = configuration.EntityName;
+		_entityName = readConfiguration.EntityName;
 
-		var readConfiguration = (IReadAggregateConfiguration<TAggregate>)configuration;
 		var properties = new ExtendedPropertyInfoCollection(readConfiguration.GetProperties());
 		var keys = new ExtendedPropertyInfoCollection(readConfiguration.GetKeys());
 		var valueObjects = readConfiguration.GetValueObjects();

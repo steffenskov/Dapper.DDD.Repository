@@ -4,8 +4,11 @@ public class TableRepository<TAggregate, TAggregateId> : BaseRepository<TAggrega
 where TAggregate : notnull
 where TAggregateId : notnull
 {
+	protected string TableName { get; }
+
 	public TableRepository(IOptions<TableAggregateConfiguration<TAggregate>> options, IOptions<DefaultConfiguration> defaultOptions) : base(options.Value, defaultOptions.Value)
 	{
+		TableName = options.Value.TableName;
 	}
 
 	#region ITableRepository

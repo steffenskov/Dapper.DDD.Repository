@@ -1,7 +1,7 @@
 ﻿namespace Dapper.Repository.Configuration;
 public class TableAggregateConfiguration<TAggregate> : BaseAggregateConfiguration<TAggregate>
 {
-	public string? TableName { get; set; }
+	public string TableName { get; set; } = default!;
 
-	public override string EntityName => TableName!;
+	protected override string EntityName => TableName;
 }

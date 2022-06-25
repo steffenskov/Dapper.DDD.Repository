@@ -13,22 +13,22 @@ internal class SqlQueryGenerator<TAggregate> : IQueryGenerator<TAggregate>
 
 	public SqlQueryGenerator(BaseAggregateConfiguration<TAggregate> configuration)
 	{
+		var readConfiguration = (IReadAggregateConfiguration<TAggregate>)configuration;
 		ArgumentNullException.ThrowIfNull(configuration.Schema);
-		ArgumentNullException.ThrowIfNull(configuration.EntityName);
+		ArgumentNullException.ThrowIfNull(readConfiguration.EntityName);
 
 		if (string.IsNullOrWhiteSpace(configuration.Schema))
 		{
 			throw new ArgumentException("Schema cannot be null or whitespace.", nameof(configuration));
 		}
 
-		if (string.IsNullOrWhiteSpace(configuration.EntityName))
+		if (string.IsNullOrWhiteSpace(readConfiguration.EntityName))
 		{
 			throw new ArgumentException("Entity name cannot be null or whitespace.", nameof(configuration));
 		}
 
-		_schemaAndEntity = $"{EnsureSquareBrackets(configuration.Schema)}.{EnsureSquareBrackets(configuration.EntityName)}";
+		_schemaAndEntity = $"{EnsureSquareBrackets(configuration.Schema)}.{EnsureSquareBrackets(readConfiguration.EntityName)}";
 
-		var readConfiguration = (IReadAggregateConfiguration<TAggregate>)configuration;
 		var properties = new ExtendedPropertyInfoCollection(readConfiguration.GetProperties());
 		var keys = new ExtendedPropertyInfoCollection(readConfiguration.GetKeys());
 		var valueObjects = readConfiguration.GetValueObjects();
