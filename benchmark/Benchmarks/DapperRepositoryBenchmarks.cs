@@ -14,10 +14,13 @@ namespace benchmark.Benchmarks
 
 		public DapperRepositoryBenchmarks()
 		{
-			_repo = new CustomerRepository(Options.Create(new TableAggregateConfiguration<Customer>
+			var tableConfig = new TableAggregateConfiguration<Customer>
 			{
-				TableName = "Customers"
-			}), Options.Create(new DefaultConfiguration
+				TableName = "Customers",
+				Schema = "dbo"
+			};
+			tableConfig.HasKey(customer => customer.CustomerID);
+			_repo = new CustomerRepository(Options.Create(tableConfig), Options.Create(new DefaultConfiguration
 			{
 				ConnectionFactory = new SqlConnectionFactory("Server=127.0.0.1;Database=Northwind;User Id=sa;Password=SqlServer2019;Encrypt=False;"),
 				DapperInjectionFactory = new DapperInjectionFactory(),
