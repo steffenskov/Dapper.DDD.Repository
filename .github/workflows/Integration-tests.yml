@@ -28,9 +28,9 @@ jobs:
 
     - name: 'Restore packages'
       run: dotnet restore ${{ env.PROJECT_PATH }}
-      
-    - name: 'Build project'
-      run: dotnet build ${{ env.PROJECT_PATH }} --no-restore --configuration Release
 
-    - name: Test
-      run: dotnet test --no-build --verbosity normal ${{ env.SOLUTION_PATH }}
+		- name: Test
+      run: dotnet test --verbosity normal ${{ env.SOLUTION_PATH }}
+
+    - name: 'Build release'
+      run: dotnet build ${{ env.PROJECT_PATH }} --no-restore --configuration Release
