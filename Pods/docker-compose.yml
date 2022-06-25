@@ -1,0 +1,20 @@
+version: '3.4'
+
+services:
+  mysql:
+    image: dapper-repo-mysql
+    container_name: 'dapper-repo-mysql'
+    build:
+      context: ./MySql
+    ports:
+      - 33060:3306
+    environment:
+      - MYSQL_ROOT_PASSWORD=mysql1337
+
+  sqlserver:
+    image: dapper-repo-sql
+    container_name: 'dapper-repo-sql'
+    build:
+      context: ./SqlServer
+    ports:
+      - 1433:1433

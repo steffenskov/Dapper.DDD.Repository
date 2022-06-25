@@ -1,0 +1,36 @@
+name: "Run integration + unit tests"
+
+on: [push]
+    
+env:
+  PROJECT_PATH: 'src/PerformantReflection/PerformantReflection.csproj'
+  SOLUTION_PATH: 'PerformantReflection.sln'
+  PACKAGE_OUTPUT_DIRECTORY: ${{ github.workspace }}\output
+  NUGET_SOURCE_URL: 'https://api.nuget.org/v3/index.json'
+
+jobs:
+  test:
+    name: 'test'
+    runs-on: 'ubuntu-latest'
+        
+    steps:
+    - name: 'Checkout'
+      uses: actions/checkout@v2
+
+    - name: 'Install dotnet'
+      uses: actions/setup-dotnet@v1
+      with:
+        dotnet-version: 6.0.x
+
+    - name: 'Restore packages'
+      run: dotnet restore ${{ env.PROJECT_PATH }}
+      
+    - name: 'Build project'
+      run: dotnet build ${{ env.PROJECT_PATH }} --no-restore --configuration Release
+      
+		- name: 'Docker compose'
+			working-directory: '/Pods'
+			run: docker-compose up -d --build
+			
+    - name: Test
+      run: dotnet test --no-build --verbosity normal ${{ env.SOLUTION_PATH }}
