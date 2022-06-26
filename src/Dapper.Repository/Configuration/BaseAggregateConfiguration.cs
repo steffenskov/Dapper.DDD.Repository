@@ -74,7 +74,7 @@ public abstract class BaseAggregateConfiguration<TAggregate> : IReadAggregateCon
 		_valueObjects.AddRange(properties);
 	}
 
-	string IReadAggregateConfiguration<TAggregate>.EntityName => this.EntityName;
+	string IReadAggregateConfiguration<TAggregate>.EntityName => EntityName;
 
 	IReadOnlyExtendedPropertyInfoCollection IReadAggregateConfiguration<TAggregate>.GetKeys()
 	{
@@ -88,7 +88,7 @@ public abstract class BaseAggregateConfiguration<TAggregate> : IReadAggregateCon
 
 	IReadOnlyExtendedPropertyInfoCollection IReadAggregateConfiguration<TAggregate>.GetProperties()
 	{
-		var rawList = TypePropertiesCache.GetProperties<TAggregate>().Values.ToDictionary(prop => prop.Name); // Clone dictionary so we can mutate it
+		var rawList = TypePropertiesCache.GetProperties<TAggregate>().ToDictionary(prop => prop.Name); // Clone dictionary so we can mutate it
 
 		foreach (var ignore in _ignores)
 		{

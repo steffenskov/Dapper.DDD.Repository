@@ -73,24 +73,33 @@ internal static class ObjectFlattener
 		var result = TypeInstantiator.CreateInstance<T>();
 		var destinationProperties = TypePropertiesCache.GetProperties<T>();
 		var sourceProperties = TypePropertiesCache.GetProperties(flattenedObject.GetType());
-		foreach (var sourceProperty in sourceProperties.Values)
+		Dictionary<string, (object Value, IReadOnlyExtendedPropertyInfoCollection Properties)> paths = new();
+		foreach (var sourceProperty in sourceProperties)
 		{
 			var sourceValue = sourceProperty.GetValue(flattenedObject);
 			if (destinationProperties.TryGetValue(sourceProperty.Name, out var destinationProperty))
 			{
-				destinationProperty.SetValue(result, sourceValue);
+				destinationProperty!.SetValue(result, sourceValue);
 			}
 			else // We're dealing with a value object which means a nested destination
 			{
-				CopyValueToNestedDestination(result, sourceProperty.Name, sourceValue); // TODO: Speed this up, maybe by using a tree for props?
+				var parts = sourceProperty.Name.Split('_');
+				var path = string.Join("_", parts[..^1]);
+				if (paths.TryGetValue(path, out var destination))
+				{
+					destination.Properties[parts.Last()].SetValue(destination.Value, sourceValue);
+				}
+				else
+				{
+					paths[path] = CopyValueToNestedDestination(result, parts, sourceValue);
+				}
 			}
 		}
 		return result;
 	}
 
-	private static void CopyValueToNestedDestination<T>(T result, string sourcePropertyName, object? sourceValue) where T : notnull
+	private static (object Value, IReadOnlyExtendedPropertyInfoCollection Properties) CopyValueToNestedDestination<T>(T result, string[] parts, object? sourceValue) where T : notnull
 	{
-		var parts = sourcePropertyName.Split('_');
 		object destinationObject = result;
 		var destinationProperties = TypePropertiesCache.GetProperties(destinationObject.GetType());
 		foreach (var part in parts[..^1]) // Ensure properties exist for everything up til the one to set the source property on
@@ -106,6 +115,7 @@ internal static class ObjectFlattener
 			destinationProperties = TypePropertiesCache.GetProperties(destinationObject.GetType());
 		}
 		destinationProperties[parts.Last()].SetValue(destinationObject, sourceValue);
+		return (destinationObject, destinationProperties);
 	}
 
 	private static bool ShouldFlattenType(Type type)
