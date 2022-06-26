@@ -11,7 +11,6 @@ Also it's somewhat inspired by [Domain-Driven Design](https://en.wikipedia.org/w
 - Abstracting dealing with ValueObjects away from the end user
 - Improvements to AggregateConfiguration injection, as the current "explicit interface" approach is a bit annoying for when adding support for new databases.
 - Sample project showing how to use the library
-- Performance optimization of ObjectFlattener.Unflatten by storing a complete tree of the non-flat object which can instantiate all non-leafs via TypeInstantiator, and then we can simply loop over the flat type and copy the property values
 - Unit test how the lack of table name is dealt with
 - Unit test how no default configuration at all is dealt with
 - Support for deep nesting of ValueObjects (currently nested ValueObjects aren't supported)
