@@ -52,7 +52,6 @@ public class ExtendedPropertyInfo
 	{
 		return new ExtendedPropertyInfoCollection(
 					TypePropertiesCache.GetProperties(Type)
-					.Values
 					.Select(prop => new ExtendedPropertyInfo(prop, Name))
 					.OrderBy(prop => prop.Name));
 	}
