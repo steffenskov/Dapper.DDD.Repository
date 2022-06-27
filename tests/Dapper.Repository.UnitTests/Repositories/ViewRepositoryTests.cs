@@ -2,11 +2,11 @@ using Dapper.Repository.Repositories;
 using Dapper.Repository.UnitTests.Aggregates;
 
 namespace Dapper.Repository.UnitTests.Repositories;
-public class TableRepositoryTests : IClassFixture<NoDefaultsStartup>
+public class ViewRepositoryTests : IClassFixture<NoDefaultsStartup>
 {
 	private ServiceProvider _provider;
 
-	public TableRepositoryTests(NoDefaultsStartup startup)
+	public ViewRepositoryTests(NoDefaultsStartup startup)
 	{
 		_provider = startup.Provider;
 	}
@@ -15,7 +15,7 @@ public class TableRepositoryTests : IClassFixture<NoDefaultsStartup>
 	public void DependencyInjection_NoDefaultsConfiguration_StillWorks()
 	{
 		// Act
-		var repo = _provider.GetService<ITableRepository<UserAggregate, Guid>>();
+		var repo = _provider.GetService<IViewRepository<UserAggregate, Guid>>();
 
 		// Assert
 		Assert.NotNull(repo);
@@ -26,8 +26,8 @@ public class TableRepositoryTests : IClassFixture<NoDefaultsStartup>
 	{
 		// Arrange && Assert
 		var ex = Assert.Throws<ArgumentNullException>(() =>
-		new TableRepository<UserAggregate, Guid>(Options.Create(
-			new Configuration.TableAggregateConfiguration<UserAggregate>
+		new ViewRepository<UserAggregate, Guid>(Options.Create(
+			new Configuration.ViewAggregateConfiguration<UserAggregate>
 			{
 				DapperInjectionFactory = Mock.Of<IDapperInjectionFactory>(),
 				QueryGeneratorFactory = Mock.Of<IQueryGeneratorFactory>()
@@ -46,8 +46,8 @@ public class TableRepositoryTests : IClassFixture<NoDefaultsStartup>
 	{
 		// Arrange && Assert
 		var ex = Assert.Throws<ArgumentNullException>(() =>
-				new TableRepository<UserAggregate, Guid>(Options.Create(
-					new Configuration.TableAggregateConfiguration<UserAggregate>
+				new ViewRepository<UserAggregate, Guid>(Options.Create(
+					new Configuration.ViewAggregateConfiguration<UserAggregate>
 					{
 						DapperInjectionFactory = Mock.Of<IDapperInjectionFactory>(),
 						ConnectionFactory = Mock.Of<IConnectionFactory>()
@@ -66,8 +66,8 @@ public class TableRepositoryTests : IClassFixture<NoDefaultsStartup>
 	{
 		// Arrange && Assert
 		var ex = Assert.Throws<ArgumentNullException>(() =>
-				new TableRepository<UserAggregate, Guid>(Options.Create(
-					new Configuration.TableAggregateConfiguration<UserAggregate>
+				new ViewRepository<UserAggregate, Guid>(Options.Create(
+					new Configuration.ViewAggregateConfiguration<UserAggregate>
 					{
 						ConnectionFactory = Mock.Of<IConnectionFactory>(),
 						QueryGeneratorFactory = Mock.Of<IQueryGeneratorFactory>()
@@ -82,12 +82,12 @@ public class TableRepositoryTests : IClassFixture<NoDefaultsStartup>
 	}
 
 	[Fact]
-	public void Constructor_NoTableName_Throws()
+	public void Constructor_NoViewName_Throws()
 	{
 		// Arrange && Assert
 		var ex = Assert.Throws<ArgumentNullException>(() =>
-				new TableRepository<UserAggregate, Guid>(Options.Create(
-					new Configuration.TableAggregateConfiguration<UserAggregate>
+				new ViewRepository<UserAggregate, Guid>(Options.Create(
+					new Configuration.ViewAggregateConfiguration<UserAggregate>
 					{
 						ConnectionFactory = Mock.Of<IConnectionFactory>(),
 						QueryGeneratorFactory = Mock.Of<IQueryGeneratorFactory>(),
@@ -99,20 +99,20 @@ public class TableRepositoryTests : IClassFixture<NoDefaultsStartup>
 
 				})));
 
-		Assert.Contains("TableName", ex.Message);
+		Assert.Contains("ViewName", ex.Message);
 	}
 
 	[Fact]
 	public void Constructor_NoSchemaName_Valid()
 	{
 		// Arrange
-		var repo = new TableRepository<UserAggregate, Guid>(Options.Create(
-			new Configuration.TableAggregateConfiguration<UserAggregate>
+		var repo = new ViewRepository<UserAggregate, Guid>(Options.Create(
+			new Configuration.ViewAggregateConfiguration<UserAggregate>
 			{
 				ConnectionFactory = Mock.Of<IConnectionFactory>(),
 				QueryGeneratorFactory = Mock.Of<IQueryGeneratorFactory>(),
 				DapperInjectionFactory = Mock.Of<IDapperInjectionFactory>(),
-				TableName = "Users"
+				ViewName = "Users"
 			}
 		), Options.Create(new Configuration.DefaultConfiguration
 		{
