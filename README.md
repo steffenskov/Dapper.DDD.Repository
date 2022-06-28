@@ -11,8 +11,6 @@ Also it's somewhat inspired by [Domain-Driven Design](https://en.wikipedia.org/w
 - Abstracting dealing with ValueObjects away from the end user
 - Improvements to AggregateConfiguration injection, as the current "explicit interface" approach is a bit annoying for when adding support for new databases.
 - Sample project showing how to use the library
-- Unit test how the lack of table name is dealt with
-- Unit test how no default configuration at all is dealt with
 - Support for deep nesting of ValueObjects (currently nested ValueObjects aren't supported)
 
 ## Installation:

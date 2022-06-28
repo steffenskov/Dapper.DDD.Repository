@@ -8,6 +8,7 @@ where TAggregateId : notnull
 
 	public TableRepository(IOptions<TableAggregateConfiguration<TAggregate>> options, IOptions<DefaultConfiguration> defaultOptions) : base(options.Value, defaultOptions.Value)
 	{
+		ArgumentNullException.ThrowIfNull(options.Value.TableName);
 		TableName = options.Value.TableName;
 	}
 

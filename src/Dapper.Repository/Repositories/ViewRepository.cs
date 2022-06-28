@@ -8,6 +8,7 @@ where TAggregateId : notnull
 
 	public ViewRepository(IOptions<ViewAggregateConfiguration<TAggregate>> options, IOptions<DefaultConfiguration> defaultOptions) : base(options.Value, defaultOptions.Value)
 	{
+		ArgumentNullException.ThrowIfNull(options.Value.ViewName);
 		ViewName = options.Value.ViewName;
 	}
 }
