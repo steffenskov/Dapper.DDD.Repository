@@ -12,6 +12,7 @@ Also it's somewhat inspired by [Domain-Driven Design](https://en.wikipedia.org/w
 - Improvements to AggregateConfiguration injection, as the current "explicit interface" approach is a bit annoying for when adding support for new databases.
 - Sample project showing how to use the library
 - Support for deep nesting of ValueObjects (currently nested ValueObjects aren't supported)
+- CancellationToken support since Map is no longer required
 
 ## Installation:
 
@@ -41,7 +42,6 @@ Also it currently only supports Microsoft SQL Server and MySql (MariaDB should w
 Currently the library only supports tables with a primary key (no heap support), views are supported both with and without including primary keys.
 Also all the methods are kept `Async` and no synchronous versions are currently planned. This is because database calls (like all I/O) should probably be kept async for improved performance and responsiveness.
 Both `class` and `record` types are supported, however `records` cannot use their primary constructor syntax, as it makes it impossible for the library to create them when fetching data from the database.
-Finally there's currently no support for `CancellationToken` as the latest version of Dapper doesn't support this when dealing with `ValueObjects`. I'll keep an eye out for updates to Dapper in this regard, and add support as soon as Dapper has it.
 
 ## Usage:
 
