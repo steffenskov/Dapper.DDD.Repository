@@ -8,11 +8,9 @@ Also it's somewhat inspired by [Domain-Driven Design](https://en.wikipedia.org/w
 - Cleaning up in general
 - Unit testing of ExtendedPropertyInfoCollection
 - Integration tests of IViewRepository
-- Abstracting dealing with ValueObjects away from the end user
 - Improvements to AggregateConfiguration injection, as the current "explicit interface" approach is a bit annoying for when adding support for new databases.
 - Sample project showing how to use the library
 - Support for deep nesting of ValueObjects (currently nested ValueObjects aren't supported)
-- CancellationToken support since Map is no longer required
 
 ## Installation:
 
