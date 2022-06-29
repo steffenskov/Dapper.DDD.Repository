@@ -54,6 +54,30 @@ internal static class ObjectFlattener
 	}
 
 	/// <summary>
+	/// Creates a flattened object based on the aggregate given.
+	/// </summary>
+	/// <param name="aggregate">Aggregate to copy properties from</param>
+	public static object? Flatten(object? aggregate)
+	{
+		if (aggregate is null)
+		{
+			return null;
+		}
+
+		var type = aggregate.GetType();
+		if (!ShouldFlattenType(type))
+		{
+			return aggregate;
+		}
+
+		var flatResult = CreateFlattenedInstance(type);
+
+		CopyValuesToFlatResult(aggregate, flatResult, flatResult.GetType());
+
+		return flatResult!;
+	}
+
+	/// <summary>
 	/// Retrieves the type of the flattened version of type T.
 	/// </summary>
 	/// <typeparam name="T">Type to flatten</typeparam>
@@ -118,7 +142,12 @@ internal static class ObjectFlattener
 		return (destinationObject, destinationProperties);
 	}
 
-	private static bool ShouldFlattenType(Type type)
+	public static bool ShouldFlattenType<T>()
+	{
+		return ShouldFlattenType(typeof(T));
+	}
+
+	public static bool ShouldFlattenType(Type type)
 	{
 		return _shouldFlattenTypeMap.GetOrAdd(type, t =>
 		{

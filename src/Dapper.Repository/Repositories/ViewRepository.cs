@@ -1,4 +1,4 @@
-namespace Dapper.Repository.Repositories;
+﻿namespace Dapper.Repository.Repositories;
 public class ViewRepository<TAggregate, TAggregateId> : BaseRepository<TAggregate, TAggregateId>, IViewRepository<TAggregate, TAggregateId>
 where TAggregate : notnull
 where TAggregateId : notnull
