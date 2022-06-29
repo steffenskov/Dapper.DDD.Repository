@@ -11,7 +11,7 @@ public class Startup
 		_ = services.AddOptions();
 		_ = services.ConfigureDapperRepositoryDefaults(options =>
 		{
-			options.ConnectionFactory = new SqlConnectionFactory("Server=127.0.0.1;Database=Northwind;User Id=sa;Password=SqlServer2019;Encrypt=False;");
+			options.ConnectionFactory = new SqlConnectionFactory("Server=127.0.0.1;Database=Northwind;User Id=sa;Password=SqlServerPassword#&%¤2019;Encrypt=False;");
 			options.DapperInjectionFactory = new DapperInjectionFactory();
 			options.QueryGeneratorFactory = new SqlQueryGeneratorFactory();
 			options.Schema = "dbo";
