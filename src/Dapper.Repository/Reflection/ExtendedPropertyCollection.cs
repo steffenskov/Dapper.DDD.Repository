@@ -17,11 +17,18 @@ namespace Dapper.Repository.Reflection
 
 		public ExtendedPropertyInfoCollection(IEnumerable<ExtendedPropertyInfo> properties) : this()
 		{
-			this.AddRange(properties);
+			AddRange(properties);
 		}
 
 		public ExtendedPropertyInfo this[int index] => _list[index];
-		public ExtendedPropertyInfo this[string propertyName] => _dictionary[propertyName];
+		public ExtendedPropertyInfo this[string propertyName]
+		{
+			get
+			{
+				var exist = _dictionary.ContainsKey(propertyName);
+				return exist ? _dictionary[propertyName] : throw new InvalidOperationException("Property doesn't exist");
+			}
+		}
 
 		public bool TryGetValue(string propertyName, out ExtendedPropertyInfo? property)
 		{
@@ -31,7 +38,9 @@ namespace Dapper.Repository.Reflection
 		public void AddRange(IEnumerable<ExtendedPropertyInfo> properties)
 		{
 			foreach (var prop in properties)
+			{
 				_dictionary.Add(prop.Name, prop);
+			}
 
 			_list.AddRange(properties);
 		}

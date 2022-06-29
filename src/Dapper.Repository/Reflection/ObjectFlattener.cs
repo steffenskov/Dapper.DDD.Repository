@@ -151,14 +151,14 @@ internal static class ObjectFlattener
 	{
 		return _shouldFlattenTypeMap.GetOrAdd(type, t =>
 		{
-			if (t.IsSimpleType())
+			if (t.IsSimpleOrBuiltIn())
 			{
 				return false;
 			}
 
-			foreach (var prop in t.GetProperties(BindingFlags.Public | BindingFlags.Instance))
+			foreach (var prop in TypePropertiesCache.GetProperties(t))
 			{
-				if (!prop.PropertyType.IsSimpleType())
+				if (!prop.Type.IsSimpleOrBuiltIn())
 				{
 					return true;
 				}
@@ -170,22 +170,18 @@ internal static class ObjectFlattener
 	private static void CopyValuesToFlatResult(object aggregate, object flatResult, Type flatType, string prefix = "")
 	{
 		var destinationProperties = TypePropertiesCache.GetProperties(flatType);
-		foreach (var prop in aggregate.GetType().GetProperties(BindingFlags.Public | BindingFlags.Instance))
+		foreach (var prop in TypePropertiesCache.GetProperties(aggregate.GetType()))
 		{
-			if (prop.PropertyType.IsSimpleType())
+			var propValue = prop.GetValue(aggregate);
+			if (prop.Type.IsSimpleOrBuiltIn())
 			{
-				destinationProperties[$"{prefix}{prop.Name}"].SetValue(flatResult, prop.GetValue(aggregate));
+				destinationProperties[$"{prefix}{prop.Name}"].SetValue(flatResult, propValue);
 			}
 			else
 			{
-				var propValue = prop.GetValue(aggregate);
 				if (propValue is not null)
 				{
 					CopyValuesToFlatResult(propValue, flatResult, flatType, $"{prefix}{prop.Name}_");
-				}
-				else
-				{
-					destinationProperties[$"{prefix}{prop.Name}"].SetValue(flatResult, prop.GetValue(aggregate));
 				}
 			}
 		}
@@ -207,28 +203,28 @@ internal static class ObjectFlattener
 
 	private static void CreateProperties(Type type, TypeBuilder typeBuilder, string prefix = "")
 	{
-		foreach (var prop in type.GetProperties(BindingFlags.Public | BindingFlags.Instance))
+		foreach (var prop in TypePropertiesCache.GetProperties(type))
 		{
-			if (prop.PropertyType.IsSimpleType())
+			if (prop.Type.IsSimpleOrBuiltIn())
 			{
 				CreateProperty(typeBuilder, prefix, prop);
 			}
 			else
 			{
-				CreateProperties(prop.PropertyType, typeBuilder, $"{prefix}{prop.Name}_");
+				CreateProperties(prop.Type, typeBuilder, $"{prefix}{prop.Name}_");
 			}
 		}
 	}
 
-	private static void CreateProperty(TypeBuilder typeBuilder, string prefix, PropertyInfo prop)
+	private static void CreateProperty(TypeBuilder typeBuilder, string prefix, ExtendedPropertyInfo prop)
 	{
-		var fieldBuilder = typeBuilder.DefineField($"_{prefix}{prop.Name}", prop.PropertyType, FieldAttributes.Private);
-		var propertyBuilder = typeBuilder.DefineProperty($"{prefix}{prop.Name}", PropertyAttributes.HasDefault, prop.PropertyType, null);
+		var fieldBuilder = typeBuilder.DefineField($"_{prefix}{prop.Name}", prop.Type, FieldAttributes.Private);
+		var propertyBuilder = typeBuilder.DefineProperty($"{prefix}{prop.Name}", PropertyAttributes.HasDefault, prop.Type, null);
 
 		var propVisibility = MethodAttributes.Public | MethodAttributes.SpecialName | MethodAttributes.HideBySig;
 
 		// Define the "get" accessor method for CustomerName.
-		var getMethod = typeBuilder.DefineMethod($"get_{prefix}{prop.Name}", propVisibility, prop.PropertyType, Type.EmptyTypes);
+		var getMethod = typeBuilder.DefineMethod($"get_{prefix}{prop.Name}", propVisibility, prop.Type, Type.EmptyTypes);
 
 		var custNameGetIL = getMethod.GetILGenerator();
 
@@ -237,7 +233,7 @@ internal static class ObjectFlattener
 		custNameGetIL.Emit(OpCodes.Ret);
 
 		// Define the "set" accessor method for CustomerName.
-		var setMethod = typeBuilder.DefineMethod($"set_{prefix}{prop.Name}", propVisibility, null, new Type[] { prop.PropertyType });
+		var setMethod = typeBuilder.DefineMethod($"set_{prefix}{prop.Name}", propVisibility, null, new Type[] { prop.Type });
 
 		var custNameSetIL = setMethod.GetILGenerator();
 

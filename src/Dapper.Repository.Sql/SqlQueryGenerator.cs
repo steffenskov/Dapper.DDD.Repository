@@ -29,7 +29,7 @@ internal class SqlQueryGenerator<TAggregate> : IQueryGenerator<TAggregate>
 
 		_schemaAndEntity = $"{EnsureSquareBrackets(configuration.Schema)}.{EnsureSquareBrackets(readConfiguration.EntityName)}";
 
-		var properties = new ExtendedPropertyInfoCollection(readConfiguration.GetProperties());
+		var properties = readConfiguration.GetProperties();
 		var keys = new ExtendedPropertyInfoCollection(readConfiguration.GetKeys());
 		var valueObjects = readConfiguration.GetValueObjects();
 		foreach (var valueObject in valueObjects)
