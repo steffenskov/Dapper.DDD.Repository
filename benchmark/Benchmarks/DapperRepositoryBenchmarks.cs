@@ -14,7 +14,7 @@ public class DapperRepositoryBenchmarks
 	private CustomerRepository _repo;
 	private readonly string _tableName;
 	private static object _lock = new();
-	private readonly string _connectionString = "Server=127.0.0.1;Database=Northwind;User Id=sa;Password=SqlServer2019;Encrypt=False;";
+	private readonly string _connectionString = "Server=127.0.0.1;Database=Northwind;User Id=sa;Password=SqlServerPassword#&%¤2019;Encrypt=False;";
 
 	public DapperRepositoryBenchmarks()
 	{
