@@ -31,6 +31,3 @@ jobs:
 
     - name: Test
       run: dotnet test ${{ env.SOLUTION_PATH }}
-
-    - name: 'Build release'
-      run: dotnet build ${{ env.PROJECT_PATH }} --no-restore --configuration Release

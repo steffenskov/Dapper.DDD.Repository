@@ -65,7 +65,7 @@ public abstract class BaseAggregateConfiguration<TAggregate> : IReadAggregateCon
 	public void HasValueObject(Expression<Func<TAggregate, object>> expression)
 	{
 		var properties = new ExpressionParser<TAggregate>().GetExtendedPropertiesFromExpression(expression);
-		var invalidProperties = properties.Where(property => property.Type.IsSimpleType());
+		var invalidProperties = properties.Where(property => property.Type.IsSimpleOrBuiltIn());
 		if (invalidProperties.Any())
 		{
 			throw new ArgumentException($"The properties {string.Join(", ", invalidProperties.Select(p => p.Name))} are not value objects.");
@@ -74,7 +74,7 @@ public abstract class BaseAggregateConfiguration<TAggregate> : IReadAggregateCon
 		_valueObjects.AddRange(properties);
 	}
 
-	string IReadAggregateConfiguration<TAggregate>.EntityName => this.EntityName;
+	string IReadAggregateConfiguration<TAggregate>.EntityName => EntityName;
 
 	IReadOnlyExtendedPropertyInfoCollection IReadAggregateConfiguration<TAggregate>.GetKeys()
 	{
@@ -86,9 +86,9 @@ public abstract class BaseAggregateConfiguration<TAggregate> : IReadAggregateCon
 		return _identities;
 	}
 
-	IReadOnlyExtendedPropertyInfoCollection IReadAggregateConfiguration<TAggregate>.GetProperties()
+	ExtendedPropertyInfoCollection IReadAggregateConfiguration<TAggregate>.GetProperties()
 	{
-		var rawList = TypePropertiesCache.GetProperties<TAggregate>().Values.ToDictionary(prop => prop.Name); // Clone dictionary so we can mutate it
+		var rawList = TypePropertiesCache.GetProperties<TAggregate>().ToDictionary(prop => prop.Name); // Clone dictionary so we can mutate it
 
 		foreach (var ignore in _ignores)
 		{

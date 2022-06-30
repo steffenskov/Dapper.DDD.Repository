@@ -8,25 +8,26 @@ where TAggregateId : notnull
 
 	public TableRepository(IOptions<TableAggregateConfiguration<TAggregate>> options, IOptions<DefaultConfiguration> defaultOptions) : base(options.Value, defaultOptions.Value)
 	{
+		ArgumentNullException.ThrowIfNull(options.Value.TableName);
 		TableName = options.Value.TableName;
 	}
 
 	#region ITableRepository
-	public async Task<TAggregate?> DeleteAsync(TAggregateId id)
+	public async Task<TAggregate?> DeleteAsync(TAggregateId id, CancellationToken cancellationToken = default)
 	{
 		var query = _queryGenerator.GenerateDeleteQuery();
 
-		return await QuerySingleOrDefaultAsync(query, WrapId(id));
+		return await QuerySingleOrDefaultAsync(query, WrapId(id), cancellationToken: cancellationToken);
 	}
 
-	public async Task<TAggregate?> GetAsync(TAggregateId id)
+	public async Task<TAggregate?> GetAsync(TAggregateId id, CancellationToken cancellationToken = default)
 	{
 		var query = _queryGenerator.GenerateGetQuery();
 
-		return await QuerySingleOrDefaultAsync(query, WrapId(id));
+		return await QuerySingleOrDefaultAsync(query, WrapId(id), cancellationToken: cancellationToken);
 	}
 
-	public async Task<TAggregate> InsertAsync(TAggregate aggregate)
+	public async Task<TAggregate> InsertAsync(TAggregate aggregate, CancellationToken cancellationToken = default)
 	{
 		ArgumentNullException.ThrowIfNull(aggregate);
 		var invalidIdentityProperties = _configuration.GetIdentityProperties()
@@ -39,14 +40,14 @@ where TAggregateId : notnull
 		}
 
 		var query = _queryGenerator.GenerateInsertQuery(aggregate);
-		return await QuerySingleAsync(query, WrapAggregateIfNecessary(aggregate, false, false));
+		return await QuerySingleAsync(query, aggregate, cancellationToken: cancellationToken);
 	}
 
-	public async Task<TAggregate?> UpdateAsync(TAggregate aggregate)
+	public async Task<TAggregate?> UpdateAsync(TAggregate aggregate, CancellationToken cancellationToken = default)
 	{
 		ArgumentNullException.ThrowIfNull(aggregate);
 		var query = _queryGenerator.GenerateUpdateQuery();
-		return await QuerySingleOrDefaultAsync(query, WrapAggregateIfNecessary(aggregate, true, true));
+		return await QuerySingleOrDefaultAsync(query, aggregate, cancellationToken: cancellationToken);
 	}
 	#endregion
 }

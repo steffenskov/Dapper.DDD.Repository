@@ -7,7 +7,7 @@ public interface IReadAggregateConfiguration<TAggregate>
 	string EntityName { get; }
 	IReadOnlyExtendedPropertyInfoCollection GetIdentityProperties();
 	IReadOnlyExtendedPropertyInfoCollection GetKeys();
-	IReadOnlyExtendedPropertyInfoCollection GetProperties();
+	ExtendedPropertyInfoCollection GetProperties();
 	IReadOnlyExtendedPropertyInfoCollection GetPropertiesWithDefaultConstraints();
 	IReadOnlyExtendedPropertyInfoCollection GetValueObjects();
 }

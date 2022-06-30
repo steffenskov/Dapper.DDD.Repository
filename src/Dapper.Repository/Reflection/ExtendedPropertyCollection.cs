@@ -17,7 +17,7 @@ namespace Dapper.Repository.Reflection
 
 		public ExtendedPropertyInfoCollection(IEnumerable<ExtendedPropertyInfo> properties) : this()
 		{
-			this.AddRange(properties);
+			AddRange(properties);
 		}
 
 		public ExtendedPropertyInfo this[int index] => _list[index];
@@ -31,7 +31,9 @@ namespace Dapper.Repository.Reflection
 		public void AddRange(IEnumerable<ExtendedPropertyInfo> properties)
 		{
 			foreach (var prop in properties)
+			{
 				_dictionary.Add(prop.Name, prop);
+			}
 
 			_list.AddRange(properties);
 		}
@@ -44,8 +46,11 @@ namespace Dapper.Repository.Reflection
 
 		public void Remove(ExtendedPropertyInfo property)
 		{
-			_ = _dictionary.Remove(property.Name);
-			_ = _list.Remove(property);
+			if (_dictionary.TryGetValue(property.Name, out var actualProperty))
+			{
+				_ = _dictionary.Remove(property.Name);
+				_ = _list.Remove(actualProperty);
+			}
 		}
 
 		public bool Contains(ExtendedPropertyInfo property)

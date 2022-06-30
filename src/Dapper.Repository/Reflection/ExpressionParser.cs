@@ -1,4 +1,4 @@
-using System.Linq.Expressions;
+﻿using System.Linq.Expressions;
 
 namespace Dapper.Repository.Reflection;
 internal class ExpressionParser<TAggregate>
@@ -11,7 +11,7 @@ internal class ExpressionParser<TAggregate>
 		{
 			yield return !properties.TryGetValue(propertyName, out var property)
 				? throw new InvalidOperationException($"{typeof(TAggregate).Name} doesn't contain a property named {propertyName}.")
-				: property;
+				: property!;
 		}
 	}
 
