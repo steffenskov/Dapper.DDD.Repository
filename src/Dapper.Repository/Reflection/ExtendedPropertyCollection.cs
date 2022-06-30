@@ -21,14 +21,7 @@ namespace Dapper.Repository.Reflection
 		}
 
 		public ExtendedPropertyInfo this[int index] => _list[index];
-		public ExtendedPropertyInfo this[string propertyName]
-		{
-			get
-			{
-				var exist = _dictionary.ContainsKey(propertyName);
-				return exist ? _dictionary[propertyName] : throw new InvalidOperationException("Property doesn't exist");
-			}
-		}
+		public ExtendedPropertyInfo this[string propertyName] => _dictionary[propertyName];
 
 		public bool TryGetValue(string propertyName, out ExtendedPropertyInfo? property)
 		{
@@ -53,8 +46,11 @@ namespace Dapper.Repository.Reflection
 
 		public void Remove(ExtendedPropertyInfo property)
 		{
-			_ = _dictionary.Remove(property.Name);
-			_ = _list.Remove(property);
+			if (_dictionary.TryGetValue(property.Name, out var actualProperty))
+			{
+				_ = _dictionary.Remove(property.Name);
+				_ = _list.Remove(actualProperty);
+			}
 		}
 
 		public bool Contains(ExtendedPropertyInfo property)
