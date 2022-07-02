@@ -342,7 +342,7 @@ namespace Dapper.Repository.UnitTests.Sql
 			var generator = CreateAggregateWithValueObjectIdQueryGenerator();
 
 			// Act
-			var query = generator.GenerateUpdateQuery();
+			var query = generator.GenerateUpdateQuery(new());
 
 			// Assert
 			Assert.Equal($"UPDATE [dbo].[Users] SET [dbo].[Users].[Age] = @Age OUTPUT [inserted].[Age], [inserted].[Id_Password], [inserted].[Id_Username] WHERE [dbo].[Users].[Id_Password] = @Id_Password AND [dbo].[Users].[Id_Username] = @Id_Username;", query);
@@ -354,7 +354,7 @@ namespace Dapper.Repository.UnitTests.Sql
 			var generator = CreateUserAggregateQueryGenerator();
 
 			// Act
-			var query = generator.GenerateUpdateQuery();
+			var query = generator.GenerateUpdateQuery(new());
 
 			// Assert
 			Assert.Equal($"UPDATE [dbo].[Users] SET [dbo].[Users].[DeliveryAddress_City] = @DeliveryAddress_City, [dbo].[Users].[DeliveryAddress_Street] = @DeliveryAddress_Street, [dbo].[Users].[InvoiceAddress_City] = @InvoiceAddress_City, [dbo].[Users].[InvoiceAddress_Street] = @InvoiceAddress_Street OUTPUT [inserted].[Id], [inserted].[DeliveryAddress_City], [inserted].[DeliveryAddress_Street], [inserted].[InvoiceAddress_City], [inserted].[InvoiceAddress_Street] WHERE [dbo].[Users].[Id] = @Id;", query);
@@ -367,7 +367,7 @@ namespace Dapper.Repository.UnitTests.Sql
 			var generator = CreateSinglePrimaryKeyAggregateQueryGenerator();
 
 			// Act 
-			var updateQuery = generator.GenerateUpdateQuery();
+			var updateQuery = generator.GenerateUpdateQuery(new());
 
 			// Assert
 			Assert.Equal($"UPDATE [dbo].[Users] SET [dbo].[Users].[Username] = @Username, [dbo].[Users].[Password] = @Password OUTPUT [inserted].[Id], [inserted].[Username], [inserted].[Password] WHERE [dbo].[Users].[Id] = @Id;", updateQuery);
@@ -380,7 +380,7 @@ namespace Dapper.Repository.UnitTests.Sql
 			var generator = CreateCompositePrimaryKeyAggregateQueryGenerator();
 
 			// Act 
-			var updateQuery = generator.GenerateUpdateQuery();
+			var updateQuery = generator.GenerateUpdateQuery(new());
 
 			// Assert
 			Assert.Equal($"UPDATE [dbo].[Users] SET [dbo].[Users].[DateCreated] = @DateCreated OUTPUT [inserted].[Username], [inserted].[Password], [inserted].[DateCreated] WHERE [dbo].[Users].[Username] = @Username AND [dbo].[Users].[Password] = @Password;", updateQuery);
@@ -399,24 +399,24 @@ namespace Dapper.Repository.UnitTests.Sql
 			var generator = new SqlQueryGenerator<AllPropertiesHasMissingSetterAggregate>(configuration);
 
 			// Act && Assert
-			Assert.Throws<InvalidOperationException>(() => generator.GenerateUpdateQuery());
+			Assert.Throws<InvalidOperationException>(() => generator.GenerateUpdateQuery(new AllPropertiesHasMissingSetterAggregate()));
 		}
 
 		[Fact]
 		public void GenerateUpdateQuery_PropertyHasNoSetter_PropertyIsExcluded()
 		{
 			// Arrange
-			var configuration = new TableAggregateConfiguration<PropertyHasMissingSetterAggregate>()
+			var configuration = new TableAggregateConfiguration<AggregateWithDefaultConstraint>()
 			{
 				Schema = "dbo",
 				TableName = "Users"
 			};
 			configuration.HasKey(aggregate => aggregate.Id);
 			configuration.HasDefault(aggregate => aggregate.DateCreated);
-			var generator = new SqlQueryGenerator<PropertyHasMissingSetterAggregate>(configuration);
+			var generator = new SqlQueryGenerator<AggregateWithDefaultConstraint>(configuration);
 
 			// Act
-			var query = generator.GenerateUpdateQuery();
+			var query = generator.GenerateUpdateQuery(new AggregateWithDefaultConstraint());
 
 			// Assert
 			Assert.Equal("UPDATE [dbo].[Users] SET [dbo].[Users].[Age] = @Age OUTPUT [inserted].[Id], [inserted].[Age], [inserted].[DateCreated] WHERE [dbo].[Users].[Id] = @Id;", query);

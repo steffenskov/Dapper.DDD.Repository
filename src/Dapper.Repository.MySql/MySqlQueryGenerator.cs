@@ -97,9 +97,9 @@ internal class MySqlQueryGenerator<TAggregate> : IQueryGenerator<TAggregate>
 
 	}
 
-	public string GenerateUpdateQuery()
+	public string GenerateUpdateQuery(TAggregate aggregate)
 	{
-		var setClause = GenerateSetClause();
+		var setClause = GenerateSetClause(aggregate);
 
 		if (string.IsNullOrEmpty(setClause))
 		{
@@ -113,10 +113,11 @@ internal class MySqlQueryGenerator<TAggregate> : IQueryGenerator<TAggregate>
 
 	#region Helpers
 
-	private string GenerateSetClause()
+	private string GenerateSetClause(TAggregate aggregate)
 	{
 		var primaryKeys = _keys;
-		var propertiesToSet = _properties.Where(property => !primaryKeys.Contains(property) && property.HasSetter);
+		var propertiesWithDefaultValues = _defaultConstraints;
+		var propertiesToSet = _properties.Where(property => !primaryKeys.Contains(property) && property.HasSetter && (!propertiesWithDefaultValues.Contains(property) || !property.HasDefaultValue(aggregate)));
 		return string.Join(", ", propertiesToSet.Select(property => $"{property.Name} = @{property.Name}"));
 	}
 

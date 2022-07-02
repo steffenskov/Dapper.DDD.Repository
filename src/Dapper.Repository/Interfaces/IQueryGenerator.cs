@@ -11,5 +11,5 @@ public interface IQueryGenerator<TAggregate>
 
 	string GenerateGetQuery();
 
-	string GenerateUpdateQuery();
+	string GenerateUpdateQuery(TAggregate aggregate);
 }
