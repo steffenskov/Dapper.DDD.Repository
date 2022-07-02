@@ -58,7 +58,7 @@ public abstract class BaseCompositePrimaryKeyAsyncTests
 		Assert.Equal(aggregate.Id.Username, gotten?.Id.Username);
 		Assert.Equal(aggregate.Id.Password, gotten?.Id.Password);
 
-		_ = await _repository.DeleteAsync(insertedAggregate.Id);
+		await _repository.DeleteAsync(insertedAggregate.Id);
 	}
 
 	[Theory, AutoDomainData]
@@ -73,7 +73,7 @@ public abstract class BaseCompositePrimaryKeyAsyncTests
 		// Assert
 		Assert.Null(updated);
 
-		_ = await _repository.DeleteAsync(insertedAggregate.Id);
+		await _repository.DeleteAsync(insertedAggregate.Id);
 	}
 
 	[Theory, AutoDomainData]
@@ -92,6 +92,6 @@ public abstract class BaseCompositePrimaryKeyAsyncTests
 		Assert.Equal(42, updated?.Age);
 		Assert.Equal(insertedAggregate.DateCreated, updated?.DateCreated);
 
-		_ = await _repository.DeleteAsync(insertedAggregate.Id);
+		await _repository.DeleteAsync(insertedAggregate.Id);
 	}
 }

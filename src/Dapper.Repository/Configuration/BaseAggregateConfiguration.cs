@@ -78,7 +78,7 @@ public abstract class BaseAggregateConfiguration<TAggregate> : IReadAggregateCon
 
 	IReadOnlyExtendedPropertyInfoCollection IReadAggregateConfiguration<TAggregate>.GetKeys()
 	{
-		return _keyProperties ?? throw new InvalidOperationException("No key has been specified for this aggregate.");
+		return _keyProperties ?? new ExtendedPropertyInfoCollection();
 	}
 
 	IReadOnlyExtendedPropertyInfoCollection IReadAggregateConfiguration<TAggregate>.GetIdentityProperties()
@@ -92,7 +92,7 @@ public abstract class BaseAggregateConfiguration<TAggregate> : IReadAggregateCon
 
 		foreach (var ignore in _ignores)
 		{
-			_ = rawList.Remove(ignore.Name);
+			rawList.Remove(ignore.Name);
 		}
 
 		return new ExtendedPropertyInfoCollection(rawList.Values);

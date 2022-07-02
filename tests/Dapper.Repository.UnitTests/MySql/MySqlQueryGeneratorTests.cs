@@ -18,7 +18,7 @@ namespace Dapper.Repository.UnitTests.MySql
 			};
 
 			// Act && Assert
-			_ = Assert.Throws<ArgumentNullException>(() => new MySqlQueryGenerator<SinglePrimaryKeyAggregate>(configuration));
+			Assert.Throws<ArgumentNullException>(() => new MySqlQueryGenerator<SinglePrimaryKeyAggregate>(configuration));
 		}
 
 		[Fact]
@@ -30,7 +30,7 @@ namespace Dapper.Repository.UnitTests.MySql
 				TableName = " "
 			};
 			// Act && Assert
-			_ = Assert.Throws<ArgumentException>(() => new MySqlQueryGenerator<SinglePrimaryKeyAggregate>(configuration));
+			Assert.Throws<ArgumentException>(() => new MySqlQueryGenerator<SinglePrimaryKeyAggregate>(configuration));
 		}
 		#endregion
 
@@ -363,7 +363,7 @@ namespace Dapper.Repository.UnitTests.MySql
 			var generator = new MySqlQueryGenerator<AllPropertiesHasMissingSetterAggregate>(configuration);
 
 			// Act && Assert
-			_ = Assert.Throws<InvalidOperationException>(() => generator.GenerateUpdateQuery());
+			Assert.Throws<InvalidOperationException>(() => generator.GenerateUpdateQuery());
 		}
 
 		[Fact]

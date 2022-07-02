@@ -84,40 +84,63 @@ public class TableRepositoryTests : IClassFixture<NoDefaultsStartup>
 	[Fact]
 	public void Constructor_NoTableName_Throws()
 	{
-		// Arrange && Assert
+		// Arrange
+		var config = new Configuration.TableAggregateConfiguration<UserAggregate>
+		{
+			ConnectionFactory = Mock.Of<IConnectionFactory>(),
+			QueryGeneratorFactory = Mock.Of<IQueryGeneratorFactory>(),
+			DapperInjectionFactory = Mock.Of<IDapperInjectionFactory>(),
+			Schema = "dbo"
+		};
+		config.HasKey(x => x.Id);
+
+		// Act && Assert
 		var ex = Assert.Throws<ArgumentNullException>(() =>
 				new TableRepository<UserAggregate, Guid>(Options.Create(
-					new Configuration.TableAggregateConfiguration<UserAggregate>
-					{
-						ConnectionFactory = Mock.Of<IConnectionFactory>(),
-						QueryGeneratorFactory = Mock.Of<IQueryGeneratorFactory>(),
-						DapperInjectionFactory = Mock.Of<IDapperInjectionFactory>(),
-						Schema = "dbo"
-					}
-				), Options.Create(new Configuration.DefaultConfiguration
-				{
-
-				})));
+					config
+				), Options.Create(new Configuration.DefaultConfiguration())));
 
 		Assert.Contains("TableName", ex.Message);
+	}
+
+	[Fact]
+	public void Constructor_NoKey_Throws()
+	{
+		// Arrange
+		var config = new Configuration.TableAggregateConfiguration<UserAggregate>
+		{
+			ConnectionFactory = Mock.Of<IConnectionFactory>(),
+			QueryGeneratorFactory = Mock.Of<IQueryGeneratorFactory>(),
+			DapperInjectionFactory = Mock.Of<IDapperInjectionFactory>(),
+			TableName = "Users"
+		};
+
+		// Act && Assert
+		var ex = Assert.Throws<ArgumentException>(() =>
+						new TableRepository<UserAggregate, Guid>(Options.Create(
+							config
+						), Options.Create(new Configuration.DefaultConfiguration())));
+
+		Assert.Contains("No key has been specified for this aggregate", ex.Message);
 	}
 
 	[Fact]
 	public void Constructor_NoSchemaName_Valid()
 	{
 		// Arrange
-		var repo = new TableRepository<UserAggregate, Guid>(Options.Create(
-			new Configuration.TableAggregateConfiguration<UserAggregate>
-			{
-				ConnectionFactory = Mock.Of<IConnectionFactory>(),
-				QueryGeneratorFactory = Mock.Of<IQueryGeneratorFactory>(),
-				DapperInjectionFactory = Mock.Of<IDapperInjectionFactory>(),
-				TableName = "Users"
-			}
-		), Options.Create(new Configuration.DefaultConfiguration
+		var config = new Configuration.TableAggregateConfiguration<UserAggregate>
 		{
+			ConnectionFactory = Mock.Of<IConnectionFactory>(),
+			QueryGeneratorFactory = Mock.Of<IQueryGeneratorFactory>(),
+			DapperInjectionFactory = Mock.Of<IDapperInjectionFactory>(),
+			TableName = "Users"
+		};
+		config.HasKey(x => x.Id);
 
-		}));
+		// Act
+		var repo = new TableRepository<UserAggregate, Guid>(Options.Create(
+			config
+		), Options.Create(new Configuration.DefaultConfiguration()));
 
 		// Assert
 		Assert.NotNull(repo);

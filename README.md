@@ -6,8 +6,6 @@ Also it's somewhat inspired by [Domain-Driven Design](https://en.wikipedia.org/w
 
 **NOTICE**: The current codebase is still very much "work-in-progress", as such these items are still not fully implemented, but are being worked on:
 - Cleaning up in general
-- Unit testing of ExtendedPropertyInfoCollection
-- Integration tests of IViewRepository
 - Improvements to AggregateConfiguration injection, as the current "explicit interface" approach is a bit annoying for when adding support for new databases.
 - Sample project showing how to use the library
 - Support for deep nesting of ValueObjects (currently nested ValueObjects aren't supported)
@@ -28,6 +26,8 @@ The same goes for your database connection code, that too will be injected and y
 
 If you're using Microsoft SQL Server you'll need to reference both the `Dapper.Repository` project as well as the `Dapper.Repository.Sql` project.
 Likewise for MySql you want `Dapper.Repository` and `Dapper.Repository.MySql`.
+
+Finally if you want to utilize the built-in Dependency Injection in the newer versions of .Net, you'll want the `Dapper.Repository.DependencyInjection` package too.
 
 ## Requirements:
 

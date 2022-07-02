@@ -18,7 +18,7 @@ namespace Dapper.Repository.UnitTests.Sql
 			};
 
 			// Act && assert
-			_ = Assert.Throws<ArgumentNullException>(() => new SqlQueryGenerator<SinglePrimaryKeyAggregate>(configuration));
+			Assert.Throws<ArgumentNullException>(() => new SqlQueryGenerator<SinglePrimaryKeyAggregate>(configuration));
 		}
 
 		[Fact]
@@ -31,7 +31,7 @@ namespace Dapper.Repository.UnitTests.Sql
 				TableName = "Users"
 			};
 			// Act && assert
-			_ = Assert.Throws<ArgumentNullException>(() => new SqlQueryGenerator<SinglePrimaryKeyAggregate>(configuration));
+			Assert.Throws<ArgumentNullException>(() => new SqlQueryGenerator<SinglePrimaryKeyAggregate>(configuration));
 		}
 
 		[Fact]
@@ -44,7 +44,7 @@ namespace Dapper.Repository.UnitTests.Sql
 				TableName = " "
 			};
 			// Act && assert
-			_ = Assert.Throws<ArgumentException>(() => new SqlQueryGenerator<SinglePrimaryKeyAggregate>(configuration));
+			Assert.Throws<ArgumentException>(() => new SqlQueryGenerator<SinglePrimaryKeyAggregate>(configuration));
 		}
 
 		[Fact]
@@ -57,7 +57,7 @@ namespace Dapper.Repository.UnitTests.Sql
 				TableName = "Users"
 			};
 			// Act && assert
-			_ = Assert.Throws<ArgumentException>(() => new SqlQueryGenerator<SinglePrimaryKeyAggregate>(configuration));
+			Assert.Throws<ArgumentException>(() => new SqlQueryGenerator<SinglePrimaryKeyAggregate>(configuration));
 		}
 		#endregion
 
@@ -399,7 +399,7 @@ namespace Dapper.Repository.UnitTests.Sql
 			var generator = new SqlQueryGenerator<AllPropertiesHasMissingSetterAggregate>(configuration);
 
 			// Act && Assert
-			_ = Assert.Throws<InvalidOperationException>(() => generator.GenerateUpdateQuery());
+			Assert.Throws<InvalidOperationException>(() => generator.GenerateUpdateQuery());
 		}
 
 		[Fact]

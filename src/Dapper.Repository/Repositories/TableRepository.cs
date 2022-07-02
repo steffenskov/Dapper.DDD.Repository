@@ -20,13 +20,6 @@ where TAggregateId : notnull
 		return await QuerySingleOrDefaultAsync(query, WrapId(id), cancellationToken: cancellationToken);
 	}
 
-	public async Task<TAggregate?> GetAsync(TAggregateId id, CancellationToken cancellationToken = default)
-	{
-		var query = _queryGenerator.GenerateGetQuery();
-
-		return await QuerySingleOrDefaultAsync(query, WrapId(id), cancellationToken: cancellationToken);
-	}
-
 	public async Task<TAggregate> InsertAsync(TAggregate aggregate, CancellationToken cancellationToken = default)
 	{
 		ArgumentNullException.ThrowIfNull(aggregate);
