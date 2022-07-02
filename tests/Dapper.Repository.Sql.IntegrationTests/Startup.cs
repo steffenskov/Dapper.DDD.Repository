@@ -27,7 +27,6 @@ public class Startup
 			options.TableName = "CompositeUsers";
 			options.HasKey(x => x.Id);
 			options.HasDefault(x => x.DateCreated);
-			options.HasValueObject(x => x.Id);
 		});
 
 		services.AddViewRepository<ProductListView, int, IProductListViewRepository, ProductListViewRepository>(options =>
@@ -44,8 +43,6 @@ public class Startup
 		{
 			options.TableName = "CustomersWithValueObject";
 			options.HasKey(x => x.Id);
-			options.HasValueObject(x => x.InvoiceAddress);
-			options.HasValueObject(x => x.DeliveryAddress);
 		});
 		Provider = services.BuildServiceProvider();
 	}

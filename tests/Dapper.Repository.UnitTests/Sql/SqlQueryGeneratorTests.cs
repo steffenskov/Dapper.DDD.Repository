@@ -484,8 +484,6 @@ namespace Dapper.Repository.UnitTests.Sql
 				TableName = "Users"
 			};
 			config.HasKey(x => x.Id);
-			config.HasValueObject(x => x.DeliveryAddress);
-			config.HasValueObject(x => x.InvoiceAddress);
 			var generator = new SqlQueryGenerator<UserAggregate>(config);
 			return generator;
 		}
@@ -498,7 +496,6 @@ namespace Dapper.Repository.UnitTests.Sql
 				TableName = "Users"
 			};
 			config.HasKey(x => x.Id);
-			config.HasValueObject(x => x.Id);
 			var generator = new SqlQueryGenerator<AggregateWithValueObjectId>(config);
 			return generator;
 		}
