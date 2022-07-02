@@ -24,19 +24,19 @@ public class ViewRepositoryTests : IClassFixture<NoDefaultsStartup>
 	[Fact]
 	public void Constructor_NoConnectionFactory_Throws()
 	{
-		// Arrange && Assert
+		// Arrange 
+		var config = new Configuration.ViewAggregateConfiguration<UserAggregate>
+		{
+			DapperInjectionFactory = Mock.Of<IDapperInjectionFactory>(),
+			QueryGeneratorFactory = Mock.Of<IQueryGeneratorFactory>()
+		};
+		config.HasKey(x => x.Id);
+
+		// Act && Assert
 		var ex = Assert.Throws<ArgumentNullException>(() =>
 		new ViewRepository<UserAggregate, Guid>(Options.Create(
-			new Configuration.ViewAggregateConfiguration<UserAggregate>
-			{
-				DapperInjectionFactory = Mock.Of<IDapperInjectionFactory>(),
-				QueryGeneratorFactory = Mock.Of<IQueryGeneratorFactory>()
-
-			}
-		), Options.Create(new Configuration.DefaultConfiguration
-		{
-
-		})));
+			config
+		), Options.Create(new Configuration.DefaultConfiguration())));
 
 		Assert.Contains("ConnectionFactory", ex.Message);
 	}
@@ -44,19 +44,19 @@ public class ViewRepositoryTests : IClassFixture<NoDefaultsStartup>
 	[Fact]
 	public void Constructor_NoQueryGeneratorFactory_Throws()
 	{
-		// Arrange && Assert
+		// Arrange 
+		var config = new Configuration.ViewAggregateConfiguration<UserAggregate>
+		{
+			DapperInjectionFactory = Mock.Of<IDapperInjectionFactory>(),
+			ConnectionFactory = Mock.Of<IConnectionFactory>()
+		};
+		config.HasKey(x => x.Id);
+
+		// Act && Assert
 		var ex = Assert.Throws<ArgumentNullException>(() =>
 				new ViewRepository<UserAggregate, Guid>(Options.Create(
-					new Configuration.ViewAggregateConfiguration<UserAggregate>
-					{
-						DapperInjectionFactory = Mock.Of<IDapperInjectionFactory>(),
-						ConnectionFactory = Mock.Of<IConnectionFactory>()
-
-					}
-				), Options.Create(new Configuration.DefaultConfiguration
-				{
-
-				})));
+					config
+				), Options.Create(new Configuration.DefaultConfiguration())));
 
 		Assert.Contains("QueryGeneratorFactory", ex.Message);
 	}
@@ -64,19 +64,19 @@ public class ViewRepositoryTests : IClassFixture<NoDefaultsStartup>
 	[Fact]
 	public void Constructor_NoDapperInjectionFactory_Throws()
 	{
-		// Arrange && Assert
+		// Arrange
+		var config = new Configuration.ViewAggregateConfiguration<UserAggregate>
+		{
+			ConnectionFactory = Mock.Of<IConnectionFactory>(),
+			QueryGeneratorFactory = Mock.Of<IQueryGeneratorFactory>()
+		};
+		config.HasKey(x => x.Id);
+
+		// Act && Assert
 		var ex = Assert.Throws<ArgumentNullException>(() =>
 				new ViewRepository<UserAggregate, Guid>(Options.Create(
-					new Configuration.ViewAggregateConfiguration<UserAggregate>
-					{
-						ConnectionFactory = Mock.Of<IConnectionFactory>(),
-						QueryGeneratorFactory = Mock.Of<IQueryGeneratorFactory>()
-
-					}
-				), Options.Create(new Configuration.DefaultConfiguration
-				{
-
-				})));
+					config
+				), Options.Create(new Configuration.DefaultConfiguration())));
 
 		Assert.Contains("DapperInjectionFactory", ex.Message);
 	}
@@ -84,40 +84,83 @@ public class ViewRepositoryTests : IClassFixture<NoDefaultsStartup>
 	[Fact]
 	public void Constructor_NoViewName_Throws()
 	{
-		// Arrange && Assert
+		// Arrange
+		var config = new Configuration.ViewAggregateConfiguration<UserAggregate>
+		{
+			ConnectionFactory = Mock.Of<IConnectionFactory>(),
+			QueryGeneratorFactory = Mock.Of<IQueryGeneratorFactory>(),
+			DapperInjectionFactory = Mock.Of<IDapperInjectionFactory>(),
+			Schema = "dbo"
+		};
+		config.HasKey(x => x.Id);
+
+		// Act && Assert
 		var ex = Assert.Throws<ArgumentNullException>(() =>
 				new ViewRepository<UserAggregate, Guid>(Options.Create(
-					new Configuration.ViewAggregateConfiguration<UserAggregate>
-					{
-						ConnectionFactory = Mock.Of<IConnectionFactory>(),
-						QueryGeneratorFactory = Mock.Of<IQueryGeneratorFactory>(),
-						DapperInjectionFactory = Mock.Of<IDapperInjectionFactory>(),
-						Schema = "dbo"
-					}
-				), Options.Create(new Configuration.DefaultConfiguration
-				{
-
-				})));
+					config
+				), Options.Create(new Configuration.DefaultConfiguration())));
 
 		Assert.Contains("ViewName", ex.Message);
+	}
+
+	[Fact]
+	public void Constructor_NoKey_Throws()
+	{
+		// Arrange
+		var config = new Configuration.ViewAggregateConfiguration<UserAggregate>
+		{
+			ConnectionFactory = Mock.Of<IConnectionFactory>(),
+			QueryGeneratorFactory = Mock.Of<IQueryGeneratorFactory>(),
+			DapperInjectionFactory = Mock.Of<IDapperInjectionFactory>(),
+			ViewName = "Users"
+		};
+
+		// Act && Assert
+		var ex = Assert.Throws<ArgumentException>(() =>
+				new ViewRepository<UserAggregate, Guid>(Options.Create(
+					config
+				), Options.Create(new Configuration.DefaultConfiguration())));
+
+		Assert.Contains("No key has been specified for this aggregate", ex.Message);
+	}
+
+	[Fact]
+	public void ConstructorViewWithoutId_NoKey_Valid()
+	{
+		// Arrange
+		var config = new Configuration.ViewAggregateConfiguration<UserAggregate>
+		{
+			ConnectionFactory = Mock.Of<IConnectionFactory>(),
+			QueryGeneratorFactory = Mock.Of<IQueryGeneratorFactory>(),
+			DapperInjectionFactory = Mock.Of<IDapperInjectionFactory>(),
+			ViewName = "Users"
+		};
+
+		// Act
+		var repo = new ViewRepository<UserAggregate>(Options.Create(
+			config
+		), Options.Create(new Configuration.DefaultConfiguration()));
+
+		// Assert
+		Assert.NotNull(repo);
 	}
 
 	[Fact]
 	public void Constructor_NoSchemaName_Valid()
 	{
 		// Arrange
-		var repo = new ViewRepository<UserAggregate, Guid>(Options.Create(
-			new Configuration.ViewAggregateConfiguration<UserAggregate>
-			{
-				ConnectionFactory = Mock.Of<IConnectionFactory>(),
-				QueryGeneratorFactory = Mock.Of<IQueryGeneratorFactory>(),
-				DapperInjectionFactory = Mock.Of<IDapperInjectionFactory>(),
-				ViewName = "Users"
-			}
-		), Options.Create(new Configuration.DefaultConfiguration
+		var config = new Configuration.ViewAggregateConfiguration<UserAggregate>
 		{
+			ConnectionFactory = Mock.Of<IConnectionFactory>(),
+			QueryGeneratorFactory = Mock.Of<IQueryGeneratorFactory>(),
+			DapperInjectionFactory = Mock.Of<IDapperInjectionFactory>(),
+			ViewName = "Users"
+		};
+		config.HasKey(x => x.Id);
 
-		}));
+		var repo = new ViewRepository<UserAggregate, Guid>(Options.Create(
+			config
+		), Options.Create(new Configuration.DefaultConfiguration()));
 
 		// Assert
 		Assert.NotNull(repo);

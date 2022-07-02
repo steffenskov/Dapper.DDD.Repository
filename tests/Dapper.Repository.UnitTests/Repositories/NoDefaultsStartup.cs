@@ -24,6 +24,7 @@ public class NoDefaultsStartup
 			options.QueryGeneratorFactory = Mock.Of<IQueryGeneratorFactory>();
 			options.DapperInjectionFactory = Mock.Of<IDapperInjectionFactory>();
 			options.ViewName = "Users";
+			options.HasKey(x => x.Id);
 		});
 		Provider = services.BuildServiceProvider();
 	}

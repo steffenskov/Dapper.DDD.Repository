@@ -1,0 +1,68 @@
+using Dapper.Repository.IntegrationTests.Repositories;
+
+namespace Dapper.Repository.IntegrationTests;
+public abstract class BaseProductListViewTests
+{
+	private readonly IProductListViewRepository _repository;
+
+	protected BaseProductListViewTests(IServiceProvider serviceProvider)
+	{
+		_repository = serviceProvider.GetService<IProductListViewRepository>()!;
+	}
+
+	[Fact]
+	public async Task GetAll_HaveRows_Valid()
+	{
+		// Act
+		var all = await _repository.GetAllAsync();
+
+		// Assert
+		Assert.True(all.Count() >= 2);
+	}
+
+	[Fact]
+	public async Task Get_DoesNotExist_ReturnsNull()
+	{
+		// Act
+		var aggregate = await _repository.GetAsync(int.MaxValue);
+
+		// Assert
+		Assert.Null(aggregate);
+	}
+
+	[Fact]
+	public async Task Get_Exists_IsReturned()
+	{
+		// Arrange
+		var all = await _repository.GetAllAsync();
+
+		// Act
+		var aggregate = await _repository.GetAsync(all.First().ProductID);
+
+		// Assert
+		Assert.NotNull(aggregate);
+	}
+
+	[Fact]
+	public async Task GetByName_DoesNotExist_ReturnsNull()
+	{
+		// Act
+		var aggregate = await _repository.GetByNameAsync("ProductNameThatDoesNotExist");
+
+		// Assert
+		Assert.Null(aggregate);
+	}
+
+	[Fact]
+	public async Task GetByName_Exists_IsReturned()
+	{
+		// Arrange
+		var all = await _repository.GetAllAsync();
+
+		// Act
+		var aggregate = await _repository.GetByNameAsync(all.First().ProductName);
+
+		// Assert
+		Assert.NotNull(aggregate);
+	}
+}

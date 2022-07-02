@@ -30,10 +30,14 @@ public class Startup
 			options.HasValueObject(x => x.Id);
 		});
 
-		services.AddViewRepository<ProductListView, int>(options =>
+		services.AddViewRepository<ProductListView, int, IProductListViewRepository, ProductListViewRepository>(options =>
 		{
-			options.ViewName = "Current Product List";
+			options.ViewName = "[Current Product List]";
 			options.HasKey(x => x.ProductID);
+		});
+		services.AddViewRepository<ProductListView>(options =>
+		{
+			options.ViewName = "[Current Product List]";
 		});
 
 		services.AddTableRepository<Customer, Guid, ICustomerRepository, CustomerRepository>(options =>
