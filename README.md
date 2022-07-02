@@ -9,6 +9,8 @@ Also it's somewhat inspired by [Domain-Driven Design](https://en.wikipedia.org/w
 - Improvements to AggregateConfiguration injection, as the current "explicit interface" approach is a bit annoying for when adding support for new databases.
 - Sample project showing how to use the library
 - Support for deep nesting of ValueObjects (currently nested ValueObjects aren't supported)
+- Support for properties without setter
+- Support for StrongTypedId (and any other similar 3rd party types)
 
 ## Installation:
 
@@ -38,12 +40,12 @@ Also it currently only supports Microsoft SQL Server and MySql (MariaDB should w
 ## Limitations:
 
 Currently the library only supports tables with a primary key (no heap support), views are supported both with and without including primary keys.
-Also all the methods are kept `Async` and no synchronous versions are currently planned. This is because database calls (like all I/O) should probably be kept async for improved performance and responsiveness.
+Also all the methods are kept `Async` and no synchronous versions are currently planned. This is because database calls (like all I/O) should ideally be kept async for improved performance and responsiveness.
 Both `class` and `record` types are supported, however `records` cannot use their primary constructor syntax, as it makes it impossible for the library to create them when fetching data from the database.
 
 ## Usage:
 
-In order to avoid building this library for a specific Dapper version, I've added an injection point for injecting the necessary Dapper extension methods into the repositories.  
+In order to avoid building this library for a specific Dapper and database version, I've added injection points for injecting the necessary Dapper extension methods as well as a `ConnectionFactory` into the repositories.
 This requires a couple (3) of classes in your project to wire-up everything, but in return protects you from "dependency version hell" :-)
 So go ahead and create these 3 classes:
 
@@ -54,7 +56,7 @@ using Dapper.Repository.Interfaces;
 
 namespace YOUR_NAMESPACE_HERE;
 
-public class DapperInjection<T> : IdapperInjection<T>
+public class DapperInjection<T> : IDapperInjection<T>
 where T : notnull
 {
 	public Task<int> ExecuteAsync(IdbConnection cnn, string sql, object? param = null, IdbTransaction? transaction = null, int? commandTimeout = null, CommandType? commandType = null, CancellationToken cancellationToken = default)
@@ -99,9 +101,9 @@ using Dapper.Repository.Interfaces;
 
 namespace YOUR_NAMESPACE_HERE;
 
-public class DapperInjectionFactory : IdapperInjectionFactory
+public class DapperInjectionFactory : IDapperInjectionFactory
 {
-	public IdapperInjection<T> Create<T>()
+	public IDapperInjection<T> Create<T>()
 	where T : notnull
 	{
 		return new DapperInjection<T>();
@@ -160,7 +162,7 @@ public class User
 	public string Username { get; set; }
 	public string Password { get; set; }
 	public string? Description { get; set; } // If you're not using the new nullability feature, just remove the questionmark
-	public DateTime DateCreated { get; private set; } // Doesn't need a public setter it has a DB default constraint
+	public DateTime DateCreated { get; } // Doesn't need a setter it has a DB default constraint
 }
 ```
 
