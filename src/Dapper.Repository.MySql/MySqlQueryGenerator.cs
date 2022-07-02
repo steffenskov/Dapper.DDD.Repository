@@ -106,7 +106,7 @@ internal class MySqlQueryGenerator<TAggregate> : IQueryGenerator<TAggregate>
 			throw new InvalidOperationException($"GenerateGetQuery for aggregate of type {typeof(TAggregate).FullName} failed as the type has no properties with a setter.");
 		}
 
-		_ = GeneratePropertyList("inserted", _properties);
+		GeneratePropertyList("inserted", _properties);
 		var selectStatement = GenerateGetQuery();
 		return $@"UPDATE {_entityName} SET {setClause} WHERE {GenerateWhereClause()};{selectStatement}";
 	}

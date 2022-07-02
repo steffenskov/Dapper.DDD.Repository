@@ -53,7 +53,7 @@ where TDbException : Exception
 		Assert.Equal(insertedAggregate, gotten);
 		Assert.NotSame(insertedAggregate, gotten);
 
-		_ = await _repository.DeleteAsync(insertedAggregate.Id);
+		await _repository.DeleteAsync(insertedAggregate.Id);
 	}
 
 	[Fact]
@@ -72,7 +72,7 @@ where TDbException : Exception
 	public async Task GetAll_NoInput_Valid(Customer aggregate)
 	{
 		// Arrange
-		_ = await _repository.InsertAsync(aggregate);
+		await _repository.InsertAsync(aggregate);
 
 		// Act
 		var fetchedEntities = await _repository.GetAllAsync();
@@ -87,7 +87,7 @@ where TDbException : Exception
 	public async Task Insert_InputIsNull_Throws()
 	{
 		// Act && Assert
-		_ = await Assert.ThrowsAsync<ArgumentNullException>(async () => await _repository.InsertAsync(null!));
+		await Assert.ThrowsAsync<ArgumentNullException>(async () => await _repository.InsertAsync(null!));
 	}
 
 	[Theory, AutoDomainData]
@@ -103,7 +103,7 @@ where TDbException : Exception
 		}
 		finally
 		{
-			_ = await _repository.DeleteAsync(insertedAggregate.Id);
+			await _repository.DeleteAsync(insertedAggregate.Id);
 		}
 	}
 
@@ -114,7 +114,7 @@ where TDbException : Exception
 		aggregate = aggregate with { InvoiceAddress = aggregate.InvoiceAddress with { Street = null! } };
 
 		// Act && Assert
-		_ = await Assert.ThrowsAsync<TDbException>(async () => await _repository.InsertAsync(aggregate));
+		await Assert.ThrowsAsync<TDbException>(async () => await _repository.InsertAsync(aggregate));
 	}
 	#endregion
 
@@ -123,7 +123,7 @@ where TDbException : Exception
 	public async Task Update_InputIsNull_Throws()
 	{
 		// Act && Assert
-		_ = await Assert.ThrowsAsync<ArgumentNullException>(async () => await _repository.UpdateAsync(null!));
+		await Assert.ThrowsAsync<ArgumentNullException>(async () => await _repository.UpdateAsync(null!));
 	}
 
 	[Theory, AutoDomainData]
@@ -140,7 +140,7 @@ where TDbException : Exception
 		// Assert
 		Assert.Equal("Some new name", updatedAggregate?.Name);
 
-		_ = await _repository.DeleteAsync(insertedAggregate.Id);
+		await _repository.DeleteAsync(insertedAggregate.Id);
 	}
 
 	[Fact]

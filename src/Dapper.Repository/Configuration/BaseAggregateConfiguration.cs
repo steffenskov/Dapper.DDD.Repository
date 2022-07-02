@@ -92,7 +92,7 @@ public abstract class BaseAggregateConfiguration<TAggregate> : IReadAggregateCon
 
 		foreach (var ignore in _ignores)
 		{
-			_ = rawList.Remove(ignore.Name);
+			rawList.Remove(ignore.Name);
 		}
 
 		return new ExtendedPropertyInfoCollection(rawList.Values);

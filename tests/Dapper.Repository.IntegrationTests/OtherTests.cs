@@ -23,7 +23,7 @@ public abstract class OtherTests
 		}
 		finally
 		{
-			_ = await _repository.DeleteAsync(aggregate.Id);
+			await _repository.DeleteAsync(aggregate.Id);
 		}
 	}
 
@@ -42,7 +42,7 @@ public abstract class OtherTests
 		}
 		finally
 		{
-			_ = await _repository.DeleteAsync(aggregate.Id);
+			await _repository.DeleteAsync(aggregate.Id);
 		}
 	}
 }

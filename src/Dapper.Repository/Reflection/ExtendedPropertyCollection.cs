@@ -48,8 +48,8 @@ namespace Dapper.Repository.Reflection
 		{
 			if (_dictionary.TryGetValue(property.Name, out var actualProperty))
 			{
-				_ = _dictionary.Remove(property.Name);
-				_ = _list.Remove(actualProperty);
+				_dictionary.Remove(property.Name);
+				_list.Remove(actualProperty);
 			}
 		}
 

@@ -54,7 +54,7 @@ where TDbException : Exception
 		Assert.Equal(insertedAggregate.CategoryName, gotten?.CategoryName);
 		Assert.Equal(insertedAggregate.Picture, gotten?.Picture);
 
-		_ = await _repository.DeleteAsync(insertedAggregate.CategoryID);
+		await _repository.DeleteAsync(insertedAggregate.CategoryID);
 	}
 
 	[Fact]
@@ -85,7 +85,7 @@ where TDbException : Exception
 	public async Task Insert_InputIsNull_Throws()
 	{
 		// Act && Assert
-		_ = await Assert.ThrowsAsync<ArgumentNullException>(async () => await _repository.InsertAsync(null!));
+		await Assert.ThrowsAsync<ArgumentNullException>(async () => await _repository.InsertAsync(null!));
 	}
 
 	[Fact]
@@ -101,7 +101,7 @@ where TDbException : Exception
 		};
 
 		// Act && Assert
-		_ = await Assert.ThrowsAsync<ArgumentException>(async () => await _repository.InsertAsync(aggregate));
+		await Assert.ThrowsAsync<ArgumentException>(async () => await _repository.InsertAsync(aggregate));
 	}
 
 	[Theory, AutoDomainData]
@@ -119,7 +119,7 @@ where TDbException : Exception
 		}
 		finally
 		{
-			_ = await _repository.DeleteAsync(insertedAggregate.CategoryID);
+			await _repository.DeleteAsync(insertedAggregate.CategoryID);
 		}
 	}
 
@@ -135,7 +135,7 @@ where TDbException : Exception
 		};
 
 		// Act && Assert
-		_ = await Assert.ThrowsAsync<TDbException>(async () => await _repository.InsertAsync(aggregate));
+		await Assert.ThrowsAsync<TDbException>(async () => await _repository.InsertAsync(aggregate));
 	}
 	#endregion
 
@@ -144,7 +144,7 @@ where TDbException : Exception
 	public async Task Update_InputIsNull_Throws()
 	{
 		// Act && Assert
-		_ = await Assert.ThrowsAsync<ArgumentNullException>(async () => await _repository.UpdateAsync(null!));
+		await Assert.ThrowsAsync<ArgumentNullException>(async () => await _repository.UpdateAsync(null!));
 	}
 
 	[Theory, AutoDomainData]
@@ -161,7 +161,7 @@ where TDbException : Exception
 		// Assert
 		Assert.Equal("Something else", updatedAggregate?.Description);
 
-		_ = await _repository.DeleteAsync(insertedAggregate.CategoryID);
+		await _repository.DeleteAsync(insertedAggregate.CategoryID);
 	}
 
 	[Fact]
