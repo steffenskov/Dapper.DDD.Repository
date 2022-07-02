@@ -429,8 +429,6 @@ namespace Dapper.Repository.UnitTests.MySql
 				TableName = "Users"
 			};
 			config.HasKey(x => x.Id);
-			config.HasValueObject(x => x.DeliveryAddress);
-			config.HasValueObject(x => x.InvoiceAddress);
 			var generator = new MySqlQueryGenerator<UserAggregate>(config);
 			return generator;
 		}
@@ -442,7 +440,6 @@ namespace Dapper.Repository.UnitTests.MySql
 				TableName = "Users"
 			};
 			config.HasKey(x => x.Id);
-			config.HasValueObject(x => x.Id);
 			var generator = new MySqlQueryGenerator<AggregateWithValueObjectId>(config);
 			return generator;
 		}
