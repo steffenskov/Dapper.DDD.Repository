@@ -1,7 +1,40 @@
 ﻿namespace WeatherService.Domain.ValueObjects;
 
+/// <summary>
+/// Address is a ValueObject that encapsulates addresses.
+/// As such it handles validation of its own properties directly.
+/// </summary>
+
 public record Address
 {
-	public string Street { get; init; } = default!;
-	public string City { get; init; } = default!;
+	private string _street = default!;
+
+	public string Street
+	{
+		get => _street;
+		init
+		{
+			if (value.Length > 100)
+			{
+				throw new ArgumentOutOfRangeException($"{nameof(Street)} cannot exceed 100 characters");
+			}
+
+			_street = value;
+		}
+	}
+
+	private string _city = default!;
+	public string City
+	{
+		get => _city;
+		init
+		{
+			if (value.Length > 50)
+			{
+				throw new ArgumentOutOfRangeException($"{nameof(City)} cannot exceed 50 characters");
+			}
+
+			_city = value;
+		}
+	}
 }
