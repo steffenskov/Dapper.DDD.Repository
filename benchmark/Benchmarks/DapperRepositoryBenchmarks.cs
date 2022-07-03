@@ -24,8 +24,6 @@ public class DapperRepositoryBenchmarks
 			Schema = "dbo"
 		};
 		tableConfig.HasKey(customer => customer.Id);
-		tableConfig.HasValueObject(customer => customer.InvoiceAddress);
-		tableConfig.HasValueObject(customer => customer.DeliveryAddress);
 		_repo = new CustomerRepository(Options.Create(tableConfig), Options.Create(new DefaultConfiguration
 		{
 			ConnectionFactory = new SqlConnectionFactory(_connectionString),

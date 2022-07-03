@@ -1,39 +1,23 @@
 ﻿using Dapper.Repository.Reflection;
 
 namespace Dapper.Repository.Repositories;
-public abstract class BaseRepository<TAggregate, TAggregateId>
+
+public abstract class BaseRepository<TAggregate, TAggregateId> : BaseRepository<TAggregate>
 where TAggregate : notnull
 where TAggregateId : notnull
 {
-	private readonly IDapperInjectionFactory _dapperInjectionFactory;
-	private readonly IDapperInjection<TAggregate> _dapperInjection;
-	private protected readonly IReadAggregateConfiguration<TAggregate> _configuration;
-	private readonly IReadOnlyExtendedPropertyInfoCollection _valueObjects;
-	private readonly IConnectionFactory _connectionFactory;
-	private protected readonly IQueryGenerator<TAggregate> _queryGenerator;
-	private readonly bool _shouldFlattenAggregate = ObjectFlattener.ShouldFlattenType<TAggregate>();
-
-	protected BaseRepository(BaseAggregateConfiguration<TAggregate> configuration, DefaultConfiguration? defaultConfiguration)
+	protected BaseRepository(BaseAggregateConfiguration<TAggregate> configuration, DefaultConfiguration? defaultConfiguration) : base(configuration, defaultConfiguration)
 	{
-		ArgumentNullException.ThrowIfNull(configuration);
-
-		configuration.SetDefaults(defaultConfiguration);
-		ArgumentNullException.ThrowIfNull(configuration.ConnectionFactory);
-		ArgumentNullException.ThrowIfNull(configuration.DapperInjectionFactory);
-		ArgumentNullException.ThrowIfNull(configuration.QueryGeneratorFactory);
-
-		_dapperInjectionFactory = configuration.DapperInjectionFactory;
-		_dapperInjection = _dapperInjectionFactory.Create<TAggregate>();
-		_connectionFactory = configuration.ConnectionFactory!;
-		_queryGenerator = configuration.QueryGeneratorFactory.Create(configuration);
-		_configuration = configuration;
-		_valueObjects = _configuration.GetValueObjects();
+		var readConfig = (IReadAggregateConfiguration<TAggregate>)configuration;
+		if (readConfig.GetKeys().Count == 0)
+			throw new ArgumentException("No key has been specified for this aggregate.", nameof(configuration));
 	}
 
-	public async Task<IEnumerable<TAggregate>> GetAllAsync(CancellationToken cancellationToken = default)
+	public async Task<TAggregate?> GetAsync(TAggregateId id, CancellationToken cancellationToken = default)
 	{
-		var query = _queryGenerator.GenerateGetAllQuery();
-		return await QueryAsync(query, cancellationToken: cancellationToken);
+		var query = _queryGenerator.GenerateGetQuery();
+
+		return await QuerySingleOrDefaultAsync(query, WrapId(id), cancellationToken: cancellationToken);
 	}
 
 	/// <summary>
@@ -59,7 +43,7 @@ where TAggregateId : notnull
 
 	private void AddWrappedValue(IDictionary<string, object?> dictionary, ExtendedPropertyInfo property, object? value)
 	{
-		if (_valueObjects.Contains(property))
+		if (!property.Type.IsSimpleOrBuiltIn())
 		{
 			foreach (var propertyInfo in property.GetPropertiesOrdered())
 			{
@@ -70,6 +54,39 @@ where TAggregateId : notnull
 		{
 			dictionary[property.Name] = value;
 		}
+	}
+}
+
+public abstract class BaseRepository<TAggregate>
+where TAggregate : notnull
+{
+	private readonly IDapperInjectionFactory _dapperInjectionFactory;
+	private readonly IDapperInjection<TAggregate> _dapperInjection;
+	private protected readonly IReadAggregateConfiguration<TAggregate> _configuration;
+	private readonly IConnectionFactory _connectionFactory;
+	private protected readonly IQueryGenerator<TAggregate> _queryGenerator;
+	private readonly bool _shouldFlattenAggregate = ObjectFlattener.ShouldFlattenType<TAggregate>();
+
+	protected BaseRepository(BaseAggregateConfiguration<TAggregate> configuration, DefaultConfiguration? defaultConfiguration)
+	{
+		ArgumentNullException.ThrowIfNull(configuration);
+
+		configuration.SetDefaults(defaultConfiguration);
+		ArgumentNullException.ThrowIfNull(configuration.ConnectionFactory);
+		ArgumentNullException.ThrowIfNull(configuration.DapperInjectionFactory);
+		ArgumentNullException.ThrowIfNull(configuration.QueryGeneratorFactory);
+
+		_dapperInjectionFactory = configuration.DapperInjectionFactory;
+		_dapperInjection = _dapperInjectionFactory.Create<TAggregate>();
+		_connectionFactory = configuration.ConnectionFactory!;
+		_queryGenerator = configuration.QueryGeneratorFactory.Create(configuration);
+		_configuration = configuration;
+	}
+
+	public async Task<IEnumerable<TAggregate>> GetAllAsync(CancellationToken cancellationToken = default)
+	{
+		var query = _queryGenerator.GenerateGetAllQuery();
+		return await QueryAsync(query, cancellationToken: cancellationToken);
 	}
 
 	#region Dapper methods

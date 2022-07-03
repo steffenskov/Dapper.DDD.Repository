@@ -9,8 +9,8 @@ public class NoDefaultsStartup
 	public NoDefaultsStartup()
 	{
 		var services = new ServiceCollection();
-		_ = services.AddOptions();
-		_ = services.AddTableRepository<UserAggregate, Guid>(options =>
+		services.AddOptions();
+		services.AddTableRepository<UserAggregate, Guid>(options =>
 		{
 			options.ConnectionFactory = Mock.Of<IConnectionFactory>();
 			options.QueryGeneratorFactory = Mock.Of<IQueryGeneratorFactory>();
@@ -18,12 +18,13 @@ public class NoDefaultsStartup
 			options.TableName = "Users";
 			options.HasKey(x => x.Id);
 		});
-		_ = services.AddViewRepository<UserAggregate, Guid>(options =>
+		services.AddViewRepository<UserAggregate, Guid>(options =>
 		{
 			options.ConnectionFactory = Mock.Of<IConnectionFactory>();
 			options.QueryGeneratorFactory = Mock.Of<IQueryGeneratorFactory>();
 			options.DapperInjectionFactory = Mock.Of<IDapperInjectionFactory>();
 			options.ViewName = "Users";
+			options.HasKey(x => x.Id);
 		});
 		Provider = services.BuildServiceProvider();
 	}

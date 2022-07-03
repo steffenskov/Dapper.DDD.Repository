@@ -18,7 +18,7 @@ namespace Dapper.Repository.UnitTests.MySql
 			};
 
 			// Act && Assert
-			_ = Assert.Throws<ArgumentNullException>(() => new MySqlQueryGenerator<SinglePrimaryKeyAggregate>(configuration));
+			Assert.Throws<ArgumentNullException>(() => new MySqlQueryGenerator<SinglePrimaryKeyAggregate>(configuration));
 		}
 
 		[Fact]
@@ -30,7 +30,7 @@ namespace Dapper.Repository.UnitTests.MySql
 				TableName = " "
 			};
 			// Act && Assert
-			_ = Assert.Throws<ArgumentException>(() => new MySqlQueryGenerator<SinglePrimaryKeyAggregate>(configuration));
+			Assert.Throws<ArgumentException>(() => new MySqlQueryGenerator<SinglePrimaryKeyAggregate>(configuration));
 		}
 		#endregion
 
@@ -306,7 +306,7 @@ namespace Dapper.Repository.UnitTests.MySql
 			var generator = CreateAggregateWithValueObjectIdQueryGenerator();
 
 			// Act
-			var query = generator.GenerateUpdateQuery();
+			var query = generator.GenerateUpdateQuery(new());
 
 			// Assert
 			Assert.Equal($@"UPDATE Users SET Age = @Age WHERE Users.Id_Password = @Id_Password AND Users.Id_Username = @Id_Username;SELECT Users.Age, Users.Id_Password, Users.Id_Username FROM Users WHERE Users.Id_Password = @Id_Password AND Users.Id_Username = @Id_Username;", query);
@@ -318,7 +318,7 @@ namespace Dapper.Repository.UnitTests.MySql
 			var generator = CreateUserAggregateQueryGenerator();
 
 			// Act
-			var query = generator.GenerateUpdateQuery();
+			var query = generator.GenerateUpdateQuery(new());
 
 			// Assert
 			Assert.Equal($@"UPDATE Users SET DeliveryAddress_City = @DeliveryAddress_City, DeliveryAddress_Street = @DeliveryAddress_Street, InvoiceAddress_City = @InvoiceAddress_City, InvoiceAddress_Street = @InvoiceAddress_Street WHERE Users.Id = @Id;SELECT Users.Id, Users.DeliveryAddress_City, Users.DeliveryAddress_Street, Users.InvoiceAddress_City, Users.InvoiceAddress_Street FROM Users WHERE Users.Id = @Id;", query);
@@ -331,7 +331,7 @@ namespace Dapper.Repository.UnitTests.MySql
 			var generator = CreateSinglePrimaryKeyAggregateQueryGenerator();
 
 			// Act 
-			var updateQuery = generator.GenerateUpdateQuery();
+			var updateQuery = generator.GenerateUpdateQuery(new());
 
 			// Assert
 			Assert.Equal($@"UPDATE Users SET Username = @Username, Password = @Password WHERE Users.Id = @Id;SELECT Users.Id, Users.Username, Users.Password FROM Users WHERE Users.Id = @Id;", updateQuery);
@@ -344,7 +344,7 @@ namespace Dapper.Repository.UnitTests.MySql
 			var generator = CreateCompositePrimaryKeyAggregateQueryGenerator();
 
 			// Act 
-			var updateQuery = generator.GenerateUpdateQuery();
+			var updateQuery = generator.GenerateUpdateQuery(new());
 
 			// Assert
 			Assert.Equal($@"UPDATE Users SET DateCreated = @DateCreated WHERE Users.Username = @Username AND Users.Password = @Password;SELECT Users.Username, Users.Password, Users.DateCreated FROM Users WHERE Users.Username = @Username AND Users.Password = @Password;", updateQuery);
@@ -363,23 +363,23 @@ namespace Dapper.Repository.UnitTests.MySql
 			var generator = new MySqlQueryGenerator<AllPropertiesHasMissingSetterAggregate>(configuration);
 
 			// Act && Assert
-			_ = Assert.Throws<InvalidOperationException>(() => generator.GenerateUpdateQuery());
+			Assert.Throws<InvalidOperationException>(() => generator.GenerateUpdateQuery(new()));
 		}
 
 		[Fact]
 		public void GenerateUpdateQuery_PropertyHasNoSetter_PropertyIsExcluded()
 		{
 			// Arrange
-			var configuration = new TableAggregateConfiguration<PropertyHasMissingSetterAggregate>()
+			var configuration = new TableAggregateConfiguration<AggregateWithDefaultConstraint>()
 			{
 				TableName = "Users"
 			};
 			configuration.HasKey(aggregate => aggregate.Id);
 			configuration.HasDefault(aggregate => aggregate.DateCreated);
-			var generator = new MySqlQueryGenerator<PropertyHasMissingSetterAggregate>(configuration);
+			var generator = new MySqlQueryGenerator<AggregateWithDefaultConstraint>(configuration);
 
 			// Act
-			var query = generator.GenerateUpdateQuery();
+			var query = generator.GenerateUpdateQuery(new());
 
 			// Assert
 			Assert.Equal(@"UPDATE Users SET Age = @Age WHERE Users.Id = @Id;SELECT Users.Id, Users.Age, Users.DateCreated FROM Users WHERE Users.Id = @Id;", query);
@@ -429,8 +429,6 @@ namespace Dapper.Repository.UnitTests.MySql
 				TableName = "Users"
 			};
 			config.HasKey(x => x.Id);
-			config.HasValueObject(x => x.DeliveryAddress);
-			config.HasValueObject(x => x.InvoiceAddress);
 			var generator = new MySqlQueryGenerator<UserAggregate>(config);
 			return generator;
 		}
@@ -442,7 +440,6 @@ namespace Dapper.Repository.UnitTests.MySql
 				TableName = "Users"
 			};
 			config.HasKey(x => x.Id);
-			config.HasValueObject(x => x.Id);
 			var generator = new MySqlQueryGenerator<AggregateWithValueObjectId>(config);
 			return generator;
 		}

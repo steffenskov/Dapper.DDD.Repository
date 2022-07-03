@@ -9,7 +9,6 @@ public abstract class BaseAggregateConfiguration<TAggregate> : IReadAggregateCon
 	private readonly ExtendedPropertyInfoCollection _defaults = new();
 	private readonly ExtendedPropertyInfoCollection _identities = new();
 	private readonly ExtendedPropertyInfoCollection _ignores = new();
-	private readonly ExtendedPropertyInfoCollection _valueObjects = new();
 
 	public string? Schema { get; set; }
 	public IQueryGeneratorFactory? QueryGeneratorFactory { get; set; }
@@ -62,23 +61,11 @@ public abstract class BaseAggregateConfiguration<TAggregate> : IReadAggregateCon
 		_identities.AddRange(properties);
 	}
 
-	public void HasValueObject(Expression<Func<TAggregate, object>> expression)
-	{
-		var properties = new ExpressionParser<TAggregate>().GetExtendedPropertiesFromExpression(expression);
-		var invalidProperties = properties.Where(property => property.Type.IsSimpleOrBuiltIn());
-		if (invalidProperties.Any())
-		{
-			throw new ArgumentException($"The properties {string.Join(", ", invalidProperties.Select(p => p.Name))} are not value objects.");
-		}
-
-		_valueObjects.AddRange(properties);
-	}
-
 	string IReadAggregateConfiguration<TAggregate>.EntityName => EntityName;
 
 	IReadOnlyExtendedPropertyInfoCollection IReadAggregateConfiguration<TAggregate>.GetKeys()
 	{
-		return _keyProperties ?? throw new InvalidOperationException("No key has been specified for this aggregate.");
+		return _keyProperties ?? new ExtendedPropertyInfoCollection();
 	}
 
 	IReadOnlyExtendedPropertyInfoCollection IReadAggregateConfiguration<TAggregate>.GetIdentityProperties()
@@ -92,7 +79,7 @@ public abstract class BaseAggregateConfiguration<TAggregate> : IReadAggregateCon
 
 		foreach (var ignore in _ignores)
 		{
-			_ = rawList.Remove(ignore.Name);
+			rawList.Remove(ignore.Name);
 		}
 
 		return new ExtendedPropertyInfoCollection(rawList.Values);
@@ -103,8 +90,9 @@ public abstract class BaseAggregateConfiguration<TAggregate> : IReadAggregateCon
 		return _defaults;
 	}
 
-	IReadOnlyExtendedPropertyInfoCollection IReadAggregateConfiguration<TAggregate>.GetValueObjects()
+	IEnumerable<ExtendedPropertyInfo> IReadAggregateConfiguration<TAggregate>.GetValueObjects()
 	{
-		return _valueObjects;
+		return TypePropertiesCache.GetProperties<TAggregate>()
+									.Where(prop => !prop.Type.IsSimpleOrBuiltIn());
 	}
 }

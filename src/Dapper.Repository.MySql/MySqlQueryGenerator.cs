@@ -97,26 +97,27 @@ internal class MySqlQueryGenerator<TAggregate> : IQueryGenerator<TAggregate>
 
 	}
 
-	public string GenerateUpdateQuery()
+	public string GenerateUpdateQuery(TAggregate aggregate)
 	{
-		var setClause = GenerateSetClause();
+		var setClause = GenerateSetClause(aggregate);
 
 		if (string.IsNullOrEmpty(setClause))
 		{
 			throw new InvalidOperationException($"GenerateGetQuery for aggregate of type {typeof(TAggregate).FullName} failed as the type has no properties with a setter.");
 		}
 
-		_ = GeneratePropertyList("inserted", _properties);
+		GeneratePropertyList("inserted", _properties);
 		var selectStatement = GenerateGetQuery();
 		return $@"UPDATE {_entityName} SET {setClause} WHERE {GenerateWhereClause()};{selectStatement}";
 	}
 
 	#region Helpers
 
-	private string GenerateSetClause()
+	private string GenerateSetClause(TAggregate aggregate)
 	{
 		var primaryKeys = _keys;
-		var propertiesToSet = _properties.Where(property => !primaryKeys.Contains(property) && property.HasSetter);
+		var propertiesWithDefaultValues = _defaultConstraints;
+		var propertiesToSet = _properties.Where(property => !primaryKeys.Contains(property) && property.HasSetter && (!propertiesWithDefaultValues.Contains(property) || !property.HasDefaultValue(aggregate)));
 		return string.Join(", ", propertiesToSet.Select(property => $"{property.Name} = @{property.Name}"));
 	}
 

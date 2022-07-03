@@ -9,5 +9,5 @@ public interface IReadAggregateConfiguration<TAggregate>
 	IReadOnlyExtendedPropertyInfoCollection GetKeys();
 	ExtendedPropertyInfoCollection GetProperties();
 	IReadOnlyExtendedPropertyInfoCollection GetPropertiesWithDefaultConstraints();
-	IReadOnlyExtendedPropertyInfoCollection GetValueObjects();
+	IEnumerable<ExtendedPropertyInfo> GetValueObjects();
 }
