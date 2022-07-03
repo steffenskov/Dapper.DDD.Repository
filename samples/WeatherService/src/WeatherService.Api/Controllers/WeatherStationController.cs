@@ -28,7 +28,7 @@ public class WeatherStationController : ControllerBase
 
 		var result = await _mediator.Send(command, cancellationToken);
 
-		return CreatedAtAction(nameof(GetAsync), WeatherStationViewModel.FromDomainModel(result));
+		return Created($"/WeatherStation/{result.Id}", WeatherStationViewModel.FromDomainModel(result));
 	}
 
 	[HttpGet]

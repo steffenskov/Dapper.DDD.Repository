@@ -30,6 +30,7 @@ public static class Setup
 			config.HasKey(x => x.Id);
 			config.HasIdentity(x => x.Id);
 			config.TableName = "WeatherForecasts";
+			config.HasDefault(x => x.Timestamp);
 		})
 		.AddViewRepository<WeatherForecastView, IWeatherForecastViewRepository, WeatherForecastViewRepository>(config =>
 		{

@@ -35,7 +35,7 @@ public class WeatherForecastController : ControllerBase
 
 		var result = await _mediator.Send(command, cancellationToken);
 
-		return CreatedAtAction(nameof(GetAsync), WeatherForecastViewModel.FromDomainModel(result));
+		return Created($"/WeatherForecast/{result.Id}", WeatherForecastViewModel.FromDomainModel(result));
 	}
 
 	[HttpGet]
