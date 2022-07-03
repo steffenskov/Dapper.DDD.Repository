@@ -135,11 +135,11 @@ That's the prerequisites taken care of, now onto actually using the library. For
 ```
 CREATE TABLE Users
 (
-	UserId INT NOT NULL IdENTITY(1,1) PRIMARY KEY,
+	UserId INT NOT NULL IDENTITY(1,1) PRIMARY KEY,
 	Username VARCHAR(50) NOT NULL,
 	Password VARCHAR(50) NOT NULL, // Don't store passwords in plain text please, this is just for illustration purposes
 	Description VARCHAR(MAX) NULL,
-	DateCreated DATETIME() NOT NULL DEFAULT(GETDATE())
+	DateCreated DATETIME2(2) NOT NULL DEFAULT(GETUTCDATE())
 )
 ```
 
@@ -152,7 +152,7 @@ public class User
 	public string Username { get; set; }
 	public string Password { get; set; }
 	public string? Description { get; set; } // If you're not using the new nullability feature, just remove the questionmark
-	public DateTime DateCreated { get; } // Doesn't need a setter it has a DB default constraint
+	public DateTime DateCreated { get; private init; } // private init because of the database default constraint - we don't want to ever change this property in code.
 }
 ```
 
@@ -215,7 +215,6 @@ services.AddTableRepository<User, int, IUserRepository, UserRepository>(options 
 From here on you can inject an `IUserRepository` anywhere with the built-in Dependency-Injection.
 
 ## Upcoming features
-- Support for nested ValueObjects (currently only one level of ValueObjects is supported)
 - Support for TypeConverters to support e.g. [StrongTypedId](https://github.com/steffenskov/StrongTypedId)
 - Improvements to AggregateConfiguration injection, as the current "explicit interface" approach is a bit annoying for when adding support for new databases.
 - MAYBE support for properties without setter
