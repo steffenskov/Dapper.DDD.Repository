@@ -26,5 +26,6 @@ CAST(RAND()*50 AS int),
 Id % 3
 FROM WeatherStations
 SET @counter = @counter +1
+waitfor delay '00:00:02'
 END
 GO

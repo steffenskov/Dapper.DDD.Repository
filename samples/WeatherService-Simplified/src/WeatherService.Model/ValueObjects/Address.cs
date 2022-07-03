@@ -1,4 +1,4 @@
-﻿namespace WeatherService.Domain.ValueObjects;
+﻿namespace WeatherService.Model.ValueObjects;
 
 /// <summary>
 /// Address is a ValueObject that encapsulates addresses.

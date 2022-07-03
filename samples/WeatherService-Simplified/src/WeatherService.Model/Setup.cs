@@ -1,12 +1,11 @@
 ﻿using Dapper.Repository.DependencyInjection;
 using Dapper.Repository.Sql;
 using Microsoft.Extensions.DependencyInjection;
-using WeatherService.Domain.Aggregates;
-using WeatherService.Domain.Repositories;
-using WeatherService.Infrastructure.Repositories;
-using WeatherService.Infrastructure.Requirements;
+using WeatherService.Model.Entities;
+using WeatherService.Model.Repositories;
+using WeatherService.Model.Requirements;
 
-namespace WeatherService.Infrastructure;
+namespace WeatherService.Model;
 
 public static class Setup
 {

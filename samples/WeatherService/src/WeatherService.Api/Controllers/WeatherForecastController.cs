@@ -17,7 +17,7 @@ public class WeatherForecastController : ControllerBase
 	}
 
 	[HttpGet]
-	public async Task<ActionResult<IList<WeatherForecastViewModel>>> GetAllAsync(CancellationToken cancellationToken)
+	public async Task<ActionResult<IList<WeatherForecastViewModel>>> GetLatestAsync(CancellationToken cancellationToken)
 	{
 		var query = new WeatherForecastGetLatestQuery();
 
