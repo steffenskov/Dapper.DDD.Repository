@@ -4,17 +4,17 @@
     "windowsAuthentication": false,
     "anonymousAuthentication": true,
     "iisExpress": {
-      "applicationUrl": "http://localhost:45387",
-      "sslPort": 44363
+      "applicationUrl": "http://localhost:24741",
+      "sslPort": 44312
     }
   },
   "profiles": {
-    "WebApi": {
+    "WeatherService.Api": {
       "commandName": "Project",
       "dotnetRunMessages": true,
       "launchBrowser": true,
       "launchUrl": "swagger",
-      "applicationUrl": "https://localhost:7191;http://localhost:5170",
+      "applicationUrl": "https://localhost:7267;http://localhost:5103",
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development"
       }
