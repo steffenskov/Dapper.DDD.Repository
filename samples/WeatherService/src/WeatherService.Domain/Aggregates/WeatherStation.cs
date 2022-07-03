@@ -10,14 +10,14 @@ public class WeatherStation
 
 	public async Task Create(WeatherStationCreateCommand command, IMediator mediator, CancellationToken cancellationToken)
 	{
-		await ValidateNameAsync(command.Name, cancellationToken);
+		await ValidateNameAsync(command.Name, mediator, cancellationToken);
 
 		Name = command.Name;
 		Address = command.Address;
 	}
 
-	private static Task ValidateNameAsync(string name, CancellationToken cancellationToken)
+	private static Task ValidateNameAsync(string name, IMediator mediator, CancellationToken cancellationToken)
 	{
-
+		throw new NotImplementedException();
 	}
 }
