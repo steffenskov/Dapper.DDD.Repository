@@ -23,8 +23,8 @@ public static class DapperRepositoryDependencyInjection
 	where TAggregate : notnull
 	where TAggregateId : notnull
 	{
-		services.Configure(configureOptions);
-		services.AddSingleton<ITableRepository<TAggregate, TAggregateId>, TableRepository<TAggregate, TAggregateId>>();
+		_ = services.Configure(configureOptions);
+		_ = services.AddSingleton<ITableRepository<TAggregate, TAggregateId>, TableRepository<TAggregate, TAggregateId>>();
 		return services;
 	}
 
@@ -36,8 +36,8 @@ public static class DapperRepositoryDependencyInjection
 	where TAggregate : notnull
 	where TAggregateId : notnull
 	{
-		services.Configure(configureOptions);
-		services.AddSingleton<IViewRepository<TAggregate, TAggregateId>, ViewRepository<TAggregate, TAggregateId>>();
+		_ = services.Configure(configureOptions);
+		_ = services.AddSingleton<IViewRepository<TAggregate, TAggregateId>, ViewRepository<TAggregate, TAggregateId>>();
 		return services;
 	}
 
@@ -48,8 +48,8 @@ public static class DapperRepositoryDependencyInjection
 	public static IServiceCollection AddViewRepository<TAggregate>(this IServiceCollection services, Action<ViewAggregateConfiguration<TAggregate>> configureOptions)
 	where TAggregate : notnull
 	{
-		services.Configure(configureOptions);
-		services.AddSingleton<IViewRepository<TAggregate>, ViewRepository<TAggregate>>();
+		_ = services.Configure(configureOptions);
+		_ = services.AddSingleton<IViewRepository<TAggregate>, ViewRepository<TAggregate>>();
 		return services;
 	}
 
@@ -65,11 +65,11 @@ public static class DapperRepositoryDependencyInjection
 	public static IServiceCollection AddTableRepository<TAggregate, TAggregateId, TRepositoryInterface, TRepositoryClass>(this IServiceCollection services, Action<TableAggregateConfiguration<TAggregate>> configureOptions)
 	where TAggregate : notnull
 	where TAggregateId : notnull
-	where TRepositoryInterface : class, ITableRepository<TAggregate, TAggregateId>
-	where TRepositoryClass : class, TRepositoryInterface
+	where TRepositoryInterface : class
+	where TRepositoryClass : TableRepository<TAggregate, TAggregateId>, TRepositoryInterface
 	{
-		services.Configure(configureOptions);
-		services.AddSingleton<TRepositoryInterface, TRepositoryClass>();
+		_ = services.Configure(configureOptions);
+		_ = services.AddSingleton<TRepositoryInterface, TRepositoryClass>();
 		return services;
 	}
 
@@ -85,11 +85,11 @@ public static class DapperRepositoryDependencyInjection
 	public static IServiceCollection AddViewRepository<TAggregate, TAggregateId, TRepositoryInterface, TRepositoryClass>(this IServiceCollection services, Action<ViewAggregateConfiguration<TAggregate>> configureOptions)
 	where TAggregate : notnull
 	where TAggregateId : notnull
-	where TRepositoryInterface : class, IViewRepository<TAggregate, TAggregateId>
-	where TRepositoryClass : class, TRepositoryInterface
+	where TRepositoryInterface : class
+	where TRepositoryClass : ViewRepository<TAggregate, TAggregateId>, TRepositoryInterface
 	{
-		services.Configure(configureOptions);
-		services.AddSingleton<TRepositoryInterface, TRepositoryClass>();
+		_ = services.Configure(configureOptions);
+		_ = services.AddSingleton<TRepositoryInterface, TRepositoryClass>();
 		return services;
 	}
 
@@ -103,11 +103,11 @@ public static class DapperRepositoryDependencyInjection
 	/// <param name="configureOptions">Used to configure the repository via lambda</param>
 	public static IServiceCollection AddViewRepository<TAggregate, TRepositoryInterface, TRepositoryClass>(this IServiceCollection services, Action<ViewAggregateConfiguration<TAggregate>> configureOptions)
 	where TAggregate : notnull
-	where TRepositoryInterface : class, IViewRepository<TAggregate>
-	where TRepositoryClass : class, TRepositoryInterface
+	where TRepositoryInterface : class
+	where TRepositoryClass : ViewRepository<TAggregate>, TRepositoryInterface
 	{
-		services.Configure(configureOptions);
-		services.AddSingleton<TRepositoryInterface, TRepositoryClass>();
+		_ = services.Configure(configureOptions);
+		_ = services.AddSingleton<TRepositoryInterface, TRepositoryClass>();
 		return services;
 	}
 }

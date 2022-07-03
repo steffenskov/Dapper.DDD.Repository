@@ -215,8 +215,7 @@ services.AddTableRepository<User, int, IUserRepository, UserRepository>(options 
 From here on you can inject an `IUserRepository` anywhere with the built-in Dependency-Injection.
 
 ## Upcoming features
-- Improvements to AggregateConfiguration injection, as the current "explicit interface" approach is a bit annoying for when adding support for new databases.
-- Sample project showing how to use the library
 - Support for nested ValueObjects (currently only one level of ValueObjects is supported)
-- Support for properties without setter
 - Support for TypeConverters to support e.g. [StrongTypedId](https://github.com/steffenskov/StrongTypedId)
+- Improvements to AggregateConfiguration injection, as the current "explicit interface" approach is a bit annoying for when adding support for new databases.
+- MAYBE support for properties without setter
