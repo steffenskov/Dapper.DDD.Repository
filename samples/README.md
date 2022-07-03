@@ -1,6 +1,6 @@
 # Sample projects
 
-There's currently two projects here, one fully-fledged version using Domain-Driven Design, CQRS and Onion architecture as well as a simplified version.
+There are currently two projects here, one fully-fledged version using [Domain-Driven Design](https://en.wikipedia.org/wiki/Domain-driven_design), [CQRS](https://en.wikipedia.org/wiki/Command%E2%80%93query_separation) and [Onion architecture](https://en.everybodywiki.com/Onion_Architecture) as well as a simplified version.
 
 If you're not familiar with the concepts just mentioned I'd suggest starting with the simplified version.
 Do however note that the simplified version has pretty much zero architecture and really doesn't represent how you should structure your code. 
