@@ -11,7 +11,7 @@ env:
   MYSQL_PROJECT_PATH: 'src/Dapper.Repository.MySql/Dapper.Repository.MySql.csproj'
   SQL_PROJECT_PATH: 'src/Dapper.Repository.Sql/Dapper.Repository.Sql.csproj'
   SOLUTION_PATH: 'Dapper.Repository.sln'
-  PACKAGE_OUTPUT_DIRECTORY: ${{ github.workspace }}  /output
+  PACKAGE_OUTPUT_DIRECTORY: ${{ github.workspace }}/output
   NUGET_SOURCE_URL: 'https://api.nuget.org/v3/index.json'
 
 jobs:
