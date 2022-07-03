@@ -33,79 +33,45 @@ jobs:
         dotnet-version: 6.0.x
 
     - name: 'Restore packages'
-      run: dotnet restore ${{ env.PROJECT_PATH }}
+      run: dotnet restore ${{ env.SOLUTION_PATH }}
 
     - name: Test
       run: dotnet test ${{ env.SOLUTION_PATH }}
 
-  deploy_Repository:
+  deploy:
     needs: test
     runs-on: 'ubuntu-latest'
 
     steps:
+    - name: 'Checkout'
+      uses: actions/checkout@v2
+      
+    - name: 'Install dotnet'
+      uses: actions/setup-dotnet@v1
+      with:
+        dotnet-version: 6.0.x
+
+    - name: 'Restore packages'
+      run: dotnet restore ${{ env.SOLUTION_PATH }}
+    
     - name: 'Build project'
-      run: dotnet build ${{ env.PROJECT_PATH }} --no-restore --configuration Release
+      run: dotnet build ${{ env.SOLUTION_PATH }} --no-restore --configuration Release
       
     - name: 'Get version'
       id: version
       uses: battila7/get-version-action@v2
       
-    - name: 'Pack project'
+    - name: 'Pack Repository'
       run: dotnet pack ${{ env.PROJECT_PATH }} --no-restore --no-build --configuration Release --include-symbols -p:SymbolPackageFormat=snupkg -p:PackageVersion=${{ steps.version.outputs.version-without-v }} --output ${{ env.PACKAGE_OUTPUT_DIRECTORY }}
-      
-    - name: 'Push package'
-      run: dotnet nuget push ${{ env.PACKAGE_OUTPUT_DIRECTORY }}/*.nupkg -k ${{ secrets.NUGET_API_KEY }} -s ${{ env.NUGET_SOURCE_URL }}
 
-  deploy_DependencyInjection:
-    needs: test
-    runs-on: 'ubuntu-latest'
-
-    steps:
-    - name: 'Build project'
-      run: dotnet build ${{ env.DI_PROJECT_PATH }} --no-restore --configuration Release
-      
-    - name: 'Get version'
-      id: version
-      uses: battila7/get-version-action@v2
-      
-    - name: 'Pack project'
+    - name: 'Pack DependencyInjection'
       run: dotnet pack ${{ env.DI_PROJECT_PATH }} --no-restore --no-build --configuration Release --include-symbols -p:SymbolPackageFormat=snupkg -p:PackageVersion=${{ steps.version.outputs.version-without-v }} --output ${{ env.PACKAGE_OUTPUT_DIRECTORY }}
-      
-    - name: 'Push package'
-      run: dotnet nuget push ${{ env.PACKAGE_OUTPUT_DIRECTORY }}/*.nupkg -k ${{ secrets.NUGET_API_KEY }} -s ${{ env.NUGET_SOURCE_URL }}
 
-  deploy_MySql:
-    needs: test
-    runs-on: 'ubuntu-latest'
-
-    steps:
-    - name: 'Build project'
-      run: dotnet build ${{ env.MYSQL_PROJECT_PATH }} --no-restore --configuration Release
-      
-    - name: 'Get version'
-      id: version
-      uses: battila7/get-version-action@v2
-      
-    - name: 'Pack project'
+    - name: 'Pack MySql'
       run: dotnet pack ${{ env.MYSQL_PROJECT_PATH }} --no-restore --no-build --configuration Release --include-symbols -p:SymbolPackageFormat=snupkg -p:PackageVersion=${{ steps.version.outputs.version-without-v }} --output ${{ env.PACKAGE_OUTPUT_DIRECTORY }}
-      
-    - name: 'Push package'
-      run: dotnet nuget push ${{ env.PACKAGE_OUTPUT_DIRECTORY }}/*.nupkg -k ${{ secrets.NUGET_API_KEY }} -s ${{ env.NUGET_SOURCE_URL }}
 
-  deploy_Sql:
-    needs: test
-    runs-on: 'ubuntu-latest'
-
-    steps:
-    - name: 'Build project'
-      run: dotnet build ${{ env.SQL_PROJECT_PATH }} --no-restore --configuration Release
-      
-    - name: 'Get version'
-      id: version
-      uses: battila7/get-version-action@v2
-      
-    - name: 'Pack project'
+    - name: 'Pack Sql'
       run: dotnet pack ${{ env.SQL_PROJECT_PATH }} --no-restore --no-build --configuration Release --include-symbols -p:SymbolPackageFormat=snupkg -p:PackageVersion=${{ steps.version.outputs.version-without-v }} --output ${{ env.PACKAGE_OUTPUT_DIRECTORY }}
       
     - name: 'Push package'
-      run: dotnet nuget push ${{ env.PACKAGE_OUTPUT_DIRECTORY }}/*.nupkg -k ${{ secrets.NUGET_API_KEY }} -s ${{ env.NUGET_SOURCE_URL }}
+      run: dotnet nuget push ${{ env.PACKAGE_OUTPUT_DIRECTORY }}  /*.nupkg -k ${{ secrets.NUGET_API_KEY }} -s ${{ env.NUGET_SOURCE_URL }}
