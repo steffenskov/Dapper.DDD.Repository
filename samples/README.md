@@ -7,3 +7,5 @@ Do however note that the simplified version has pretty much zero architecture an
 It does however keep focus a bit more on the Dapper.Repository aspect of the solution.
 
 Both projects use the same database, the sql project for which can be found in the `Database` folder. Finally there's a [sql-pod](https://github.com/steffenskov/Dapper.Repository/tree/main/samples/Database/sql-pod) folder which contains a pod/docker image for SQL Server. To run either of the sample applications you want to spin up a pod/container first and publish the `WeatherService.Database` project to the SQL server. (If you've already have a SQL Server running locally, you can just publish to that instead of messing with pods/containers)
+
+The database needs to be named `WeatherService` for the connectionstring in the samples to work.
