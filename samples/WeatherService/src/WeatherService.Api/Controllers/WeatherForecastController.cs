@@ -1,4 +1,7 @@
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
+using WeatherService.Api.Models.WeatherForecast;
+using WeatherService.Domain.Commands.WeatherForecast;
+using WeatherService.Domain.Queries.WeatherForecast;
 
 namespace WeatherService.Api.Controllers;
 
@@ -6,27 +9,45 @@ namespace WeatherService.Api.Controllers;
 [Route("[controller]")]
 public class WeatherForecastController : ControllerBase
 {
-    private static readonly string[] Summaries = new[]
-    {
-        "Freezing", "Bracing", "Chilly", "Cool", "Mild", "Warm", "Balmy", "Hot", "Sweltering", "Scorching"
-    };
+	private readonly IMediator _mediator;
 
-    private readonly ILogger<WeatherForecastController> _logger;
+	public WeatherForecastController(IMediator mediator)
+	{
+		_mediator = mediator;
+	}
 
-    public WeatherForecastController(ILogger<WeatherForecastController> logger)
-    {
-        _logger = logger;
-    }
+	[HttpGet]
+	public async Task<ActionResult<IList<WeatherForecastViewModel>>> GetAllAsync(CancellationToken cancellationToken)
+	{
+		var query = new WeatherForecastGetLatestQuery();
 
-    [HttpGet(Name = "GetWeatherForecast")]
-    public IEnumerable<WeatherForecast> Get()
-    {
-        return Enumerable.Range(1, 5).Select(index => new WeatherForecast
-        {
-            Date = DateTime.Now.AddDays(index),
-            TemperatureC = Random.Shared.Next(-20, 55),
-            Summary = Summaries[Random.Shared.Next(Summaries.Length)]
-        })
-        .ToArray();
-    }
+		var result = await _mediator.Send(query, cancellationToken);
+
+		return result is not null
+				? result.Select(WeatherForecastViewModel.FromDomainModel).ToList()
+				: NotFound();
+	}
+
+	[HttpPost]
+	public async Task<ActionResult<WeatherForecastViewModel>> CreateAsync(WeatherForecastCreateModel model, CancellationToken cancellationToken)
+	{
+		var command = new WeatherForecastCreateCommand(model.WeatherStationId, model.TemperatureC, model.Summary);
+
+		var result = await _mediator.Send(command, cancellationToken);
+
+		return CreatedAtAction(nameof(GetAsync), WeatherForecastViewModel.FromDomainModel(result));
+	}
+
+	[HttpGet]
+	[Route("{id}")]
+	public async Task<ActionResult<WeatherForecastViewModel?>> GetAsync(long id, CancellationToken cancellationToken)
+	{
+		var query = new WeatherForecastGetSingleQuery(id);
+
+		var result = await _mediator.Send(query, cancellationToken);
+
+		return result is not null
+			? WeatherForecastViewModel.FromDomainModel(result)
+			: NotFound();
+	}
 }

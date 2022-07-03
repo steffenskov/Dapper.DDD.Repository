@@ -1,0 +1,10 @@
+version: '3.4'
+
+services:
+  sqlserver:
+    image: dapper-repo-sample-sql
+    container_name: 'dapper-repo-sample-sql'
+    build:
+      context: .
+    ports:
+      - 1433:1433

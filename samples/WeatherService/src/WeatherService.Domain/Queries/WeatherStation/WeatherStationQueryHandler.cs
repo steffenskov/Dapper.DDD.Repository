@@ -1,14 +1,30 @@
-﻿namespace WeatherService.Domain.Queries.WeatherStation;
+﻿using WeatherService.Domain.Repositories;
 
-internal class WeatherStationQueryHandler : IRequestHandler<WeatherStationNameInUseQuery, bool>
+namespace WeatherService.Domain.Queries.WeatherStation;
+
+internal class WeatherStationQueryHandler : IRequestHandler<WeatherStationNameInUseQuery, bool>,
+	IRequestHandler<WeatherStationGetAllQuery, IEnumerable<Aggregates.WeatherStation>>,
+	IRequestHandler<WeatherStationGetSingleQuery, Aggregates.WeatherStation?>
 {
-	public WeatherStationQueryHandler()
-	{
+	private readonly IWeatherStationRepository _repository;
 
+	public WeatherStationQueryHandler(IWeatherStationRepository repository)
+	{
+		_repository = repository;
 	}
 
-	public Task<bool> Handle(WeatherStationNameInUseQuery request, CancellationToken cancellationToken)
+	public async Task<bool> Handle(WeatherStationNameInUseQuery request, CancellationToken cancellationToken)
 	{
-		throw new NotImplementedException();
+		return await _repository.NameInUseAsync(request.Name, cancellationToken);
+	}
+
+	public async Task<IEnumerable<Aggregates.WeatherStation>> Handle(WeatherStationGetAllQuery request, CancellationToken cancellationToken)
+	{
+		return await _repository.GetAllAsync(cancellationToken);
+	}
+
+	public async Task<Aggregates.WeatherStation?> Handle(WeatherStationGetSingleQuery request, CancellationToken cancellationToken)
+	{
+		return await _repository.GetAsync(request.Id, cancellationToken);
 	}
 }

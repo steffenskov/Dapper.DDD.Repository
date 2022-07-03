@@ -1,14 +1,23 @@
-﻿namespace WeatherService.Domain.Commands.WeatherStation;
+﻿using WeatherService.Domain.Repositories;
+
+namespace WeatherService.Domain.Commands.WeatherStation;
 
 internal class WeatherStationCommandHandler : IRequestHandler<WeatherStationCreateCommand, Aggregates.WeatherStation>
 {
-	public WeatherStationCommandHandler()
-	{
+	private readonly IWeatherStationRepository _repository;
+	private readonly IMediator _mediator;
 
+	public WeatherStationCommandHandler(IWeatherStationRepository repository, IMediator mediator)
+	{
+		_repository = repository;
+		_mediator = mediator;
 	}
 
-	public Task<Aggregates.WeatherStation> Handle(WeatherStationCreateCommand request, CancellationToken cancellationToken)
+	public async Task<Aggregates.WeatherStation> Handle(WeatherStationCreateCommand request, CancellationToken cancellationToken)
 	{
-		throw new NotImplementedException();
+		var aggregate = new Aggregates.WeatherStation();
+
+		await aggregate.OnCreateCommandAsync(request, _mediator, cancellationToken);
+		return await _repository.InsertAsync(aggregate, cancellationToken);
 	}
 }

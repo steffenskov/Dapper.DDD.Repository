@@ -9,7 +9,7 @@ public class WeatherStation
 	public string Name { get; private set; } = default!;
 	public Address Address { get; private set; } = default!;
 
-	public async Task Create(WeatherStationCreateCommand command, IMediator mediator, CancellationToken cancellationToken)
+	public async Task OnCreateCommandAsync(WeatherStationCreateCommand command, IMediator mediator, CancellationToken cancellationToken)
 	{
 		await ValidateNameAsync(command.Name, mediator, cancellationToken); // In Domain Driven design we validate everything prior to setting properties to ensure an aggregate never enters a partially invalid state.
 
@@ -28,7 +28,7 @@ public class WeatherStation
 		}
 
 		var query = new WeatherStationNameInUseQuery(name);
-		var nameInUse = await mediator.Send(query);
+		var nameInUse = await mediator.Send(query, cancellationToken);
 		if (nameInUse)
 		{
 			throw new ArgumentException($@"The name ""{name}"" is already used.", nameof(name));

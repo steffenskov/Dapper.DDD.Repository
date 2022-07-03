@@ -11,6 +11,19 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WeatherService.Infrastructu
 EndProject
 Project("{00D1A9C2-B5F0-4AF3-8072-F6C62B433612}") = "WeatherService.Database", "src\WeatherService.Database\WeatherService.Database.sqlproj", "{E40A37D2-CE9C-4C20-8D68-6731F432D9D1}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Dapper.Repository", "Dapper.Repository", "{1F561874-AA44-4904-A285-F24FA01BC529}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Dapper.Repository", "..\..\src\Dapper.Repository\Dapper.Repository.csproj", "{01D17616-C668-416D-BB37-CD28E0751618}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Dapper.Repository.DependencyInjection", "..\..\src\Dapper.Repository.DependencyInjection\Dapper.Repository.DependencyInjection.csproj", "{919962C9-A92C-492F-A4C0-F981AED20523}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Dapper.Repository.Sql", "..\..\src\Dapper.Repository.Sql\Dapper.Repository.Sql.csproj", "{E115D193-5988-4F07-929D-B030BF589E63}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{D7DAC7A3-6A70-40CA-AC39-FD5E6B2A2109}"
+	ProjectSection(SolutionItems) = preProject
+		.editorconfig = .editorconfig
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -35,9 +48,26 @@ Global
 		{E40A37D2-CE9C-4C20-8D68-6731F432D9D1}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{E40A37D2-CE9C-4C20-8D68-6731F432D9D1}.Release|Any CPU.Build.0 = Release|Any CPU
 		{E40A37D2-CE9C-4C20-8D68-6731F432D9D1}.Release|Any CPU.Deploy.0 = Release|Any CPU
+		{01D17616-C668-416D-BB37-CD28E0751618}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{01D17616-C668-416D-BB37-CD28E0751618}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{01D17616-C668-416D-BB37-CD28E0751618}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{01D17616-C668-416D-BB37-CD28E0751618}.Release|Any CPU.Build.0 = Release|Any CPU
+		{919962C9-A92C-492F-A4C0-F981AED20523}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{919962C9-A92C-492F-A4C0-F981AED20523}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{919962C9-A92C-492F-A4C0-F981AED20523}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{919962C9-A92C-492F-A4C0-F981AED20523}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E115D193-5988-4F07-929D-B030BF589E63}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E115D193-5988-4F07-929D-B030BF589E63}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E115D193-5988-4F07-929D-B030BF589E63}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E115D193-5988-4F07-929D-B030BF589E63}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{01D17616-C668-416D-BB37-CD28E0751618} = {1F561874-AA44-4904-A285-F24FA01BC529}
+		{919962C9-A92C-492F-A4C0-F981AED20523} = {1F561874-AA44-4904-A285-F24FA01BC529}
+		{E115D193-5988-4F07-929D-B030BF589E63} = {1F561874-AA44-4904-A285-F24FA01BC529}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {2180CB7E-F15D-4697-9585-0931A522E164}
