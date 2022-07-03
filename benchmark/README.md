@@ -5,18 +5,17 @@ If you're curious you can run the benchmarks yourself by spinning up the SqlServ
 
 Here are my results, when run on an AMD Ryzen 3800X with 32GB of memory:
 
-|            Method |       Mean |    Error |    StdDev | Difference |
-|------------------ |-----------:|---------:|----------:|-----------:|
-|        Raw_GetAll | 1,298.5 us |  4.19 us |   3.50 us |            |
-| Repository_GetAll | 1,302.2 us |  6.09 us |   5.40 us |     0.30 % |
-|        Raw_Insert | 3,186.7 us | 58.80 us |  55.00 us |            |
-| Repository_Insert | 3,239.9 us | 57.80 us |  51.24 us |     1.66 % |
-|        Raw_Delete |   872.1 us |  8.56 us |   9.52 us |            |
-| Repository_Delete |   887.5 us | 17.68 us |  37.67 us |     1,72 % |
-|        Raw_Update |   829.0 us | 16.02 us |  18.45 us |            |
-| Repository_Update |   865.6 us |  9.98 us |   9.33 us |     4,34 % |
-
+|            Method |     Mean |     Error |    StdDev |   Median | Difference |
+|------------------ |---------:|----------:|----------:|---------:|-----------:|
+|        Raw_GetAll | 3.165 ms | 0.3776 ms | 1.1133 ms | 2.637 ms |            |
+| Repository_GetAll | 3.025 ms | 0.3645 ms | 1.0690 ms | 2.502 ms |    -4.42 % |
+|        Raw_Insert | 3.339 ms | 0.0636 ms | 0.0564 ms | 3.331 ms |            |
+| Repository_Insert | 3.350 ms | 0.0633 ms | 0.0592 ms | 3.359 ms |     0.33 % |
+|        Raw_Delete | 3.899 ms | 0.0772 ms | 0.2127 ms | 3.867 ms |            |
+| Repository_Delete | 3.679 ms | 0.0662 ms | 0.1177 ms | 3.655 ms |    -5.64 % |
+|        Raw_Update | 3.900 ms | 0.0610 ms | 0.0570 ms | 3.896 ms |            |
+| Repository_Update | 4.037 ms | 0.0787 ms | 0.2017 ms | 4.082 ms |     3.51 % |
 
 The GetAll is run for a 1,000 records.
 
-Also do note the numbers tend to change quite a bit from run to run, so take this with a grain of salt.
+As you can see this library is on occassions seemingly faster than raw Dapper. That seems somewhat implausible to me, so I'd put it down as within margin of error and call it a tie.
