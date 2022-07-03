@@ -81,7 +81,7 @@ jobs:
         dotnet-version: 6.0.x
 
     - name: 'Restore packages'
-      run: dotnet restore ${{ env.PROJECT_PATH }}
+      run: dotnet restore ${{ env.DI_PROJECT_PATH }}
     
     - name: 'Build project'
       run: dotnet build ${{ env.DI_PROJECT_PATH }} --no-restore --configuration Release
@@ -110,7 +110,7 @@ jobs:
         dotnet-version: 6.0.x
 
     - name: 'Restore packages'
-      run: dotnet restore ${{ env.PROJECT_PATH }}
+      run: dotnet restore ${{ env.MYSQL_PROJECT_PATH }}
     
     - name: 'Build project'
       run: dotnet build ${{ env.MYSQL_PROJECT_PATH }} --no-restore --configuration Release
@@ -139,7 +139,7 @@ jobs:
         dotnet-version: 6.0.x
 
     - name: 'Restore packages'
-      run: dotnet restore ${{ env.PROJECT_PATH }}
+      run: dotnet restore ${{ env.SQL_PROJECT_PATH }}
     
     - name: 'Build project'
       run: dotnet build ${{ env.SQL_PROJECT_PATH }} --no-restore --configuration Release
