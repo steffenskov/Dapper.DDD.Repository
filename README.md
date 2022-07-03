@@ -4,19 +4,9 @@ It uses a Fluent syntax for configuring your repositories through the built-in D
 
 Also it's somewhat inspired by [Domain-Driven Design](https://en.wikipedia.org/wiki/Domain-driven_design) and as such uses the word `Aggregate` rather than `Entity` as well as the term `ValueObject`. It also allows you to configure everything strictly outside your `Domain` layer, in order to keep the domain free from information about how your persistance works. This makes it easier to replace the persistance, should you ever want to do that.
 
-**NOTICE**: The current codebase is still very much "work-in-progress", as such these items are still not fully implemented, but are being worked on:
-- Cleaning up in general
-- Improvements to AggregateConfiguration injection, as the current "explicit interface" approach is a bit annoying for when adding support for new databases.
-- Sample project showing how to use the library
-- Support for deep nesting of ValueObjects (currently nested ValueObjects aren't supported)
-- Support for properties without setter
-- Support for StrongTypedId (and any other similar 3rd party types)
-
 ## Installation:
 
-~~I recommend using the NuGet package: https://www.nuget.org/packages/Dapper.Repository/ however you can also simply clone the repository and compile the project yourself.~~
-
-The package will be available on NuGet once version 1.0 is ready, until then feel free to clone the repo and play around with it from source.
+I recommend using the NuGet package: https://www.nuget.org/packages/Dapper.Repository/ however you can also simply clone the repository and compile the project yourself.
 
 As the project is licensed under MIT you're free to use it for pretty much anything you want.
 
@@ -223,3 +213,10 @@ services.AddTableRepository<User, int, IUserRepository, UserRepository>(options 
 ```
 
 From here on you can inject an `IUserRepository` anywhere with the built-in Dependency-Injection.
+
+## Upcoming features
+- Improvements to AggregateConfiguration injection, as the current "explicit interface" approach is a bit annoying for when adding support for new databases.
+- Sample project showing how to use the library
+- Support for nested ValueObjects (currently only one level of ValueObjects is supported)
+- Support for properties without setter
+- Support for TypeConverters to support e.g. [StrongTypedId](https://github.com/steffenskov/StrongTypedId)
