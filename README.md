@@ -14,7 +14,7 @@ You also need to install Dapper yourself, again I'd recommend NuGet: https://www
 
 As for versioning of Dapper, you're actually free to choose whichever you want, as this library isn't built targetting a specific version of Dapper. 
 Instead whatever Dapper version you prefer is injected into this extension library. This leaves you free to update Dapper without waiting for a new version of this library.
-The same goes for your database connection code, that too will be injected and you can run any version you like as long as it can provide an `IdbConnection`.
+The same goes for your database connection code, that too will be injected and you can run any version you like as long as it can provide an `IDbConnection`.
 
 If you're using Microsoft SQL Server you'll need to reference both the `Dapper.Repository` project as well as the `Dapper.Repository.Sql` project.
 Likewise for MySql you want `Dapper.Repository` and `Dapper.Repository.MySql`.
@@ -46,40 +46,40 @@ using Dapper.Repository.Interfaces;
 
 namespace YOUR_NAMESPACE_HERE;
 
-public class DapperInjection<T> : IDapperInjection<T>
+internal class DapperInjection<T> : IDapperInjection<T>
 where T : notnull
 {
-	public Task<int> ExecuteAsync(IdbConnection cnn, string sql, object? param = null, IdbTransaction? transaction = null, int? commandTimeout = null, CommandType? commandType = null, CancellationToken cancellationToken = default)
+	public Task<int> ExecuteAsync(IDbConnection cnn, string sql, object? param = null, IDbTransaction? transaction = null, int? commandTimeout = null, CommandType? commandType = null, CancellationToken cancellationToken = default)
 	{
 		return cnn.ExecuteAsync(new CommandDefinition(sql, param, transaction, commandTimeout, commandType, cancellationToken: cancellationToken));
 	}
 
-	public Task<IEnumerable<T>> QueryAsync(IdbConnection cnn, string sql, object? param = null, IdbTransaction? transaction = null, int? commandTimeout = null, CommandType? commandType = null, CancellationToken cancellationToken = default)
+	public Task<IEnumerable<T>> QueryAsync(IDbConnection cnn, string sql, object? param = null, IDbTransaction? transaction = null, int? commandTimeout = null, CommandType? commandType = null, CancellationToken cancellationToken = default)
 	{
 		return cnn.QueryAsync<T>(new CommandDefinition(sql, param, transaction, commandTimeout, commandType, cancellationToken: cancellationToken));
 	}
 
-	public Task<IEnumerable<object>> QueryAsync(IdbConnection cnn, Type type, string sql, object? param = null, IdbTransaction? transaction = null, int? commandTimeout = null, CommandType? commandType = null, CancellationToken cancellationToken = default)
+	public Task<IEnumerable<object>> QueryAsync(IDbConnection cnn, Type type, string sql, object? param = null, IDbTransaction? transaction = null, int? commandTimeout = null, CommandType? commandType = null, CancellationToken cancellationToken = default)
 	{
 		return cnn.QueryAsync(type, new CommandDefinition(sql, param, transaction, commandTimeout, commandType, cancellationToken: cancellationToken));
 	}
 
-	public Task<T> QuerySingleAsync(IdbConnection cnn, string sql, object? param = null, IdbTransaction? transaction = null, int? commandTimeout = null, CommandType? commandType = null, CancellationToken cancellationToken = default)
+	public Task<T> QuerySingleAsync(IDbConnection cnn, string sql, object? param = null, IDbTransaction? transaction = null, int? commandTimeout = null, CommandType? commandType = null, CancellationToken cancellationToken = default)
 	{
 		return cnn.QuerySingleAsync<T>(new CommandDefinition(sql, param, transaction, commandTimeout, commandType, cancellationToken: cancellationToken));
 	}
 
-	public Task<object> QuerySingleAsync(IdbConnection cnn, Type type, string sql, object? param = null, IdbTransaction? transaction = null, int? commandTimeout = null, CommandType? commandType = null, CancellationToken cancellationToken = default)
+	public Task<object> QuerySingleAsync(IDbConnection cnn, Type type, string sql, object? param = null, IDbTransaction? transaction = null, int? commandTimeout = null, CommandType? commandType = null, CancellationToken cancellationToken = default)
 	{
 		return cnn.QuerySingleAsync(type, new CommandDefinition(sql, param, transaction, commandTimeout, commandType, cancellationToken: cancellationToken));
 	}
 
-	public Task<T?> QuerySingleOrDefaultAsync(IdbConnection cnn, string sql, object? param = null, IdbTransaction? transaction = null, int? commandTimeout = null, CommandType? commandType = null, CancellationToken cancellationToken = default)
+	public Task<T?> QuerySingleOrDefaultAsync(IDbConnection cnn, string sql, object? param = null, IDbTransaction? transaction = null, int? commandTimeout = null, CommandType? commandType = null, CancellationToken cancellationToken = default)
 	{
 		return cnn.QuerySingleOrDefaultAsync<T?>(new CommandDefinition(sql, param, transaction, commandTimeout, commandType, cancellationToken: cancellationToken));
 	}
 
-	public Task<object?> QuerySingleOrDefaultAsync(IdbConnection cnn, Type type, string sql, object? param = null, IdbTransaction? transaction = null, int? commandTimeout = null, CommandType? commandType = null, CancellationToken cancellationToken = default)
+	public Task<object?> QuerySingleOrDefaultAsync(IDbConnection cnn, Type type, string sql, object? param = null, IDbTransaction? transaction = null, int? commandTimeout = null, CommandType? commandType = null, CancellationToken cancellationToken = default)
 	{
 		return cnn.QuerySingleOrDefaultAsync(type, new CommandDefinition(sql, param, transaction, commandTimeout, commandType, cancellationToken: cancellationToken));
 	}
@@ -91,7 +91,7 @@ using Dapper.Repository.Interfaces;
 
 namespace YOUR_NAMESPACE_HERE;
 
-public class DapperInjectionFactory : IDapperInjectionFactory
+internal class DapperInjectionFactory : IDapperInjectionFactory
 {
 	public IDapperInjection<T> Create<T>()
 	where T : notnull
@@ -108,7 +108,7 @@ using Microsoft.Data.SqlClient;
 
 namespace YOUR_NAMESPACE_HERE;
 
-public class SqlConnectionFactory : IConnectionFactory
+internal class SqlConnectionFactory : IConnectionFactory
 {
 	private readonly string _connectionString;
 
@@ -120,7 +120,7 @@ public class SqlConnectionFactory : IConnectionFactory
 		_connectionString = connectionString;
 	}
 
-	public IdbConnection CreateConnection()
+	public IDbConnection CreateConnection()
 	{
 		return new SqlConnection(_connectionString);
 	}
