@@ -2,7 +2,14 @@
 This is an extension library for the Dapper ORM, giving you simple-to-use repositories for all your database access code.
 It uses a Fluent syntax for configuring your repositories through the built-in Dependency Injection in .Net.
 
-Also it's somewhat inspired by [Domain-Driven Design](https://en.wikipedia.org/wiki/Domain-driven_design) and as such uses the word `Aggregate` rather than `Entity` as well as the term `ValueObject`. It also allows you to configure everything strictly outside your `Domain` layer, in order to keep the domain free from information about how your persistance works. This makes it easier to replace the persistance, should you ever want to do that.
+Also it's inspired by [Domain-Driven Design](https://en.wikipedia.org/wiki/Domain-driven_design) and as such uses the word `Aggregate` rather than `Entity` as well as the term `ValueObject`. It also allows you to configure everything strictly outside your `Domain` layer, in order to keep the domain free from information about how your persistance works. This makes it easier to replace the persistance, should you ever want to do that.
+
+# Features
+- FAST: When benchmarked against raw Dapper the CPU time difference is neglible. Feel free to run the benchmark project to see the numbers.
+- Domain-Driven Design friendly with Fluent configuration outside the domain layer.
+- Fully supports ValueObjects, and you can even infinitely nest them.
+- Built-in support for MS SqlServer and MySql / MariaDb, easy to extend with support for other databases.
+- Sample projects to help you get started.
 
 ## Installation:
 
