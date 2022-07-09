@@ -1,4 +1,5 @@
-﻿using System.Linq.Expressions;
+﻿using System.Collections.Concurrent;
+using System.Linq.Expressions;
 using Dapper.DDD.Repository.Reflection;
 
 namespace Dapper.DDD.Repository.Configuration;
@@ -6,6 +7,7 @@ namespace Dapper.DDD.Repository.Configuration;
 public abstract class BaseAggregateConfiguration<TAggregate> : IReadAggregateConfiguration<TAggregate>
 {
 	private ExtendedPropertyInfoCollection? _keyProperties;
+	private ConcurrentDictionary<Type, ITypeConverter> _typeConverters = new();
 	private readonly ExtendedPropertyInfoCollection _defaults = new();
 	private readonly ExtendedPropertyInfoCollection _identities = new();
 	private readonly ExtendedPropertyInfoCollection _ignores = new();
@@ -28,6 +30,7 @@ public abstract class BaseAggregateConfiguration<TAggregate> : IReadAggregateCon
 		QueryGeneratorFactory ??= defaults.QueryGeneratorFactory;
 		ConnectionFactory ??= defaults.ConnectionFactory;
 		DapperInjectionFactory ??= defaults.DapperInjectionFactory;
+		_typeConverters = defaults._typeConverters;
 	}
 
 	public void HasKey(Expression<Func<TAggregate, object>> expression)
@@ -79,7 +82,7 @@ public abstract class BaseAggregateConfiguration<TAggregate> : IReadAggregateCon
 
 		foreach (var ignore in _ignores)
 		{
-			rawList.Remove(ignore.Name);
+			_ = rawList.Remove(ignore.Name);
 		}
 
 		return new ExtendedPropertyInfoCollection(rawList.Values);
@@ -93,6 +96,6 @@ public abstract class BaseAggregateConfiguration<TAggregate> : IReadAggregateCon
 	IEnumerable<ExtendedPropertyInfo> IReadAggregateConfiguration<TAggregate>.GetValueObjects()
 	{
 		return TypePropertiesCache.GetProperties<TAggregate>()
-									.Where(prop => !prop.Type.IsSimpleOrBuiltIn());
+									.Where(prop => !prop.Type.IsSimpleOrBuiltIn() && !_typeConverters.ContainsKey(prop.Type));
 	}
 }

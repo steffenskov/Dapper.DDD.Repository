@@ -10,7 +10,9 @@ where TAggregateId : notnull
 	{
 		var readConfig = (IReadAggregateConfiguration<TAggregate>)configuration;
 		if (readConfig.GetKeys().Count == 0)
+		{
 			throw new ArgumentException("No key has been specified for this aggregate.", nameof(configuration));
+		}
 	}
 
 	public async Task<TAggregate?> GetAsync(TAggregateId id, CancellationToken cancellationToken = default)
@@ -43,16 +45,24 @@ where TAggregateId : notnull
 
 	private void AddWrappedValue(IDictionary<string, object?> dictionary, ExtendedPropertyInfo property, object? value)
 	{
-		if (!property.Type.IsSimpleOrBuiltIn())
+		if (value is null)
+		{
+			dictionary[property.Name] = value;
+		}
+		else if (property.Type.IsSimpleOrBuiltIn())
+		{
+			dictionary[property.Name] = value;
+		}
+		else if (_objectFlattener.TryGetTypeConverter(property.Type, out var converter))
+		{
+			dictionary[property.Name] = converter!.ConvertToSimple(value);
+		}
+		else
 		{
 			foreach (var propertyInfo in property.GetPropertiesOrdered())
 			{
 				dictionary.Add(propertyInfo.Name, value is not null ? propertyInfo.GetValue(value) : null);
 			}
-		}
-		else
-		{
-			dictionary[property.Name] = value;
 		}
 	}
 }
@@ -65,7 +75,8 @@ where TAggregate : notnull
 	private protected readonly IReadAggregateConfiguration<TAggregate> _configuration;
 	private readonly IConnectionFactory _connectionFactory;
 	private protected readonly IQueryGenerator<TAggregate> _queryGenerator;
-	private readonly bool _shouldFlattenAggregate = ObjectFlattener.ShouldFlattenType<TAggregate>();
+	private protected readonly ObjectFlattener _objectFlattener;
+	private readonly bool _shouldFlattenAggregate;
 
 	protected BaseRepository(BaseAggregateConfiguration<TAggregate> configuration, DefaultConfiguration? defaultConfiguration)
 	{
@@ -81,6 +92,17 @@ where TAggregate : notnull
 		_connectionFactory = configuration.ConnectionFactory!;
 		_queryGenerator = configuration.QueryGeneratorFactory.Create(configuration);
 		_configuration = configuration;
+
+		_objectFlattener = new ObjectFlattener();
+		if (defaultConfiguration is not null)
+		{
+			foreach (var typeConverter in defaultConfiguration._typeConverters)
+			{
+				_objectFlattener.AddTypeConverter(typeConverter.Key, typeConverter.Value);
+			}
+		}
+
+		_shouldFlattenAggregate = _objectFlattener.ShouldFlattenType<TAggregate>(); // Call this last to ensure all type converters are in place first
 	}
 
 	public async Task<IEnumerable<TAggregate>> GetAllAsync(CancellationToken cancellationToken = default)
@@ -95,13 +117,13 @@ where TAggregate : notnull
 		using var connection = _connectionFactory.CreateConnection();
 		if (_shouldFlattenAggregate)
 		{
-			var flatType = ObjectFlattener.GetFlattenedType<TAggregate>();
-			var result = await _dapperInjection.QueryAsync(connection, flatType, query, ObjectFlattener.Flatten(param), transaction, commandTimeout, commandType, cancellationToken);
-			return result.Select(ObjectFlattener.Unflatten<TAggregate>);
+			var flatType = _objectFlattener.GetFlattenedType<TAggregate>();
+			var result = await _dapperInjection.QueryAsync(connection, flatType, query, _objectFlattener.Flatten(param), transaction, commandTimeout, commandType, cancellationToken);
+			return result.Select(_objectFlattener.Unflatten<TAggregate>);
 		}
 		else
 		{
-			return await _dapperInjection.QueryAsync(connection, query, ObjectFlattener.Flatten(param), transaction, commandTimeout, commandType, cancellationToken);
+			return await _dapperInjection.QueryAsync(connection, query, _objectFlattener.Flatten(param), transaction, commandTimeout, commandType, cancellationToken);
 		}
 	}
 
@@ -110,13 +132,13 @@ where TAggregate : notnull
 		using var connection = _connectionFactory.CreateConnection();
 		if (_shouldFlattenAggregate)
 		{
-			var flatType = ObjectFlattener.GetFlattenedType<TAggregate>();
-			var result = await _dapperInjection.QuerySingleOrDefaultAsync(connection, flatType, query, ObjectFlattener.Flatten(param), transaction, commandTimeout, commandType, cancellationToken);
-			return result is not null ? ObjectFlattener.Unflatten<TAggregate>(result) : default;
+			var flatType = _objectFlattener.GetFlattenedType<TAggregate>();
+			var result = await _dapperInjection.QuerySingleOrDefaultAsync(connection, flatType, query, _objectFlattener.Flatten(param), transaction, commandTimeout, commandType, cancellationToken);
+			return result is not null ? _objectFlattener.Unflatten<TAggregate>(result) : default;
 		}
 		else
 		{
-			return await _dapperInjection.QuerySingleOrDefaultAsync(connection, query, ObjectFlattener.Flatten(param), transaction, commandTimeout, commandType, cancellationToken);
+			return await _dapperInjection.QuerySingleOrDefaultAsync(connection, query, _objectFlattener.Flatten(param), transaction, commandTimeout, commandType, cancellationToken);
 		}
 	}
 
@@ -125,13 +147,13 @@ where TAggregate : notnull
 		using var connection = _connectionFactory.CreateConnection();
 		if (_shouldFlattenAggregate)
 		{
-			var flatType = ObjectFlattener.GetFlattenedType<TAggregate>();
-			var result = await _dapperInjection.QuerySingleAsync(connection, flatType, query, ObjectFlattener.Flatten(param), transaction, commandTimeout, commandType, cancellationToken);
-			return ObjectFlattener.Unflatten<TAggregate>(result);
+			var flatType = _objectFlattener.GetFlattenedType<TAggregate>();
+			var result = await _dapperInjection.QuerySingleAsync(connection, flatType, query, _objectFlattener.Flatten(param), transaction, commandTimeout, commandType, cancellationToken);
+			return _objectFlattener.Unflatten<TAggregate>(result);
 		}
 		else
 		{
-			return await _dapperInjection.QuerySingleAsync(connection, query, ObjectFlattener.Flatten(param), transaction, commandTimeout, commandType, cancellationToken);
+			return await _dapperInjection.QuerySingleAsync(connection, query, _objectFlattener.Flatten(param), transaction, commandTimeout, commandType, cancellationToken);
 		}
 	}
 
@@ -140,16 +162,16 @@ where TAggregate : notnull
 	{
 		using var connection = _connectionFactory.CreateConnection();
 
-		if (ObjectFlattener.ShouldFlattenType<TResult>())
+		if (_objectFlattener.ShouldFlattenType<TResult>())
 		{
-			var flatType = ObjectFlattener.GetFlattenedType<TResult>();
-			var result = await _dapperInjection.QueryAsync(connection, flatType, query, ObjectFlattener.Flatten(param), transaction, commandTimeout, commandType, cancellationToken);
-			return result.Select(ObjectFlattener.Unflatten<TResult>);
+			var flatType = _objectFlattener.GetFlattenedType<TResult>();
+			var result = await _dapperInjection.QueryAsync(connection, flatType, query, _objectFlattener.Flatten(param), transaction, commandTimeout, commandType, cancellationToken);
+			return result.Select(_objectFlattener.Unflatten<TResult>);
 		}
 		else
 		{
 			var dapperInjection = _dapperInjectionFactory.Create<TResult>();
-			return await dapperInjection.QueryAsync(connection, query, ObjectFlattener.Flatten(param), transaction, commandTimeout, commandType, cancellationToken);
+			return await dapperInjection.QueryAsync(connection, query, _objectFlattener.Flatten(param), transaction, commandTimeout, commandType, cancellationToken);
 		}
 	}
 
@@ -157,16 +179,16 @@ where TAggregate : notnull
 	where TResult : notnull
 	{
 		using var connection = _connectionFactory.CreateConnection();
-		if (ObjectFlattener.ShouldFlattenType<TResult>())
+		if (_objectFlattener.ShouldFlattenType<TResult>())
 		{
-			var flatType = ObjectFlattener.GetFlattenedType<TResult>();
-			var result = await _dapperInjection.QuerySingleOrDefaultAsync(connection, flatType, query, ObjectFlattener.Flatten(param), transaction, commandTimeout, commandType, cancellationToken);
-			return result is not null ? ObjectFlattener.Unflatten<TResult>(result) : default;
+			var flatType = _objectFlattener.GetFlattenedType<TResult>();
+			var result = await _dapperInjection.QuerySingleOrDefaultAsync(connection, flatType, query, _objectFlattener.Flatten(param), transaction, commandTimeout, commandType, cancellationToken);
+			return result is not null ? _objectFlattener.Unflatten<TResult>(result) : default;
 		}
 		else
 		{
 			var dapperInjection = _dapperInjectionFactory.Create<TResult>();
-			return await dapperInjection.QuerySingleOrDefaultAsync(connection, query, ObjectFlattener.Flatten(param), transaction, commandTimeout, commandType, cancellationToken);
+			return await dapperInjection.QuerySingleOrDefaultAsync(connection, query, _objectFlattener.Flatten(param), transaction, commandTimeout, commandType, cancellationToken);
 		}
 	}
 
@@ -175,23 +197,23 @@ where TAggregate : notnull
 	{
 		using var connection = _connectionFactory.CreateConnection();
 
-		if (ObjectFlattener.ShouldFlattenType<TResult>())
+		if (_objectFlattener.ShouldFlattenType<TResult>())
 		{
-			var flatType = ObjectFlattener.GetFlattenedType<TResult>();
-			var result = await _dapperInjection.QuerySingleAsync(connection, flatType, query, ObjectFlattener.Flatten(param), transaction, commandTimeout, commandType, cancellationToken);
-			return ObjectFlattener.Unflatten<TResult>(result);
+			var flatType = _objectFlattener.GetFlattenedType<TResult>();
+			var result = await _dapperInjection.QuerySingleAsync(connection, flatType, query, _objectFlattener.Flatten(param), transaction, commandTimeout, commandType, cancellationToken);
+			return _objectFlattener.Unflatten<TResult>(result);
 		}
 		else
 		{
 			var dapperInjection = _dapperInjectionFactory.Create<TResult>();
-			return await dapperInjection.QuerySingleAsync(connection, query, ObjectFlattener.Flatten(param), transaction, commandTimeout, commandType, cancellationToken);
+			return await dapperInjection.QuerySingleAsync(connection, query, _objectFlattener.Flatten(param), transaction, commandTimeout, commandType, cancellationToken);
 		}
 	}
 
 	protected async Task<int> ExecuteAsync(string query, object? param = null, IDbTransaction? transaction = null, int? commandTimeout = null, CommandType? commandType = null, CancellationToken cancellationToken = default)
 	{
 		using var connection = _connectionFactory.CreateConnection();
-		return await _dapperInjection.ExecuteAsync(connection, query, ObjectFlattener.Flatten(param), transaction, commandTimeout, commandType, cancellationToken);
+		return await _dapperInjection.ExecuteAsync(connection, query, _objectFlattener.Flatten(param), transaction, commandTimeout, commandType, cancellationToken);
 	}
 	#endregion
 }
