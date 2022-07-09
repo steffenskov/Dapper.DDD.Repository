@@ -2,11 +2,11 @@
 public abstract class BaseSinglePrimaryKeyAsyncTests<TDbException>
 where TDbException : Exception
 {
-	private readonly ITableRepository<Category, int> _repository;
+	private readonly ITableRepository<Category, CategoryId> _repository;
 
 	protected BaseSinglePrimaryKeyAsyncTests(IServiceProvider serviceProvider)
 	{
-		_repository = serviceProvider.GetService<ITableRepository<Category, int>>()!;
+		_repository = serviceProvider.GetService<ITableRepository<Category, CategoryId>>()!;
 	}
 
 	#region Delete
@@ -15,7 +15,7 @@ where TDbException : Exception
 	public async Task Delete_UseMissingPrimaryKeyValue_ReturnsNull()
 	{
 		// Act
-		var deleted = await _repository.DeleteAsync(int.MaxValue);
+		var deleted = await _repository.DeleteAsync(new CategoryId(int.MaxValue));
 
 		// Assert
 		Assert.Null(deleted);
@@ -61,7 +61,7 @@ where TDbException : Exception
 	public async Task Get_UseMissingPrimaryKey_ReturnsNull()
 	{
 		// Act
-		var gotten = await _repository.GetAsync(int.MaxValue);
+		var gotten = await _repository.GetAsync(new CategoryId(int.MaxValue));
 
 		// Assert
 		Assert.Null(gotten);
@@ -94,7 +94,7 @@ where TDbException : Exception
 		// Arrange
 		var aggregate = new Category
 		{
-			CategoryID = 42,
+			CategoryID = new CategoryId(42),
 			Description = "Lorem ipsum, dolor sit amit",
 			CategoryName = "Lorem ipsum",
 			Picture = null
@@ -170,7 +170,7 @@ where TDbException : Exception
 		// Arrange
 		var aggregate = new Category
 		{
-			CategoryID = int.MaxValue,
+			CategoryID = new CategoryId(int.MaxValue),
 			Description = "Lorem ipsum, dolor sit amit",
 			CategoryName = "Hello world"
 		};

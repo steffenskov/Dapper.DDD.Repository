@@ -9,7 +9,7 @@ public class AutoDomainDataAttribute : AutoDataAttribute
 	  {
 		  var fixture = new Fixture();
 		  fixture.Customize<Category>(transform => transform
-													  .With(category => category.CategoryID, 0)
+													  .With(category => category.CategoryID, new CategoryId(0))
 													  .With(category => category.Picture, (byte[]?)null)
 													.With(category => category.CategoryName, Guid.NewGuid().ToString().Remove(15)));
 		  fixture.Customize<Customer>(transform => transform

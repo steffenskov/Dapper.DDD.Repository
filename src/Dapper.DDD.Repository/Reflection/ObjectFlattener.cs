@@ -11,6 +11,7 @@ internal static class ObjectFlattener
 {
 	private static readonly ConcurrentDictionary<Type, Type> _flatTypeMap = new();
 	private static readonly ConcurrentDictionary<Type, bool> _shouldFlattenTypeMap = new();
+	private static readonly ConcurrentDictionary<Type, Func<object, object>> _flatteningConverters = new();
 	private static readonly ModuleBuilder _moduleBuilder;
 
 	static ObjectFlattener()
@@ -20,6 +21,11 @@ internal static class ObjectFlattener
 
 		// The module name is usually the same as the assembly name.
 		_moduleBuilder = ab.DefineDynamicModule(aName.Name!);
+	}
+
+	public static void AddTypeConverter<TComplex, TFlat>(Func<TComplex, TFlat> convertToFlat, Func<TFlat, TComplex> convertToComplex)
+	{
+		_flatteningConverters.TryAdd(typeof(TComplex), (Func<object, object>)(Delegate)convertToFlat);
 	}
 
 	/// <summary>
@@ -151,6 +157,10 @@ internal static class ObjectFlattener
 	{
 		return _shouldFlattenTypeMap.GetOrAdd(type, t =>
 		{
+			if (_flatteningConverters.ContainsKey(type))
+			{
+				return true;
+			}
 			if (t.IsSimpleOrBuiltIn())
 			{
 				return false;
@@ -173,6 +183,10 @@ internal static class ObjectFlattener
 		foreach (var prop in TypePropertiesCache.GetProperties(aggregate.GetType()))
 		{
 			var propValue = prop.GetValue(aggregate);
+			if (_flatteningConverters.TryGetValue(prop.Type, out var converter) && propValue is not null)
+			{
+				propValue = converter(propValue);
+			}
 			if (prop.Type.IsSimpleOrBuiltIn())
 			{
 				destinationProperties[$"{prefix}{prop.Name}"].SetValue(flatResult, propValue);
