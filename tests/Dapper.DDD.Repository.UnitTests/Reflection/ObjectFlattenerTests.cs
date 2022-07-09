@@ -67,20 +67,7 @@ public class ObjectFlattenerTests
 	}
 
 	[Fact]
-	public void AddFlatteningTypeConverter_Exists_Throws()
-	{
-		// Arrange
-		var objectFlattener = new ObjectFlattener();
-		objectFlattener.AddTypeConverter(typeof(StrongUserId), new TypeConverter<StrongUserId, int>(uid => uid.PrimitiveId, uid => new StrongUserId(uid)));
-
-		// Act & Assert
-		var ex = Assert.Throws<InvalidOperationException>(() => objectFlattener.AddTypeConverter(typeof(StrongUserId), new TypeConverter<StrongUserId, int>(uid => uid.PrimitiveId, uid => new StrongUserId(uid))));
-
-		Assert.Equal($"A TypeConverter for the type {typeof(StrongUserId)} has already been added.", ex.Message);
-	}
-
-	[Fact]
-	public void AddUnflatteningTypeConverter_Exists_Throws()
+	public void AddTypeConverter_Exists_Throws()
 	{
 		// Arrange
 		var objectFlattener = new ObjectFlattener();
