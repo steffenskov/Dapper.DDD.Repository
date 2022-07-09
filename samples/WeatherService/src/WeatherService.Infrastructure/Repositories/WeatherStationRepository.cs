@@ -1,5 +1,5 @@
-﻿using Dapper.Repository.Configuration;
-using Dapper.Repository.Repositories;
+﻿using Dapper.DDD.Repository.Configuration;
+using Dapper.DDD.Repository.Repositories;
 using Microsoft.Extensions.Options;
 using WeatherService.Domain.Aggregates;
 using WeatherService.Domain.Repositories;

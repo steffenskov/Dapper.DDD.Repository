@@ -13,9 +13,9 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\..\..\src\Dapper.Repository.DependencyInjection\Dapper.Repository.DependencyInjection.csproj" />
-    <ProjectReference Include="..\..\..\..\src\Dapper.Repository.Sql\Dapper.Repository.Sql.csproj" />
-    <ProjectReference Include="..\..\..\..\src\Dapper.Repository\Dapper.Repository.csproj" />
+    <ProjectReference Include="..\..\..\..\src\Dapper.DDD.Repository.DependencyInjection\Dapper.DDD.Repository.DependencyInjection.csproj" />
+    <ProjectReference Include="..\..\..\..\src\Dapper.DDD.Repository.Sql\Dapper.DDD.Repository.Sql.csproj" />
+    <ProjectReference Include="..\..\..\..\src\Dapper.DDD.Repository\Dapper.DDD.Repository.csproj" />
     <ProjectReference Include="..\WeatherService.Domain\WeatherService.Domain.csproj" />
   </ItemGroup>
 

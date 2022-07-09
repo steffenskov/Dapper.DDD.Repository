@@ -6,11 +6,11 @@ on:
     - 'v*'
 
 env:
-  PROJECT_PATH: 'src/Dapper.Repository/Dapper.Repository.csproj'
-  DI_PROJECT_PATH: 'src/Dapper.Repository.DependencyInjection/Dapper.Repository.DependencyInjection.csproj'
-  MYSQL_PROJECT_PATH: 'src/Dapper.Repository.MySql/Dapper.Repository.MySql.csproj'
-  SQL_PROJECT_PATH: 'src/Dapper.Repository.Sql/Dapper.Repository.Sql.csproj'
-  SOLUTION_PATH: 'Dapper.Repository.sln'
+  PROJECT_PATH: 'src/Dapper.DDD.Repository/Dapper.DDD.Repository.csproj'
+  DI_PROJECT_PATH: 'src/Dapper.DDD.Repository.DependencyInjection/Dapper.DDD.Repository.DependencyInjection.csproj'
+  MYSQL_PROJECT_PATH: 'src/Dapper.DDD.Repository.MySql/Dapper.DDD.Repository.MySql.csproj'
+  SQL_PROJECT_PATH: 'src/Dapper.DDD.Repository.Sql/Dapper.DDD.Repository.Sql.csproj'
+  SOLUTION_PATH: 'Dapper.DDD.Repository.sln'
   PACKAGE_OUTPUT_DIRECTORY: ${{ github.workspace }}/output
   NUGET_SOURCE_URL: 'https://api.nuget.org/v3/index.json'
 

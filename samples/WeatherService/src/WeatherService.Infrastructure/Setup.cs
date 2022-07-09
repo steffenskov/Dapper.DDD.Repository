@@ -1,5 +1,5 @@
-﻿using Dapper.Repository.DependencyInjection;
-using Dapper.Repository.Sql;
+﻿using Dapper.DDD.Repository.DependencyInjection;
+using Dapper.DDD.Repository.Sql;
 using Microsoft.Extensions.DependencyInjection;
 using WeatherService.Domain.Aggregates;
 using WeatherService.Domain.Repositories;

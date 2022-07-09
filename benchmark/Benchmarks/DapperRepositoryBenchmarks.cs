@@ -3,8 +3,8 @@ using benchmark.Repositories;
 using benchmark.Requirements;
 using BenchmarkDotNet.Attributes;
 using Dapper;
-using Dapper.Repository.Configuration;
-using Dapper.Repository.Sql;
+using Dapper.DDD.Repository.Configuration;
+using Dapper.DDD.Repository.Sql;
 using Microsoft.Data.SqlClient;
 using Microsoft.Extensions.Options;
 

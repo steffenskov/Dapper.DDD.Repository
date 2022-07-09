@@ -1,5 +1,5 @@
 # Benchmark
-This is a small project to measure the CPU time consumed by `Dapper.Repository` CRUD methods compared to a "raw" Dapper implementation.
+This is a small project to measure the CPU time consumed by `Dapper.DDD.Repository` CRUD methods compared to a "raw" Dapper implementation.
 
 If you're curious you can run the benchmarks yourself by spinning up the SqlServer pod (either by using podman or docker - I use podman myself)
 

@@ -1,6 +1,6 @@
 ﻿using System.Data;
 using Dapper;
-using Dapper.Repository.Interfaces;
+using Dapper.DDD.Repository.Interfaces;
 
 namespace benchmark.Requirements;
 

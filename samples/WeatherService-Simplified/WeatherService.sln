@@ -10,13 +10,13 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		.editorconfig = .editorconfig
 	EndProjectSection
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Dapper.Repository", "Dapper.Repository", "{BB135B2B-491D-4F9B-9009-CC74EA89F22D}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Dapper.DDD.Repository", "Dapper.DDD.Repository", "{BB135B2B-491D-4F9B-9009-CC74EA89F22D}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Dapper.Repository", "..\..\src\Dapper.Repository\Dapper.Repository.csproj", "{2D455205-288A-4200-B374-36A6ADDB5C7D}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Dapper.DDD.Repository", "..\..\src\Dapper.DDD.Repository\Dapper.DDD.Repository.csproj", "{2D455205-288A-4200-B374-36A6ADDB5C7D}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Dapper.Repository.DependencyInjection", "..\..\src\Dapper.Repository.DependencyInjection\Dapper.Repository.DependencyInjection.csproj", "{EE922EC3-733A-4992-BBBD-70C0B1D64244}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Dapper.DDD.Repository.DependencyInjection", "..\..\src\Dapper.DDD.Repository.DependencyInjection\Dapper.DDD.Repository.DependencyInjection.csproj", "{EE922EC3-733A-4992-BBBD-70C0B1D64244}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Dapper.Repository.Sql", "..\..\src\Dapper.Repository.Sql\Dapper.Repository.Sql.csproj", "{68B44A33-081B-4DD8-A7D4-FAA21D3AD572}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Dapper.DDD.Repository.Sql", "..\..\src\Dapper.DDD.Repository.Sql\Dapper.DDD.Repository.Sql.csproj", "{68B44A33-081B-4DD8-A7D4-FAA21D3AD572}"
 EndProject
 Project("{00D1A9C2-B5F0-4AF3-8072-F6C62B433612}") = "WeatherService.Database", "..\Database\WeatherService.Database\WeatherService.Database.sqlproj", "{E40A37D2-CE9C-4C20-8D68-6731F432D9D1}"
 EndProject
