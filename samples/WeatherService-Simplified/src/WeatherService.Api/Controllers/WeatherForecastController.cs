@@ -1,4 +1,4 @@
-﻿using Dapper.Repository.Interfaces;
+﻿using Dapper.DDD.Repository.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 using WeatherService.Api.Models.WeatherForecast;
 using WeatherService.Model.Entities;

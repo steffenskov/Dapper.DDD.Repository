@@ -9,13 +9,13 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WeatherService.Domain", "sr
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WeatherService.Infrastructure", "src\WeatherService.Infrastructure\WeatherService.Infrastructure.csproj", "{F683B8CB-896D-4956-8759-2EF655EF14FF}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Dapper.Repository", "Dapper.Repository", "{1F561874-AA44-4904-A285-F24FA01BC529}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Dapper.DDD.Repository", "Dapper.DDD.Repository", "{1F561874-AA44-4904-A285-F24FA01BC529}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Dapper.Repository", "..\..\src\Dapper.Repository\Dapper.Repository.csproj", "{01D17616-C668-416D-BB37-CD28E0751618}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Dapper.DDD.Repository", "..\..\src\Dapper.DDD.Repository\Dapper.DDD.Repository.csproj", "{01D17616-C668-416D-BB37-CD28E0751618}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Dapper.Repository.DependencyInjection", "..\..\src\Dapper.Repository.DependencyInjection\Dapper.Repository.DependencyInjection.csproj", "{919962C9-A92C-492F-A4C0-F981AED20523}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Dapper.DDD.Repository.DependencyInjection", "..\..\src\Dapper.DDD.Repository.DependencyInjection\Dapper.DDD.Repository.DependencyInjection.csproj", "{919962C9-A92C-492F-A4C0-F981AED20523}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Dapper.Repository.Sql", "..\..\src\Dapper.Repository.Sql\Dapper.Repository.Sql.csproj", "{E115D193-5988-4F07-929D-B030BF589E63}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Dapper.DDD.Repository.Sql", "..\..\src\Dapper.DDD.Repository.Sql\Dapper.DDD.Repository.Sql.csproj", "{E115D193-5988-4F07-929D-B030BF589E63}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{D7DAC7A3-6A70-40CA-AC39-FD5E6B2A2109}"
 	ProjectSection(SolutionItems) = preProject

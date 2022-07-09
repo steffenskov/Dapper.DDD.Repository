@@ -3,8 +3,8 @@ name: "Continuous Integration"
 on: [push]
     
 env:
-  PROJECT_PATH: 'src/Dapper.Repository/Dapper.Repository.csproj'
-  SOLUTION_PATH: 'Dapper.Repository.sln'
+  PROJECT_PATH: 'src/Dapper.DDD.Repository/Dapper.DDD.Repository.csproj'
+  SOLUTION_PATH: 'Dapper.DDD.Repository.sln'
   PACKAGE_OUTPUT_DIRECTORY: ${{ github.workspace }}\output
   NUGET_SOURCE_URL: 'https://api.nuget.org/v3/index.json'
 

@@ -1,4 +1,4 @@
-﻿using Dapper.Repository.Interfaces;
+﻿using Dapper.DDD.Repository.Interfaces;
 
 namespace WeatherService.Infrastructure.Requirements;
 public class DapperInjectionFactory : IDapperInjectionFactory

@@ -11,7 +11,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\..\..\src\Dapper.Repository\Dapper.Repository.csproj" />
+    <ProjectReference Include="..\..\..\..\src\Dapper.DDD.Repository\Dapper.DDD.Repository.csproj" />
   </ItemGroup>
 
 </Project>

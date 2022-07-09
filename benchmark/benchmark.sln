@@ -5,9 +5,9 @@ VisualStudioVersion = 16.0.30114.105
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "benchmark", "benchmark.csproj", "{6B121E94-7A7C-43CF-B948-8DFE7821CD46}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Dapper.Repository", "..\src\Dapper.Repository\Dapper.Repository.csproj", "{0430A2D1-68EE-48E2-9CBE-93871CDD5794}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Dapper.DDD.Repository", "..\src\Dapper.DDD.Repository\Dapper.DDD.Repository.csproj", "{0430A2D1-68EE-48E2-9CBE-93871CDD5794}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Dapper.Repository.Sql", "..\src\Dapper.Repository.Sql\Dapper.Repository.Sql.csproj", "{2B3D3B74-BA6F-41B9-83B7-E14083645A22}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Dapper.DDD.Repository.Sql", "..\src\Dapper.DDD.Repository.Sql\Dapper.DDD.Repository.Sql.csproj", "{2B3D3B74-BA6F-41B9-83B7-E14083645A22}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

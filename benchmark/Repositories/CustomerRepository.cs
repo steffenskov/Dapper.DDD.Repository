@@ -1,7 +1,7 @@
 using benchmark.Aggregates;
-using Dapper.Repository.Configuration;
-using Dapper.Repository.Interfaces;
-using Dapper.Repository.Repositories;
+using Dapper.DDD.Repository.Configuration;
+using Dapper.DDD.Repository.Interfaces;
+using Dapper.DDD.Repository.Repositories;
 using Microsoft.Extensions.Options;
 
 namespace benchmark.Repositories;

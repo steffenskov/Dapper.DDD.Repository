@@ -1,4 +1,4 @@
-﻿using Dapper.Repository.Interfaces;
+﻿using Dapper.DDD.Repository.Interfaces;
 using WeatherService.Domain.Queries.WeatherForecast;
 
 namespace WeatherService.Domain.Commands.WeatherForecast;

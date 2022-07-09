@@ -1,5 +1,5 @@
 using System.Data;
-using Dapper.Repository.Interfaces;
+using Dapper.DDD.Repository.Interfaces;
 using Microsoft.Data.SqlClient;
 
 namespace benchmark.Requirements;

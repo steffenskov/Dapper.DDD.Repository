@@ -1,4 +1,4 @@
-# Dapper.Repository
+# Dapper.DDD.Repository
 This is an extension library for the Dapper ORM, giving you simple-to-use repositories for all your database access code.
 It uses a Fluent syntax for configuring your repositories through the built-in Dependency Injection in .Net.
 
@@ -6,7 +6,7 @@ Also it's somewhat inspired by [Domain-Driven Design](https://en.wikipedia.org/w
 
 ## Installation:
 
-I recommend using the NuGet package: https://www.nuget.org/packages/Dapper.Repository/ however you can also simply clone the repository and compile the project yourself.
+I recommend using the NuGet package: https://www.nuget.org/packages/Dapper.DDD.Repository/ however you can also simply clone the repository and compile the project yourself.
 
 As the project is licensed under MIT you're free to use it for pretty much anything you want.
 
@@ -16,10 +16,10 @@ As for versioning of Dapper, you're actually free to choose whichever you want, 
 Instead whatever Dapper version you prefer is injected into this extension library. This leaves you free to update Dapper without waiting for a new version of this library.
 The same goes for your database connection code, that too will be injected and you can run any version you like as long as it can provide an `IDbConnection`.
 
-If you're using Microsoft SQL Server you'll need to reference both the `Dapper.Repository` project as well as the `Dapper.Repository.Sql` project.
-Likewise for MySql you want `Dapper.Repository` and `Dapper.Repository.MySql`.
+If you're using Microsoft SQL Server you'll need to reference both the `Dapper.DDD.Repository` project as well as the `Dapper.DDD.Repository.Sql` project.
+Likewise for MySql you want `Dapper.DDD.Repository` and `Dapper.DDD.Repository.MySql`.
 
-Finally if you want to utilize the built-in Dependency Injection in the newer versions of .Net, you'll want the `Dapper.Repository.DependencyInjection` package too.
+Finally if you want to utilize the built-in Dependency Injection in the newer versions of .Net, you'll want the `Dapper.DDD.Repository.DependencyInjection` package too.
 
 ## Requirements:
 
@@ -42,7 +42,7 @@ So go ahead and create these 3 classes:
 ```
 using System.Data;
 using Dapper;
-using Dapper.Repository.Interfaces;
+using Dapper.DDD.Repository.Interfaces;
 
 namespace YOUR_NAMESPACE_HERE;
 
@@ -87,7 +87,7 @@ where T : notnull
 ```
 
 ```
-using Dapper.Repository.Interfaces;
+using Dapper.DDD.Repository.Interfaces;
 
 namespace YOUR_NAMESPACE_HERE;
 
@@ -103,7 +103,7 @@ internal class DapperInjectionFactory : IDapperInjectionFactory
 
 ```
 using System.Data;
-using Dapper.Repository.Interfaces;
+using Dapper.DDD.Repository.Interfaces;
 using Microsoft.Data.SqlClient;
 
 namespace YOUR_NAMESPACE_HERE;
