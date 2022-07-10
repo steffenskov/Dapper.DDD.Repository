@@ -1,8 +1,4 @@
 <Project Sdk="Microsoft.NET.Sdk">
-	<ItemGroup>
-		<ProjectReference Include="..\Dapper.DDD.Repository\Dapper.DDD.Repository.csproj" />
-	</ItemGroup>
-
  <PropertyGroup>
     <TargetFramework>net6.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
@@ -21,5 +17,9 @@
 
 	<ItemGroup>
     <None Include="../../README.md" Pack="true" PackagePath="\"/>
+  </ItemGroup>
+
+	<ItemGroup>
+    <PackageReference Include="Dapper.DDD.Repository" Version="1.0.1" />
   </ItemGroup>
 </Project>
