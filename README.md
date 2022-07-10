@@ -8,7 +8,7 @@ Also it's inspired by [Domain-Driven Design](https://en.wikipedia.org/wiki/Domai
 - FAST: When benchmarked against raw Dapper the CPU time difference is neglible. Feel free to run the benchmark project to see the numbers.
 - Domain-Driven Design friendly with Fluent configuration outside the domain layer using DependencyInjection.
 - Fully supports ValueObjects, and you can even infinitely nest them.
-- Built-in support for MS SqlServer and MySql / MariaDb, easy to extend with support for other databases.
+- Built-in support for MS SqlServer and MySql / MariaDB, easy to extend with support for other databases.
 - Built-in CRUD methods
 - Support for custom types via TypeConverters such as e.g. [StrongTypedId](https://github.com/steffenskov/StrongTypedId) (Which I also highly recommend using for Domain-Driven Design)
 - Sample projects to help you get started.

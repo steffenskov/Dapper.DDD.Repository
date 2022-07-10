@@ -8,18 +8,18 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
 		<TreatWarningsAsErrors>true</TreatWarningsAsErrors>
-		<Version>1.1.0</Version>
+		<Version>1.1.1</Version>
     <Authors>Steffen Skov</Authors>
     <Company>Steffen Skov</Company>
-    <Description>MySql and MariaDb support for the Dapper.DDD.Repository package.</Description>
+    <Description>MySql and MariaDB support for the Dapper.DDD.Repository package.</Description>
     <Copyright>Steffen Skov 2022</Copyright>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <PackageProjectUrl>https://github.com/steffenskov/Dapper.DDD.Repository</PackageProjectUrl>
-    <PackageTags>MySql, MariaDb, Dapper, DDD, Repository, ValueObject</PackageTags>
+    <PackageTags>MySql, MariaDB, Dapper, DDD, Repository, ValueObject</PackageTags>
 	  <PackageReadmeFile>README.md</PackageReadmeFile>
   </PropertyGroup>
 
 	<ItemGroup>
-    <None Include="../../README.md" Pack="true" PackagePath="\"/>
+    <None Include="README.md" Pack="true" PackagePath="\"/>
   </ItemGroup>
 </Project>

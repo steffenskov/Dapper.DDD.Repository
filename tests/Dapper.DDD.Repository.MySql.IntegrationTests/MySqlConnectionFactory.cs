@@ -1,5 +1,6 @@
 using System.Data;
 using Dapper.DDD.Repository.Interfaces;
+using MySql.Data.MySqlClient;
 
 namespace Dapper.DDD.Repository.MySql.IntegrationTests;
 

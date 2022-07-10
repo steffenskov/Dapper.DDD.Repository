@@ -32,7 +32,7 @@ public static class Setup
 			config.HasIdentity(weatherStation => weatherStation.Id);
 			config.TableName = "WeatherStations";
 		})
-		.AddViewRepository<WeatherForecastView, IWeatherForecastViewRepository, WeatherForecastViewRepository>(config => // Since one requires custom methods as well
+		.AddViewRepository<WeatherForecastView, IWeatherForecastViewRepository, WeatherForecastViewRepository>(config => // Since this one requires custom methods as well
 		{
 			config.ViewName = "WeatherForecastView";
 		});
