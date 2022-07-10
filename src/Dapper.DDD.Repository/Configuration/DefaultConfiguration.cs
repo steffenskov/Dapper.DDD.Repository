@@ -1,3 +1,6 @@
+﻿using System.Collections.Concurrent;
+using Dapper.DDD.Repository.Reflection;
+
 namespace Dapper.DDD.Repository.Configuration;
 
 public class DefaultConfiguration
@@ -6,4 +9,27 @@ public class DefaultConfiguration
 	public IQueryGeneratorFactory? QueryGeneratorFactory { get; set; }
 	public IConnectionFactory? ConnectionFactory { get; set; }
 	public IDapperInjectionFactory? DapperInjectionFactory { get; set; }
+
+	internal readonly ConcurrentDictionary<Type, ITypeConverter> _typeConverters = new();
+
+	public void AddTypeConverter<TComplex, TSimple>(Func<TComplex, TSimple> convertToSimple, Func<TSimple, TComplex> convertToComplex)
+		where TComplex : notnull
+		where TSimple : notnull
+	{
+		if (!_typeConverters.TryAdd(typeof(TComplex), new TypeConverter<TComplex, TSimple>(convertToSimple, convertToComplex)))
+		{
+			throw new InvalidOperationException($"A TypeConverter has already been added of this type: <{typeof(TComplex)},{typeof(TSimple)}>");
+		}
+	}
+
+
+	public void AddTypeConverter<TComplex, TSimple>((Func<TComplex, TSimple> convertToSimple, Func<TSimple, TComplex> convertToComplex) converters)
+		where TComplex : notnull
+		where TSimple : notnull
+	{
+		if (!_typeConverters.TryAdd(typeof(TComplex), new TypeConverter<TComplex, TSimple>(converters.convertToSimple, converters.convertToComplex)))
+		{
+			throw new InvalidOperationException($"A TypeConverter has already been added of this type: <{typeof(TComplex)},{typeof(TSimple)}>");
+		}
+	}
 }

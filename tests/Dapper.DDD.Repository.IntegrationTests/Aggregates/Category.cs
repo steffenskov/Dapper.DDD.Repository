@@ -1,14 +1,21 @@
-﻿
-namespace Dapper.DDD.Repository.IntegrationTests.Aggregates
+﻿using StrongTypedId;
+
+namespace Dapper.DDD.Repository.IntegrationTests.Aggregates;
+
+public class CategoryId : StrongTypedId<CategoryId, int>
 {
-	public record Category
+	public CategoryId(int primitiveId) : base(primitiveId)
 	{
-		public int CategoryID { get; init; }
-
-		public string CategoryName { get; init; } = default!;
-
-		public string? Description { get; init; }
-
-		public byte[]? Picture { get; init; }
 	}
+}
+
+public record Category
+{
+	public CategoryId CategoryID { get; init; } = default!;
+
+	public string CategoryName { get; init; } = default!;
+
+	public string? Description { get; init; }
+
+	public byte[]? Picture { get; init; }
 }

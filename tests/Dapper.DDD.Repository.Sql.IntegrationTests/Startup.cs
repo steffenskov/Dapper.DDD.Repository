@@ -8,38 +8,41 @@ public class Startup
 	public Startup()
 	{
 		var services = new ServiceCollection();
-		services.AddOptions();
-		services.ConfigureDapperRepositoryDefaults(options =>
+		_ = services.AddOptions();
+		_ = services.ConfigureDapperRepositoryDefaults(options =>
 		{
 			options.ConnectionFactory = new SqlConnectionFactory("Server=127.0.0.1;Database=Northwind;User Id=sa;Password=SqlServerPassword#&%¤2019;Encrypt=False;");
 			options.DapperInjectionFactory = new DapperInjectionFactory();
 			options.QueryGeneratorFactory = new SqlQueryGeneratorFactory();
 			options.Schema = "dbo";
+			options.AddTypeConverter<CategoryId, int>(categoryId => categoryId.PrimitiveId, CategoryId.Create);
+			options.AddTypeConverter<Zipcode, int>(zipcode => zipcode.PrimitiveId, Zipcode.Create);
+
 		});
-		services.AddTableRepository<Category, int>(options =>
+		_ = services.AddTableRepository<Category, CategoryId>(options =>
 		{
 			options.TableName = "Categories";
 			options.HasKey(x => x.CategoryID);
 			options.HasIdentity(x => x.CategoryID);
 		});
-		services.AddTableRepository<CompositeUser, CompositeUserId>(options =>
+		_ = services.AddTableRepository<CompositeUser, CompositeUserId>(options =>
 		{
 			options.TableName = "CompositeUsers";
 			options.HasKey(x => x.Id);
 			options.HasDefault(x => x.DateCreated);
 		});
 
-		services.AddViewRepository<ProductListView, int, IProductListViewRepository, ProductListViewRepository>(options =>
+		_ = services.AddViewRepository<ProductListView, int, IProductListViewRepository, ProductListViewRepository>(options =>
 		{
 			options.ViewName = "[Current Product List]";
 			options.HasKey(x => x.ProductID);
 		});
-		services.AddViewRepository<ProductListView>(options =>
+		_ = services.AddViewRepository<ProductListView>(options =>
 		{
 			options.ViewName = "[Current Product List]";
 		});
 
-		services.AddTableRepository<Customer, Guid, ICustomerRepository, CustomerRepository>(options =>
+		_ = services.AddTableRepository<Customer, Guid, ICustomerRepository, CustomerRepository>(options =>
 		{
 			options.TableName = "CustomersWithValueObject";
 			options.HasKey(x => x.Id);

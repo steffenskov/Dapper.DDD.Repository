@@ -9,6 +9,8 @@ Also it's inspired by [Domain-Driven Design](https://en.wikipedia.org/wiki/Domai
 - Domain-Driven Design friendly with Fluent configuration outside the domain layer using DependencyInjection.
 - Fully supports ValueObjects, and you can even infinitely nest them.
 - Built-in support for MS SqlServer and MySql / MariaDb, easy to extend with support for other databases.
+- Built-in CRUD methods
+- Support for custom types via TypeConverters such as e.g. [StrongTypedId](https://github.com/steffenskov/StrongTypedId) (Which I also highly recommend using for Domain-Driven Design)
 - Sample projects to help you get started.
 
 ## Installation:
@@ -172,6 +174,7 @@ And finally to configure the repository you'll want to configure the dependency 
 		options.DapperInjectionFactory = new DapperInjectionFactory();
 		options.QueryGeneratorFactory = new SqlQueryGeneratorFactory(); // Use MySqlQueryGeneratorFactory() if using MySql
 		options.Schema = "dbo"; // Default schema, don't use this for MySql as it doesn't have the concept of schemas that SQL Server does.
+		options.AddTypeConverter<CategoryId, int>(categoryId => categoryId.PrimitiveId, primitiveId => new CategoryId(primitiveId)); // Example based on [StrongTypedId](https://github.com/steffenskov/StrongTypedId)
 	});
 	services.AddTableRepository<User, int>(options => // The generic types are <TAggregate, TAggregateId>
 	{
@@ -222,6 +225,5 @@ services.AddTableRepository<User, int, IUserRepository, UserRepository>(options 
 From here on you can inject an `IUserRepository` anywhere with the built-in Dependency-Injection.
 
 ## Upcoming features
-- Support for TypeConverters to support e.g. [StrongTypedId](https://github.com/steffenskov/StrongTypedId)
 - Improvements to AggregateConfiguration injection, as the current "explicit interface" approach is a bit annoying for when adding support for new databases.
 - MAYBE support for properties without setter
