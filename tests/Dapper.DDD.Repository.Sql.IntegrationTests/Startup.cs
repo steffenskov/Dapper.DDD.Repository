@@ -15,7 +15,9 @@ public class Startup
 			options.DapperInjectionFactory = new DapperInjectionFactory();
 			options.QueryGeneratorFactory = new SqlQueryGeneratorFactory();
 			options.Schema = "dbo";
-			options.AddTypeConverter<CategoryId, int>(categoryId => categoryId.PrimitiveId, primitiveId => new CategoryId(primitiveId));
+			options.AddTypeConverter<CategoryId, int>(categoryId => categoryId.PrimitiveId, CategoryId.Create);
+			options.AddTypeConverter<Zipcode, int>(zipcode => zipcode.PrimitiveId, Zipcode.Create);
+
 		});
 		_ = services.AddTableRepository<Category, CategoryId>(options =>
 		{

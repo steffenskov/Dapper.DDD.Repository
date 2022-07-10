@@ -10,7 +10,7 @@ Also it's inspired by [Domain-Driven Design](https://en.wikipedia.org/wiki/Domai
 - Fully supports ValueObjects, and you can even infinitely nest them.
 - Built-in support for MS SqlServer and MySql / MariaDb, easy to extend with support for other databases.
 - Built-in CRUD methods
-- Support for custom Types via TypeConverters such as e.g. [StrongTypedId](https://github.com/steffenskov/StrongTypedId) (Which I highly recommend using for Domain-Driven Design)
+- Support for custom types via TypeConverters such as e.g. [StrongTypedId](https://github.com/steffenskov/StrongTypedId) (Which I also highly recommend using for Domain-Driven Design)
 - Sample projects to help you get started.
 
 ## Installation:

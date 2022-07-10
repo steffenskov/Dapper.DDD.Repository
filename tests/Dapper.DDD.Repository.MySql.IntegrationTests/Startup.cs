@@ -14,7 +14,8 @@ public class Startup
 			options.ConnectionFactory = new MySqlConnectionFactory("Server=localhost;Port=33060;Database=northwind;Uid=root;Pwd=mysql1337;AllowPublicKeyRetrieval=true;");
 			options.DapperInjectionFactory = new DapperInjectionFactory();
 			options.QueryGeneratorFactory = new MySqlQueryGeneratorFactory();
-			options.AddTypeConverter<CategoryId, int>(categoryId => categoryId.PrimitiveId, primitiveId => new CategoryId(primitiveId));
+			options.AddTypeConverter<CategoryId, int>(categoryId => categoryId.PrimitiveId, CategoryId.Create);
+			options.AddTypeConverter<Zipcode, int>(zipcode => zipcode.PrimitiveId, Zipcode.Create);
 		});
 		_ = services.AddTableRepository<Category, CategoryId>(options =>
 		{

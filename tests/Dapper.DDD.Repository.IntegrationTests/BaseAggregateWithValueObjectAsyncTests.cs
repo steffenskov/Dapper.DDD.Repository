@@ -53,7 +53,7 @@ where TDbException : Exception
 		Assert.Equal(insertedAggregate, gotten);
 		Assert.NotSame(insertedAggregate, gotten);
 
-		await _repository.DeleteAsync(insertedAggregate.Id);
+		_ = await _repository.DeleteAsync(insertedAggregate.Id);
 	}
 
 	[Fact]
@@ -72,7 +72,7 @@ where TDbException : Exception
 	public async Task GetAll_NoInput_Valid(Customer aggregate)
 	{
 		// Arrange
-		await _repository.InsertAsync(aggregate);
+		_ = await _repository.InsertAsync(aggregate);
 
 		// Act
 		var fetchedEntities = await _repository.GetAllAsync();
@@ -87,7 +87,7 @@ where TDbException : Exception
 	public async Task Insert_InputIsNull_Throws()
 	{
 		// Act && Assert
-		await Assert.ThrowsAsync<ArgumentNullException>(async () => await _repository.InsertAsync(null!));
+		_ = await Assert.ThrowsAsync<ArgumentNullException>(async () => await _repository.InsertAsync(null!));
 	}
 
 	[Theory, AutoDomainData]
@@ -103,7 +103,7 @@ where TDbException : Exception
 		}
 		finally
 		{
-			await _repository.DeleteAsync(insertedAggregate.Id);
+			_ = await _repository.DeleteAsync(insertedAggregate.Id);
 		}
 	}
 
@@ -114,7 +114,7 @@ where TDbException : Exception
 		aggregate = aggregate with { InvoiceAddress = aggregate.InvoiceAddress with { Street = null! } };
 
 		// Act && Assert
-		await Assert.ThrowsAsync<TDbException>(async () => await _repository.InsertAsync(aggregate));
+		_ = await Assert.ThrowsAsync<TDbException>(async () => await _repository.InsertAsync(aggregate));
 	}
 	#endregion
 
@@ -123,7 +123,7 @@ where TDbException : Exception
 	public async Task Update_InputIsNull_Throws()
 	{
 		// Act && Assert
-		await Assert.ThrowsAsync<ArgumentNullException>(async () => await _repository.UpdateAsync(null!));
+		_ = await Assert.ThrowsAsync<ArgumentNullException>(async () => await _repository.UpdateAsync(null!));
 	}
 
 	[Theory, AutoDomainData]
@@ -140,7 +140,7 @@ where TDbException : Exception
 		// Assert
 		Assert.Equal("Some new name", updatedAggregate?.Name);
 
-		await _repository.DeleteAsync(insertedAggregate.Id);
+		_ = await _repository.DeleteAsync(insertedAggregate.Id);
 	}
 
 	[Fact]
@@ -154,7 +154,7 @@ where TDbException : Exception
 			InvoiceAddress = new Address
 			{
 				Street = "Road",
-				Zipcode = 1200
+				Zipcode = new Zipcode(1200)
 			}
 		};
 

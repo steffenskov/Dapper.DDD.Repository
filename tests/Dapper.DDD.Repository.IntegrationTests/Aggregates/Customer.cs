@@ -1,4 +1,13 @@
-﻿namespace Dapper.DDD.Repository.IntegrationTests.Aggregates;
+﻿using StrongTypedId;
+
+namespace Dapper.DDD.Repository.IntegrationTests.Aggregates;
+
+public class Zipcode : StrongTypedId<Zipcode, int>
+{
+	public Zipcode(int primitiveId) : base(primitiveId)
+	{
+	}
+}
 
 public record Customer
 {
@@ -11,5 +20,5 @@ public record Customer
 public record Address
 {
 	public string Street { get; init; } = default!;
-	public int Zipcode { get; init; }
+	public Zipcode Zipcode { get; init; } = default!;
 }

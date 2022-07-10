@@ -21,4 +21,15 @@ public class DefaultConfiguration
 			throw new InvalidOperationException($"A TypeConverter has already been added of this type: <{typeof(TComplex)},{typeof(TSimple)}>");
 		}
 	}
+
+
+	public void AddTypeConverter<TComplex, TSimple>((Func<TComplex, TSimple> convertToSimple, Func<TSimple, TComplex> convertToComplex) converters)
+		where TComplex : notnull
+		where TSimple : notnull
+	{
+		if (!_typeConverters.TryAdd(typeof(TComplex), new TypeConverter<TComplex, TSimple>(converters.convertToSimple, converters.convertToComplex)))
+		{
+			throw new InvalidOperationException($"A TypeConverter has already been added of this type: <{typeof(TComplex)},{typeof(TSimple)}>");
+		}
+	}
 }
