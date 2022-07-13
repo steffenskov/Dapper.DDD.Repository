@@ -6,15 +6,13 @@ namespace Dapper.DDD.Repository.Reflection;
 internal class MemberAccessor
 {
 	#region Static
-	private static readonly Func<object, object?> NoGetter = obj => { throw new InvalidOperationException("No getter for property"); };
-	private static readonly Action<object, object?> NoSetter = (obj, val) => { throw new InvalidOperationException("No setter for property"); };
 
-	private static Func<object, object?> GetGetMethod(PropertyInfo property)
+	private static Func<object, object?>? GetGetMethod(PropertyInfo property)
 	{
 		var method = property.GetGetMethod(true);
 		if (method is null)
 		{
-			return NoGetter;
+			return null;
 		}
 		else
 		{
@@ -37,12 +35,12 @@ internal class MemberAccessor
 		}
 	}
 
-	private static Action<object, object?> GetSetMethod(PropertyInfo property)
+	private static Action<object, object?>? GetSetMethod(PropertyInfo property)
 	{
 		var method = property.GetSetMethod(true);
 		if (method is null)
 		{
-			return NoSetter;
+			return null;
 		}
 		else
 		{
@@ -71,11 +69,11 @@ internal class MemberAccessor
 	}
 	#endregion
 
-	internal readonly Func<object, object?> _getter;
-	internal readonly Action<object, object?> _setter;
+	private readonly Func<object, object?>? _getter;
+	private readonly Action<object, object?>? _setter;
 
-	public bool HasGetter => _getter != NoGetter;
-	public bool HasSetter => _setter != NoSetter;
+	public bool HasGetter => _getter != null;
+	public bool HasSetter => _setter != null;
 	public string Name { get; }
 
 	public MemberAccessor(PropertyInfo property)
@@ -97,11 +95,15 @@ internal class MemberAccessor
 
 	public object? GetValue(object target)
 	{
+		if (_getter is null)
+			throw new InvalidOperationException($"No getter for property: {Name}");
 		return _getter(target);
 	}
 
 	public void SetValue(object target, object? value)
 	{
+		if (_setter is null)
+			throw new InvalidOperationException($"No setter for property: {Name}");
 		_setter(target, value);
 	}
 }

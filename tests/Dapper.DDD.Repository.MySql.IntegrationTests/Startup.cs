@@ -44,6 +44,7 @@ public class Startup
 		{
 			options.TableName = "customers_with_value_object";
 			options.HasKey(x => x.Id);
+			options.Ignore(x => x.IdAndName);
 		});
 		Provider = services.BuildServiceProvider();
 	}
