@@ -12,6 +12,7 @@ internal class ObjectFlattener
 	private static readonly ConcurrentDictionary<Type, Type> _flatTypeMap = new();
 	private static readonly ConcurrentDictionary<Type, bool> _shouldFlattenTypeMap = new();
 	private readonly ConcurrentDictionary<Type, ITypeConverter> _typeConverters = new();
+	private static readonly ConcurrentDictionary<Type, IReadOnlyExtendedPropertyInfoCollection> _typeProperties = new();
 	private static readonly ModuleBuilder _moduleBuilder;
 
 	static ObjectFlattener()
@@ -21,6 +22,11 @@ internal class ObjectFlattener
 
 		// The module name is usually the same as the assembly name.
 		_moduleBuilder = ab.DefineDynamicModule(aName.Name!);
+	}
+
+	public static void SetTypeProperties(Type type, IReadOnlyExtendedPropertyInfoCollection properties)
+	{
+		_ = _typeProperties.TryAdd(type, properties); // Ignore if it already exists as it would be the same collection
 	}
 
 	public void AddTypeConverter(Type type, ITypeConverter converter)
@@ -109,8 +115,8 @@ internal class ObjectFlattener
 		where T : notnull
 	{
 		var result = TypeInstantiator.CreateInstance<T>();
-		var destinationProperties = TypePropertiesCache.GetProperties<T>();
-		var sourceProperties = TypePropertiesCache.GetProperties(flattenedObject.GetType());
+		var destinationProperties = GetProperties(typeof(T));
+		var sourceProperties = GetProperties(flattenedObject.GetType());
 		Dictionary<string, (object Value, IReadOnlyExtendedPropertyInfoCollection Properties)> paths = new();
 		foreach (var sourceProperty in sourceProperties)
 		{
@@ -142,7 +148,7 @@ internal class ObjectFlattener
 	private (object Value, IReadOnlyExtendedPropertyInfoCollection Properties) CopyValueToNestedDestination<T>(T result, string[] parts, object? sourceValue) where T : notnull
 	{
 		object destinationObject = result;
-		var destinationProperties = TypePropertiesCache.GetProperties(destinationObject.GetType());
+		var destinationProperties = GetProperties(destinationObject.GetType());
 		ExtendedPropertyInfo destinationProperty;
 		foreach (var part in parts[..^1]) // Ensure properties exist for everything up til the one to set the source property on
 		{
@@ -154,7 +160,7 @@ internal class ObjectFlattener
 				destinationProperty.SetValue(destinationObject, existingValue);
 			}
 			destinationObject = existingValue;
-			destinationProperties = TypePropertiesCache.GetProperties(destinationObject.GetType());
+			destinationProperties = GetProperties(destinationObject.GetType());
 		}
 
 		destinationProperty = destinationProperties[parts.Last()];
@@ -188,7 +194,7 @@ internal class ObjectFlattener
 				return false;
 			}
 
-			foreach (var prop in TypePropertiesCache.GetProperties(t))
+			foreach (var prop in GetProperties(t))
 			{
 				if (!prop.Type.IsSimpleOrBuiltIn())
 				{
@@ -201,8 +207,9 @@ internal class ObjectFlattener
 
 	private void CopyValuesToFlatResult(object aggregate, object flatResult, Type flatType, string prefix = "")
 	{
-		var destinationProperties = TypePropertiesCache.GetProperties(flatType);
-		foreach (var prop in TypePropertiesCache.GetProperties(aggregate.GetType()))
+		var destinationProperties = GetProperties(flatType);
+
+		foreach (var prop in GetProperties(aggregate.GetType()))
 		{
 			var propValue = prop.GetValue(aggregate);
 			var destinationPropType = prop.Type;
@@ -241,7 +248,9 @@ internal class ObjectFlattener
 
 	private void CreateProperties(Type type, TypeBuilder typeBuilder, string prefix = "")
 	{
-		foreach (var prop in TypePropertiesCache.GetProperties(type))
+		var properties = GetProperties(type);
+
+		foreach (var prop in properties)
 		{
 			if (prop.Type.IsSimpleOrBuiltIn())
 			{
@@ -298,5 +307,14 @@ internal class ObjectFlattener
 	private static string GenerateStrippedGuid()
 	{
 		return Guid.NewGuid().ToString().Replace("-", string.Empty);
+	}
+
+	private static IReadOnlyExtendedPropertyInfoCollection GetProperties(Type type)
+	{
+		if (!_typeProperties.TryGetValue(type, out var result))
+		{
+			result = TypePropertiesCache.GetProperties(type);
+		}
+		return result;
 	}
 }

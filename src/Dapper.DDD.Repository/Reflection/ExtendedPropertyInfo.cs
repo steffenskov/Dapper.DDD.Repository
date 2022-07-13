@@ -39,13 +39,13 @@ public class ExtendedPropertyInfo
 	public object? GetValue<T>(T aggregate)
 	where T : notnull
 	{
-		return _accessor._getter(aggregate);
+		return _accessor.GetValue(aggregate);
 	}
 
 	public void SetValue<T>(T aggregate, object? value)
 	where T : notnull
 	{
-		_accessor._setter(aggregate, value);
+		_accessor.SetValue(aggregate, value);
 	}
 
 	public IReadOnlyExtendedPropertyInfoCollection GetPropertiesOrdered()
