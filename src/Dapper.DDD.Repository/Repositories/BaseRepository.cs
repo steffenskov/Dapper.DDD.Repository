@@ -93,6 +93,8 @@ where TAggregate : notnull
 		_queryGenerator = configuration.QueryGeneratorFactory.Create(configuration);
 		_configuration = configuration;
 
+		ObjectFlattener.SetTypeProperties(typeof(TAggregate), ((IReadAggregateConfiguration<TAggregate>)configuration).GetProperties());
+
 		_objectFlattener = new ObjectFlattener();
 		if (defaultConfiguration is not null)
 		{

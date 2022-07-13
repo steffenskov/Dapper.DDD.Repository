@@ -12,6 +12,7 @@ internal class ObjectFlattener
 	private static readonly ConcurrentDictionary<Type, Type> _flatTypeMap = new();
 	private static readonly ConcurrentDictionary<Type, bool> _shouldFlattenTypeMap = new();
 	private readonly ConcurrentDictionary<Type, ITypeConverter> _typeConverters = new();
+	private static readonly ConcurrentDictionary<Type, IReadOnlyExtendedPropertyInfoCollection> _typeProperties = new();
 	private static readonly ModuleBuilder _moduleBuilder;
 
 	static ObjectFlattener()
@@ -21,6 +22,11 @@ internal class ObjectFlattener
 
 		// The module name is usually the same as the assembly name.
 		_moduleBuilder = ab.DefineDynamicModule(aName.Name!);
+	}
+
+	public static void SetTypeProperties(Type type, IReadOnlyExtendedPropertyInfoCollection properties)
+	{
+		_ = _typeProperties.TryAdd(type, properties); // Ignore if it already exists as it would be the same collection
 	}
 
 	public void AddTypeConverter(Type type, ITypeConverter converter)
@@ -241,7 +247,12 @@ internal class ObjectFlattener
 
 	private void CreateProperties(Type type, TypeBuilder typeBuilder, string prefix = "")
 	{
-		foreach (var prop in TypePropertiesCache.GetProperties(type))
+		if (!_typeProperties.TryGetValue(type, out var properties))
+		{
+			properties = TypePropertiesCache.GetProperties(type);
+		}
+
+		foreach (var prop in properties)
 		{
 			if (prop.Type.IsSimpleOrBuiltIn())
 			{
