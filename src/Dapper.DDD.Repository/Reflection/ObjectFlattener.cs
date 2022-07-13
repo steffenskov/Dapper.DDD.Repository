@@ -115,8 +115,8 @@ internal class ObjectFlattener
 		where T : notnull
 	{
 		var result = TypeInstantiator.CreateInstance<T>();
-		var destinationProperties = TypePropertiesCache.GetProperties<T>();
-		var sourceProperties = TypePropertiesCache.GetProperties(flattenedObject.GetType());
+		var destinationProperties = GetProperties(typeof(T));
+		var sourceProperties = GetProperties(flattenedObject.GetType());
 		Dictionary<string, (object Value, IReadOnlyExtendedPropertyInfoCollection Properties)> paths = new();
 		foreach (var sourceProperty in sourceProperties)
 		{
@@ -148,7 +148,7 @@ internal class ObjectFlattener
 	private (object Value, IReadOnlyExtendedPropertyInfoCollection Properties) CopyValueToNestedDestination<T>(T result, string[] parts, object? sourceValue) where T : notnull
 	{
 		object destinationObject = result;
-		var destinationProperties = TypePropertiesCache.GetProperties(destinationObject.GetType());
+		var destinationProperties = GetProperties(destinationObject.GetType());
 		ExtendedPropertyInfo destinationProperty;
 		foreach (var part in parts[..^1]) // Ensure properties exist for everything up til the one to set the source property on
 		{
@@ -160,7 +160,7 @@ internal class ObjectFlattener
 				destinationProperty.SetValue(destinationObject, existingValue);
 			}
 			destinationObject = existingValue;
-			destinationProperties = TypePropertiesCache.GetProperties(destinationObject.GetType());
+			destinationProperties = GetProperties(destinationObject.GetType());
 		}
 
 		destinationProperty = destinationProperties[parts.Last()];
@@ -194,7 +194,7 @@ internal class ObjectFlattener
 				return false;
 			}
 
-			foreach (var prop in TypePropertiesCache.GetProperties(t))
+			foreach (var prop in GetProperties(t))
 			{
 				if (!prop.Type.IsSimpleOrBuiltIn())
 				{
@@ -207,8 +207,9 @@ internal class ObjectFlattener
 
 	private void CopyValuesToFlatResult(object aggregate, object flatResult, Type flatType, string prefix = "")
 	{
-		var destinationProperties = TypePropertiesCache.GetProperties(flatType);
-		foreach (var prop in TypePropertiesCache.GetProperties(aggregate.GetType()))
+		var destinationProperties = GetProperties(flatType);
+
+		foreach (var prop in GetProperties(aggregate.GetType()))
 		{
 			var propValue = prop.GetValue(aggregate);
 			var destinationPropType = prop.Type;
@@ -247,10 +248,7 @@ internal class ObjectFlattener
 
 	private void CreateProperties(Type type, TypeBuilder typeBuilder, string prefix = "")
 	{
-		if (!_typeProperties.TryGetValue(type, out var properties))
-		{
-			properties = TypePropertiesCache.GetProperties(type);
-		}
+		var properties = GetProperties(type);
 
 		foreach (var prop in properties)
 		{
@@ -309,5 +307,14 @@ internal class ObjectFlattener
 	private static string GenerateStrippedGuid()
 	{
 		return Guid.NewGuid().ToString().Replace("-", string.Empty);
+	}
+
+	private static IReadOnlyExtendedPropertyInfoCollection GetProperties(Type type)
+	{
+		if (!_typeProperties.TryGetValue(type, out var result))
+		{
+			result = TypePropertiesCache.GetProperties(type);
+		}
+		return result;
 	}
 }
