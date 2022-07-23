@@ -9,8 +9,8 @@ namespace Dapper.DDD.Repository.Reflection;
 /// </summary>
 internal class ObjectFlattener
 {
-	private static readonly ConcurrentDictionary<Type, Type> _flatTypeMap = new();
-	private static readonly ConcurrentDictionary<Type, bool> _shouldFlattenTypeMap = new();
+	private static readonly LockedConcurrentDictionary<Type, Type> _flatTypeMap = new();
+	private static readonly LockedConcurrentDictionary<Type, bool> _shouldFlattenTypeMap = new();
 	private readonly ConcurrentDictionary<Type, ITypeConverter> _typeConverters = new();
 	private static readonly ConcurrentDictionary<Type, IReadOnlyExtendedPropertyInfoCollection> _typeProperties = new();
 	private static readonly ModuleBuilder _moduleBuilder;

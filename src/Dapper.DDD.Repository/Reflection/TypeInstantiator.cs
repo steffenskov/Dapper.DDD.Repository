@@ -5,7 +5,7 @@ using System.Reflection.Emit;
 namespace Dapper.DDD.Repository.Reflection;
 internal static class TypeInstantiator
 {
-	private static readonly ConcurrentDictionary<Type, Func<object>> _constructors = new();
+	private static readonly LockedConcurrentDictionary<Type, Func<object>> _constructors = new();
 
 	public static T CreateInstance<T>()
 	{

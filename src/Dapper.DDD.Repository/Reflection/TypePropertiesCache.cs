@@ -5,7 +5,7 @@ namespace Dapper.DDD.Repository.Reflection;
 
 public static class TypePropertiesCache // TODO: This really should be internal, how to deal with the QueryGenerators needing this?
 {
-	private static readonly ConcurrentDictionary<Type, IReadOnlyExtendedPropertyInfoCollection> _properties = new();
+	private static readonly LockedConcurrentDictionary<Type, IReadOnlyExtendedPropertyInfoCollection> _properties = new();
 
 	public static IReadOnlyExtendedPropertyInfoCollection GetProperties<T>()
 	{

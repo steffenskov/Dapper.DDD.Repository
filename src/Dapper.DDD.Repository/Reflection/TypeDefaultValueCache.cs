@@ -3,7 +3,7 @@ using System.Collections.Concurrent;
 namespace Dapper.DDD.Repository.Reflection;
 internal static class TypeDefaultValueCache
 {
-	private static readonly ConcurrentDictionary<Type, object?> _defaultValues = new();
+	private static readonly LockedConcurrentDictionary<Type, object?> _defaultValues = new();
 
 	public static object? GetDefaultValue(Type type)
 	{
