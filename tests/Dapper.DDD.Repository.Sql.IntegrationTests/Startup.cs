@@ -1,5 +1,7 @@
 ﻿using Dapper.DDD.Repository.DependencyInjection;
 using Dapper.DDD.Repository.IntegrationTests.Repositories;
+using NetTopologySuite.Geometries;
+using NetTopologySuite.IO;
 
 namespace Dapper.DDD.Repository.Sql.IntegrationTests;
 
@@ -17,6 +19,8 @@ public class Startup
 			options.Schema = "dbo";
 			options.AddTypeConverter<CategoryId, int>(categoryId => categoryId.PrimitiveId, CategoryId.Create);
 			options.AddTypeConverter<Zipcode, int>(zipcode => zipcode.PrimitiveId, Zipcode.Create);
+			options.AddTypeConverter<Point, byte[]>(geo => new SqlServerBytesWriter() { IsGeography = false }.Write(geo), bytes => (Point)new SqlServerBytesReader() { IsGeography = false }.Read(bytes));
+			options.AddTypeConverter<Polygon, byte[]>(geo => new SqlServerBytesWriter() { IsGeography = false }.Write(geo), bytes => (Polygon)new SqlServerBytesReader() { IsGeography = false }.Read(bytes));
 
 		});
 		_ = services.AddTableRepository<Category, CategoryId>(options =>
@@ -47,6 +51,11 @@ public class Startup
 			options.TableName = "CustomersWithValueObject";
 			options.HasKey(x => x.Id);
 			options.Ignore(x => x.IdAndName);
+		});
+		services.AddTableRepository<City, Guid>(options =>
+		{
+			options.TableName = "Cities";
+			options.HasKey(x => x.Id);
 		});
 		Provider = services.BuildServiceProvider();
 	}

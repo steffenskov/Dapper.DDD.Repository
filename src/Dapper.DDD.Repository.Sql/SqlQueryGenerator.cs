@@ -123,7 +123,11 @@ internal class SqlQueryGenerator<TAggregate> : IQueryGenerator<TAggregate>
 
 	private string GeneratePropertyClause(string tableName, ExtendedPropertyInfo property, string prefix = "")
 	{
-		return $"{tableName}.{AddSquareBrackets(prefix + property.Name)}";
+		var shouldSerialize = property.Type.Namespace == "NetTopologySuite.Geometries";
+		var result = $"{tableName}.{AddSquareBrackets(prefix + property.Name)}";
+		return shouldSerialize
+					? $"({result}).Serialize() as [{property.Name}]"
+					: result;
 	}
 
 	private string EnsureSquareBrackets(string name)
