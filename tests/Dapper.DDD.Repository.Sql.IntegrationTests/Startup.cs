@@ -15,7 +15,7 @@ public class Startup
 		{
 			options.ConnectionFactory = new SqlConnectionFactory("Server=127.0.0.1;Database=Northwind;User Id=sa;Password=SqlServerPassword#&%¤2019;Encrypt=False;");
 			options.DapperInjectionFactory = new DapperInjectionFactory();
-			options.QueryGeneratorFactory = new SqlQueryGeneratorFactory();
+			options.QueryGeneratorFactory = new SqlQueryGeneratorFactory().SerializeColumnType(type => type.Namespace == "NetTopologySuite.Geometries");
 			options.Schema = "dbo";
 			options.AddTypeConverter<CategoryId, int>(categoryId => categoryId.PrimitiveId, CategoryId.Create);
 			options.AddTypeConverter<Zipcode, int>(zipcode => zipcode.PrimitiveId, Zipcode.Create);

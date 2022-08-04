@@ -10,9 +10,11 @@ internal class SqlQueryGenerator<TAggregate> : IQueryGenerator<TAggregate>
 	private readonly IReadOnlyExtendedPropertyInfoCollection _identities;
 	private readonly IReadOnlyExtendedPropertyInfoCollection _keys;
 	private readonly IReadOnlyExtendedPropertyInfoCollection _defaultConstraints;
+	private readonly IList<Predicate<Type>> _serializeColumnTypePredicates;
 
-	public SqlQueryGenerator(BaseAggregateConfiguration<TAggregate> configuration)
+	public SqlQueryGenerator(BaseAggregateConfiguration<TAggregate> configuration, IList<Predicate<Type>>? serializeColumnTypePredicates = null)
 	{
+		_serializeColumnTypePredicates = serializeColumnTypePredicates ?? Array.Empty<Predicate<Type>>();
 		var readConfiguration = (IReadAggregateConfiguration<TAggregate>)configuration;
 		ArgumentNullException.ThrowIfNull(configuration.Schema);
 		ArgumentNullException.ThrowIfNull(readConfiguration.EntityName);
@@ -41,7 +43,6 @@ internal class SqlQueryGenerator<TAggregate> : IQueryGenerator<TAggregate>
 				keys.Remove(valueObject);
 				keys.AddRange(valueObject.GetPropertiesOrdered());
 			}
-
 		}
 		_properties = properties;
 		_identities = readConfiguration.GetIdentityProperties();
@@ -123,11 +124,16 @@ internal class SqlQueryGenerator<TAggregate> : IQueryGenerator<TAggregate>
 
 	private string GeneratePropertyClause(string tableName, ExtendedPropertyInfo property, string prefix = "")
 	{
-		var shouldSerialize = property.Type.Namespace == "NetTopologySuite.Geometries";
+		var shouldSerialize = ShouldSerializeColumnType(property.Type);
 		var result = $"{tableName}.{AddSquareBrackets(prefix + property.Name)}";
 		return shouldSerialize
 					? $"({result}).Serialize() as [{property.Name}]"
 					: result;
+	}
+
+	private bool ShouldSerializeColumnType(Type type)
+	{
+		return _serializeColumnTypePredicates.Any(predicate => predicate(type));
 	}
 
 	private string EnsureSquareBrackets(string name)
