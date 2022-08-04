@@ -1,9 +1,8 @@
 name: "Continuous Deployment"
 
-on: 
+on:
   push:
-    tags:
-    - 'v*'
+    branches: [ main ]
 
 env:
   PROJECT_PATH: 'src/Dapper.DDD.Repository/Dapper.DDD.Repository.csproj'
@@ -57,21 +56,45 @@ jobs:
     - name: 'Build project'
       run: dotnet build ${{ env.SOLUTION_PATH }} --no-restore --configuration Release
       
-    - name: 'Get version'
+    - name: 'Get repository version'
       id: version
-      uses: battila7/get-version-action@v2
+      uses: bbonkr/get-version-action@v1.0.4
+      with:
+        project: ${{ env.PROJECT_PATH }}
+
+    - name: 'Get DI version'
+      id: di_version
+      uses: bbonkr/get-version-action@v1.0.4
+      with:
+        project: ${{ env.DI_PROJECT_PATH }}
+
+    - name: 'Get MySql version'
+      id: mysql_version
+      uses: bbonkr/get-version-action@v1.0.4
+      with:
+        project: ${{ env.MYSQL_PROJECT_PATH }}
       
+    - name: 'Get Sql version'
+      id: sql_version
+      uses: bbonkr/get-version-action@v1.0.4
+      with:
+        project: ${{ env.SQL_PROJECT_PATH }}
+
     - name: 'Pack Repository'
-      run: dotnet pack ${{ env.PROJECT_PATH }} --no-restore --no-build --configuration Release --include-symbols -p:SymbolPackageFormat=snupkg -p:PackageVersion=${{ steps.version.outputs.version-without-v }} --output ${{ env.PACKAGE_OUTPUT_DIRECTORY }}
+      run: echo "Version=${{ steps.version.outputs.version }}"
+      #run: dotnet pack ${{ env.PROJECT_PATH }} --no-restore --no-build --configuration Release --include-symbols -p:SymbolPackageFormat=snupkg -p:PackageVersion=${{ steps.version.outputs.version }} --output ${{ env.PACKAGE_OUTPUT_DIRECTORY }}
 
     - name: 'Pack DependencyInjection'
-      run: dotnet pack ${{ env.DI_PROJECT_PATH }} --no-restore --no-build --configuration Release --include-symbols -p:SymbolPackageFormat=snupkg -p:PackageVersion=${{ steps.version.outputs.version-without-v }} --output ${{ env.PACKAGE_OUTPUT_DIRECTORY }}
+      run: echo "Version=${{ steps.di_version.outputs.version }}"
+      #run: dotnet pack ${{ env.DI_PROJECT_PATH }} --no-restore --no-build --configuration Release --include-symbols -p:SymbolPackageFormat=snupkg -p:PackageVersion=${{ steps.di_version.outputs.version }} --output ${{ env.PACKAGE_OUTPUT_DIRECTORY }}
 
     - name: 'Pack MySql'
-      run: dotnet pack ${{ env.MYSQL_PROJECT_PATH }} --no-restore --no-build --configuration Release --include-symbols -p:SymbolPackageFormat=snupkg -p:PackageVersion=${{ steps.version.outputs.version-without-v }} --output ${{ env.PACKAGE_OUTPUT_DIRECTORY }}
+      run: echo "Version=${{ steps.mysql_version.outputs.version }}"
+      #run: dotnet pack ${{ env.MYSQL_PROJECT_PATH }} --no-restore --no-build --configuration Release --include-symbols -p:SymbolPackageFormat=snupkg -p:PackageVersion=${{ steps.mysql_version.outputs.version }} --output ${{ env.PACKAGE_OUTPUT_DIRECTORY }}
 
     - name: 'Pack Sql'
-      run: dotnet pack ${{ env.SQL_PROJECT_PATH }} --no-restore --no-build --configuration Release --include-symbols -p:SymbolPackageFormat=snupkg -p:PackageVersion=${{ steps.version.outputs.version-without-v }} --output ${{ env.PACKAGE_OUTPUT_DIRECTORY }}
+      run: echo "Version=${{ steps.sql_version.outputs.version }}"
+      #run: dotnet pack ${{ env.SQL_PROJECT_PATH }} --no-restore --no-build --configuration Release --include-symbols -p:SymbolPackageFormat=snupkg -p:PackageVersion=${{ steps.sql_version.outputs.version }} --output ${{ env.PACKAGE_OUTPUT_DIRECTORY }}
       
-    - name: 'Push package'
-      run: dotnet nuget push ${{ env.PACKAGE_OUTPUT_DIRECTORY }}/*.nupkg -k ${{ secrets.NUGET_API_KEY }} -s ${{ env.NUGET_SOURCE_URL }}
+    #- name: 'Push package'
+     # run: dotnet nuget push ${{ env.PACKAGE_OUTPUT_DIRECTORY }}/*.nupkg -k ${{ secrets.NUGET_API_KEY }} -s ${{ env.NUGET_SOURCE_URL }}
