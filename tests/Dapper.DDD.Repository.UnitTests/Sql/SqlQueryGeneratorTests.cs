@@ -2,6 +2,7 @@
 using Dapper.DDD.Repository.Sql;
 using Dapper.DDD.Repository.UnitTests.Aggregates;
 using NetTopologySuite.Geometries;
+using NetTopologySuite.IO;
 
 namespace Dapper.DDD.Repository.UnitTests.Sql;
 public class QueryGeneratorTests
@@ -72,7 +73,7 @@ public class QueryGeneratorTests
 		var query = generator.GenerateDeleteQuery();
 
 		// Assert
-		Assert.Equal($"DELETE FROM [dbo].[Users] OUTPUT [deleted].[Id], ([deleted].[Area]).Serialize() AS [Area] WHERE [dbo].[Users].[Id] = @id;", query);
+		Assert.Equal($"DELETE FROM [dbo].[Users] OUTPUT [deleted].[Id], ([deleted].[Area]).Serialize() AS [Area] WHERE [dbo].[Users].[Id] = @Id;", query);
 	}
 
 	[Fact]
@@ -157,6 +158,19 @@ public class QueryGeneratorTests
 	}
 
 	[Fact]
+	public void GenerateGetAllQuery_HasSerializedType_Valid()
+	{
+		// Arrange
+		var generator = CreateAggregateWithGeometryQueryGenerator();
+
+		// Act
+		var query = generator.GenerateGetAllQuery();
+
+		// Assert
+		Assert.Equal($"SELECT [dbo].[Users].[Id], ([dbo].[Users].[Area]).Serialize() AS [Area] FROM [dbo].[Users];", query);
+	}
+
+	[Fact]
 	public void GenerateGetAllQuery_HasValueObject_Valid()
 	{
 		var generator = CreateUserAggregateQueryGenerator();
@@ -195,6 +209,19 @@ public class QueryGeneratorTests
 
 		// Assert
 		Assert.Equal($"SELECT [dbo].[Users].[Age], [dbo].[Users].[Id_Password], [dbo].[Users].[Id_Username] FROM [dbo].[Users] WHERE [dbo].[Users].[Id_Password] = @Id_Password AND [dbo].[Users].[Id_Username] = @Id_Username;", query);
+	}
+
+	[Fact]
+	public void GenerateGetQuery_HasSerializedType_Valid()
+	{
+		// Arrange
+		var generator = CreateAggregateWithGeometryQueryGenerator();
+
+		// Act
+		var query = generator.GenerateGetQuery();
+
+		// Assert
+		Assert.Equal($"SELECT [dbo].[Users].[Id], ([dbo].[Users].[Area]).Serialize() AS [Area] FROM [dbo].[Users] WHERE [dbo].[Users].[Id] = @Id;", query);
 	}
 
 	[Fact]
@@ -244,10 +271,23 @@ public class QueryGeneratorTests
 		var generator = CreateAggregateWithValueObjectIdQueryGenerator();
 
 		// Act
-		var query = generator.GenerateInsertQuery(new AggregateWithValueObjectId());
+		var query = generator.GenerateInsertQuery(new ());
 
 		// Assert
 		Assert.Equal($"INSERT INTO [dbo].[Users] ([Age], [Id_Password], [Id_Username]) OUTPUT [inserted].[Age], [inserted].[Id_Password], [inserted].[Id_Username] VALUES (@Age, @Id_Password, @Id_Username);", query);
+	}
+
+	[Fact]
+	public void GenerateInsertQuery_HasSerializedType_Valid()
+	{
+		// Arrange
+		var generator = CreateAggregateWithGeometryQueryGenerator();
+
+		// Act
+		var query = generator.GenerateInsertQuery(new ());
+
+		// Assert
+		Assert.Equal($"INSERT INTO [dbo].[Users] ([Id], [Area]) OUTPUT [inserted].[Id], ([inserted].[Area]).Serialize() AS [Area] VALUES (@Id, @Area);", query);
 	}
 
 	[Fact]
@@ -257,7 +297,7 @@ public class QueryGeneratorTests
 		var generator = CreateUserAggregateQueryGenerator();
 
 		// Act
-		var query = generator.GenerateInsertQuery(new UserAggregate());
+		var query = generator.GenerateInsertQuery(new ());
 
 		// Assert
 		Assert.Equal($"INSERT INTO [dbo].[Users] ([Id], [DeliveryAddress_City], [DeliveryAddress_Street], [InvoiceAddress_City], [InvoiceAddress_Street]) OUTPUT [inserted].[Id], [inserted].[DeliveryAddress_City], [inserted].[DeliveryAddress_Street], [inserted].[InvoiceAddress_City], [inserted].[InvoiceAddress_Street] VALUES (@Id, @DeliveryAddress_City, @DeliveryAddress_Street, @InvoiceAddress_City, @InvoiceAddress_Street);", query);
@@ -270,7 +310,7 @@ public class QueryGeneratorTests
 		var generator = CreateSinglePrimaryKeyAggregateWithCustomSchemaQueryGenerator();
 
 		// Act
-		var query = generator.GenerateInsertQuery(new SinglePrimaryKeyAggregate());
+		var query = generator.GenerateInsertQuery(new ());
 
 		// Assert
 		Assert.Equal("INSERT INTO [account].[Users] ([Username], [Password]) OUTPUT [inserted].[Id], [inserted].[Username], [inserted].[Password] VALUES (@Username, @Password);", query);
@@ -283,7 +323,7 @@ public class QueryGeneratorTests
 		var generator = CreateHasDefaultConstraintAggregateQueryGenerator();
 
 		// Actj
-		var query = generator.GenerateInsertQuery(new HasDefaultConstraintAggregate());
+		var query = generator.GenerateInsertQuery(new ());
 
 		// Assert
 		Assert.Equal("INSERT INTO [dbo].[Users] ([Id]) OUTPUT [inserted].[Id], [inserted].[DateCreated] VALUES (@Id);", query);
@@ -359,6 +399,19 @@ public class QueryGeneratorTests
 
 		// Assert
 		Assert.Equal($"UPDATE [dbo].[Users] SET [dbo].[Users].[Age] = @Age OUTPUT [inserted].[Age], [inserted].[Id_Password], [inserted].[Id_Username] WHERE [dbo].[Users].[Id_Password] = @Id_Password AND [dbo].[Users].[Id_Username] = @Id_Username;", query);
+	}
+
+	[Fact]
+	public void GenerateUpdateQuery_HasSerializedType_Valid()
+	{
+		// Arrange
+		var generator = CreateAggregateWithGeometryQueryGenerator();
+
+		// Act
+		var query = generator.GenerateUpdateQuery(new());
+
+		// Assert
+		Assert.Equal($"UPDATE [dbo].[Users] SET [dbo].[Users].[Area] = @Area OUTPUT [inserted].[Id], ([inserted].[Area]).Serialize() AS [Area] WHERE [dbo].[Users].[Id] = @Id;", query);
 	}
 
 	[Fact]
@@ -515,12 +568,15 @@ public class QueryGeneratorTests
 
 	private static SqlQueryGenerator<AggregateWithGeometry> CreateAggregateWithGeometryQueryGenerator()
 	{
+		var defaultConfig = new DefaultConfiguration();
+		defaultConfig.AddTypeConverter<Polygon, byte[]>(geo => new SqlServerBytesWriter() { IsGeography = false }.Write(geo), bytes => (Polygon)new SqlServerBytesReader() { IsGeography = false }.Read(bytes));
 		var config = new TableAggregateConfiguration<AggregateWithGeometry>()
 		{
 			Schema = "dbo",
 			TableName = "Users"
 		};
 		config.HasKey(x => x.Id);
+		config.SetDefaults(defaultConfig);
 		Predicate<Type> polygonPredicate = (Type type) => type == typeof(Polygon);
 		var generator = new SqlQueryGenerator<AggregateWithGeometry>(config, new[] { polygonPredicate });
 		return generator;

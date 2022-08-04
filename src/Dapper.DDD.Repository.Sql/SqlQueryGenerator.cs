@@ -127,7 +127,7 @@ internal class SqlQueryGenerator<TAggregate> : IQueryGenerator<TAggregate>
 		var shouldSerialize = ShouldSerializeColumnType(property.Type);
 		var result = $"{tableName}.{AddSquareBrackets(prefix + property.Name)}";
 		return shouldSerialize
-					? $"({result}).Serialize() as [{property.Name}]"
+					? $"({result}).Serialize() AS [{property.Name}]"
 					: result;
 	}
 
