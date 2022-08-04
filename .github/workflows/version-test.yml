@@ -147,7 +147,7 @@ jobs:
       id: version
       uses: bbonkr/get-version-action@v1.0.4
       with:
-        project: ${{ env.MYSQL_PROJECT_PATH }}
+        project: ${{ env.SQL_PROJECT_PATH }}
 
     - name: 'Pack Sql'
       run: echo "Version=${{ steps.version.outputs.version }}"
