@@ -14,6 +14,28 @@ public class SerializedColumnTests : IClassFixture<Startup>
 	}
 
 	[Fact]
+	public async Task Delete_Valid_GeometryIsIncludedInReturnValue()
+	{
+		// Arrange
+		var city = new City
+		{
+			Id = Guid.NewGuid(),
+			GeoLocation = Point.DefaultFactory.CreatePoint(new Coordinate(42, 1337)),
+			Area = Polygon.DefaultFactory.CreatePolygon(new Coordinate[] { new(1, 1), new(1, 2), new(2, 2), new(2, 1), new(1, 1) })
+		};
+		city.GeoLocation.SRID = 25832;
+		city.Area.SRID = 25832;
+
+		await _repository.InsertAsync(city);
+
+		// Act
+		var result = await _repository.DeleteAsync(city.Id);
+
+		// Assert
+		Assert.Equal(city, result);
+	}
+
+	[Fact]
 	public async Task Insert_Valid_GeometryIsIncludedInReturnValue()
 	{
 		// Arrange
