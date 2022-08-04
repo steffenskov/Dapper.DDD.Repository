@@ -1,0 +1,157 @@
+name: "Continuous Deployment"
+
+on:
+  push:
+    branches: [ main ]
+
+env:
+  PROJECT_PATH: 'src/Dapper.DDD.Repository/Dapper.DDD.Repository.csproj'
+  DI_PROJECT_PATH: 'src/Dapper.DDD.Repository.DependencyInjection/Dapper.DDD.Repository.DependencyInjection.csproj'
+  MYSQL_PROJECT_PATH: 'src/Dapper.DDD.Repository.MySql/Dapper.DDD.Repository.MySql.csproj'
+  SQL_PROJECT_PATH: 'src/Dapper.DDD.Repository.Sql/Dapper.DDD.Repository.Sql.csproj'
+  SOLUTION_PATH: 'Dapper.DDD.Repository.sln'
+  PACKAGE_OUTPUT_DIRECTORY: ${{ github.workspace }}/output
+  NUGET_SOURCE_URL: 'https://api.nuget.org/v3/index.json'
+
+jobs:
+  test:
+    name: 'test'
+    runs-on: 'ubuntu-latest'
+        
+    steps:
+    - name: 'Checkout'
+      uses: actions/checkout@v2
+      
+    - name: 'Docker compose'
+      working-directory: 'Pods'
+      run: docker-compose up -d --build
+
+    - name: 'Install dotnet'
+      uses: actions/setup-dotnet@v1
+      with:
+        dotnet-version: 6.0.x
+
+    - name: 'Restore packages'
+      run: dotnet restore ${{ env.SOLUTION_PATH }}
+
+    - name: Test
+      run: dotnet test ${{ env.SOLUTION_PATH }}
+
+  deploy-main:
+    needs: test
+    runs-on: 'ubuntu-latest'
+
+    steps:
+    - name: 'Checkout'
+      uses: actions/checkout@v2
+      
+    - name: 'Install dotnet'
+      uses: actions/setup-dotnet@v1
+      with:
+        dotnet-version: 6.0.x
+
+    - name: 'Restore packages'
+      run: dotnet restore ${{ env.SOLUTION_PATH }}
+    
+    - name: 'Build project'
+      run: dotnet build ${{ env.SOLUTION_PATH }} --no-restore --configuration Release
+      
+    - name: 'Get version'
+      id: version
+      uses: bbonkr/get-version-action@v1.0.4
+      with:
+        project: ${{ env.PROJECT_PATH }}
+      
+    - name: 'Pack Repository'
+      run: echo "Version=${{ steps.version.outputs.version }}"
+      #run: dotnet pack ${{ env.PROJECT_PATH }} --no-restore --no-build --configuration Release --include-symbols -p:SymbolPackageFormat=snupkg -p:PackageVersion=${{ steps.version.outputs.version }} --output ${{ env.PACKAGE_OUTPUT_DIRECTORY }}
+
+  deploy-di:
+    needs: test
+    runs-on: 'ubuntu-latest'
+
+    steps:
+    - name: 'Checkout'
+      uses: actions/checkout@v2
+      
+    - name: 'Install dotnet'
+      uses: actions/setup-dotnet@v1
+      with:
+        dotnet-version: 6.0.x
+
+    - name: 'Restore packages'
+      run: dotnet restore ${{ env.SOLUTION_PATH }}
+    
+    - name: 'Build project'
+      run: dotnet build ${{ env.SOLUTION_PATH }} --no-restore --configuration Release
+      
+    - name: 'Get version'
+      id: version
+      uses: bbonkr/get-version-action@v1.0.4
+      with:
+        project: ${{ env.DI_PROJECT_PATH }}
+
+    - name: 'Pack DependencyInjection'
+      run: echo "Version=${{ steps.version.outputs.version }}"
+      #run: dotnet pack ${{ env.DI_PROJECT_PATH }} --no-restore --no-build --configuration Release --include-symbols -p:SymbolPackageFormat=snupkg -p:PackageVersion=${{ steps.version.outputs.version }} --output ${{ env.PACKAGE_OUTPUT_DIRECTORY }}
+
+  deploy-mysql:
+    needs: test
+    runs-on: 'ubuntu-latest'
+
+    steps:
+    - name: 'Checkout'
+      uses: actions/checkout@v2
+      
+    - name: 'Install dotnet'
+      uses: actions/setup-dotnet@v1
+      with:
+        dotnet-version: 6.0.x
+
+    - name: 'Restore packages'
+      run: dotnet restore ${{ env.SOLUTION_PATH }}
+    
+    - name: 'Build project'
+      run: dotnet build ${{ env.SOLUTION_PATH }} --no-restore --configuration Release
+      
+    - name: 'Get version'
+      id: version
+      uses: bbonkr/get-version-action@v1.0.4
+      with:
+        project: ${{ env.MYSQL_PROJECT_PATH }}
+
+    - name: 'Pack MySql'
+      run: echo "Version=${{ steps.version.outputs.version }}"
+      #run: dotnet pack ${{ env.MYSQL_PROJECT_PATH }} --no-restore --no-build --configuration Release --include-symbols -p:SymbolPackageFormat=snupkg -p:PackageVersion=${{ steps.version.outputs.version }} --output ${{ env.PACKAGE_OUTPUT_DIRECTORY }}
+
+  deploy-sql:
+    needs: test
+    runs-on: 'ubuntu-latest'
+
+    steps:
+    - name: 'Checkout'
+      uses: actions/checkout@v2
+      
+    - name: 'Install dotnet'
+      uses: actions/setup-dotnet@v1
+      with:
+        dotnet-version: 6.0.x
+
+    - name: 'Restore packages'
+      run: dotnet restore ${{ env.SOLUTION_PATH }}
+    
+    - name: 'Build project'
+      run: dotnet build ${{ env.SOLUTION_PATH }} --no-restore --configuration Release
+      
+    - name: 'Get version'
+      id: version
+      uses: bbonkr/get-version-action@v1.0.4
+      with:
+        project: ${{ env.MYSQL_PROJECT_PATH }}
+
+    - name: 'Pack Sql'
+      run: echo "Version=${{ steps.version.outputs.version }}"
+      #run: dotnet pack ${{ env.SQL_PROJECT_PATH }} --no-restore --no-build --configuration Release --include-symbols -p:SymbolPackageFormat=snupkg -p:PackageVersion=${{ steps.version.outputs.version }} --output ${{ env.PACKAGE_OUTPUT_DIRECTORY }}
+     
+    #- name: 'Push package'
+      #run: dotnet nuget push ${{ env.PACKAGE_OUTPUT_DIRECTORY }}/*.nupkg -k ${{ secrets.NUGET_API_KEY }} -s ${{ env.NUGET_SOURCE_URL }}
