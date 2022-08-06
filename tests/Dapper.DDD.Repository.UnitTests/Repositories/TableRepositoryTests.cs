@@ -30,7 +30,7 @@ public class TableRepositoryTests : IClassFixture<NoDefaultsStartup>
 			new Configuration.TableAggregateConfiguration<UserAggregate>
 			{
 				DapperInjectionFactory = Mock.Of<IDapperInjectionFactory>(),
-				QueryGeneratorFactory = Mock.Of<IQueryGeneratorFactory>()
+				QueryGeneratorFactory = new MockQueryGeneratorFactory()
 
 			}
 		), Options.Create(new Configuration.DefaultConfiguration
@@ -70,7 +70,7 @@ public class TableRepositoryTests : IClassFixture<NoDefaultsStartup>
 					new Configuration.TableAggregateConfiguration<UserAggregate>
 					{
 						ConnectionFactory = Mock.Of<IConnectionFactory>(),
-						QueryGeneratorFactory = Mock.Of<IQueryGeneratorFactory>()
+						QueryGeneratorFactory = new MockQueryGeneratorFactory()
 
 					}
 				), Options.Create(new Configuration.DefaultConfiguration
@@ -88,7 +88,7 @@ public class TableRepositoryTests : IClassFixture<NoDefaultsStartup>
 		var config = new Configuration.TableAggregateConfiguration<UserAggregate>
 		{
 			ConnectionFactory = Mock.Of<IConnectionFactory>(),
-			QueryGeneratorFactory = Mock.Of<IQueryGeneratorFactory>(),
+			QueryGeneratorFactory = new MockQueryGeneratorFactory(),
 			DapperInjectionFactory = Mock.Of<IDapperInjectionFactory>(),
 			Schema = "dbo"
 		};
@@ -110,7 +110,7 @@ public class TableRepositoryTests : IClassFixture<NoDefaultsStartup>
 		var config = new Configuration.TableAggregateConfiguration<UserAggregate>
 		{
 			ConnectionFactory = Mock.Of<IConnectionFactory>(),
-			QueryGeneratorFactory = Mock.Of<IQueryGeneratorFactory>(),
+			QueryGeneratorFactory = new MockQueryGeneratorFactory(),
 			DapperInjectionFactory = Mock.Of<IDapperInjectionFactory>(),
 			TableName = "Users"
 		};
@@ -131,7 +131,7 @@ public class TableRepositoryTests : IClassFixture<NoDefaultsStartup>
 		var config = new Configuration.TableAggregateConfiguration<UserAggregate>
 		{
 			ConnectionFactory = Mock.Of<IConnectionFactory>(),
-			QueryGeneratorFactory = Mock.Of<IQueryGeneratorFactory>(),
+			QueryGeneratorFactory = new MockQueryGeneratorFactory(),
 			DapperInjectionFactory = Mock.Of<IDapperInjectionFactory>(),
 			TableName = "Users"
 		};

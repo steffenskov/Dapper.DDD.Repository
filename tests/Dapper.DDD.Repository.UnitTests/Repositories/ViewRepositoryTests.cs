@@ -28,7 +28,7 @@ public class ViewRepositoryTests : IClassFixture<NoDefaultsStartup>
 		var config = new Configuration.ViewAggregateConfiguration<UserAggregate>
 		{
 			DapperInjectionFactory = Mock.Of<IDapperInjectionFactory>(),
-			QueryGeneratorFactory = Mock.Of<IQueryGeneratorFactory>()
+			QueryGeneratorFactory = new MockQueryGeneratorFactory()
 		};
 		config.HasKey(x => x.Id);
 
@@ -68,7 +68,7 @@ public class ViewRepositoryTests : IClassFixture<NoDefaultsStartup>
 		var config = new Configuration.ViewAggregateConfiguration<UserAggregate>
 		{
 			ConnectionFactory = Mock.Of<IConnectionFactory>(),
-			QueryGeneratorFactory = Mock.Of<IQueryGeneratorFactory>()
+			QueryGeneratorFactory = new MockQueryGeneratorFactory()
 		};
 		config.HasKey(x => x.Id);
 
@@ -88,7 +88,7 @@ public class ViewRepositoryTests : IClassFixture<NoDefaultsStartup>
 		var config = new Configuration.ViewAggregateConfiguration<UserAggregate>
 		{
 			ConnectionFactory = Mock.Of<IConnectionFactory>(),
-			QueryGeneratorFactory = Mock.Of<IQueryGeneratorFactory>(),
+			QueryGeneratorFactory = new MockQueryGeneratorFactory(),
 			DapperInjectionFactory = Mock.Of<IDapperInjectionFactory>(),
 			Schema = "dbo"
 		};
@@ -110,7 +110,7 @@ public class ViewRepositoryTests : IClassFixture<NoDefaultsStartup>
 		var config = new Configuration.ViewAggregateConfiguration<UserAggregate>
 		{
 			ConnectionFactory = Mock.Of<IConnectionFactory>(),
-			QueryGeneratorFactory = Mock.Of<IQueryGeneratorFactory>(),
+			QueryGeneratorFactory = new MockQueryGeneratorFactory(),
 			DapperInjectionFactory = Mock.Of<IDapperInjectionFactory>(),
 			ViewName = "Users"
 		};
@@ -131,7 +131,7 @@ public class ViewRepositoryTests : IClassFixture<NoDefaultsStartup>
 		var config = new Configuration.ViewAggregateConfiguration<UserAggregate>
 		{
 			ConnectionFactory = Mock.Of<IConnectionFactory>(),
-			QueryGeneratorFactory = Mock.Of<IQueryGeneratorFactory>(),
+			QueryGeneratorFactory = new MockQueryGeneratorFactory(),
 			DapperInjectionFactory = Mock.Of<IDapperInjectionFactory>(),
 			ViewName = "Users"
 		};
@@ -152,7 +152,7 @@ public class ViewRepositoryTests : IClassFixture<NoDefaultsStartup>
 		var config = new Configuration.ViewAggregateConfiguration<UserAggregate>
 		{
 			ConnectionFactory = Mock.Of<IConnectionFactory>(),
-			QueryGeneratorFactory = Mock.Of<IQueryGeneratorFactory>(),
+			QueryGeneratorFactory = new MockQueryGeneratorFactory(),
 			DapperInjectionFactory = Mock.Of<IDapperInjectionFactory>(),
 			ViewName = "Users"
 		};

@@ -13,15 +13,10 @@
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <PackageProjectUrl>https://github.com/steffenskov/Dapper.DDD.Repository</PackageProjectUrl>
     <PackageTags>Dapper, DDD, Repository, ValueObject</PackageTags>
-	  <PackageReadmeFile>README.md</PackageReadmeFile>
-	  <CodeAnalysisRuleSet>..\..\..\gidas\.sonarlint\gidascsharp.ruleset</CodeAnalysisRuleSet>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
   </PropertyGroup>
 
   <ItemGroup>
-    <AdditionalFiles Include="..\..\..\gidas\.sonarlint\gidas\CSharp\SonarLint.xml" Link="SonarLint.xml" />
-  </ItemGroup>
-
-	<ItemGroup>
     <None Include="../../README.md" Pack="true" PackagePath="\" />
   </ItemGroup>
 

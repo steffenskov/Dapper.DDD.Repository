@@ -1,10 +1,8 @@
 <Project Sdk="Microsoft.NET.Sdk">
-	<ItemGroup>
-	  <AdditionalFiles Include="..\..\..\gidas\.sonarlint\gidas\CSharp\SonarLint.xml" Link="SonarLint.xml" />
-	</ItemGroup>
-	<ItemGroup>
-		<ProjectReference Include="..\Dapper.DDD.Repository\Dapper.DDD.Repository.csproj" />
-	</ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Dapper.DDD.Repository\Dapper.DDD.Repository.csproj" />
+  </ItemGroup>
 
  <PropertyGroup>
     <TargetFramework>net6.0</TargetFramework>
@@ -19,8 +17,7 @@
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <PackageProjectUrl>https://github.com/steffenskov/Dapper.DDD.Repository</PackageProjectUrl>
     <PackageTags>SqlServer, Dapper, DDD, Repository, ValueObject</PackageTags>
-	  <PackageReadmeFile>README.md</PackageReadmeFile>
-	  <CodeAnalysisRuleSet>..\..\..\gidas\.sonarlint\gidascsharp.ruleset</CodeAnalysisRuleSet>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
   </PropertyGroup>
 
 	<ItemGroup>
