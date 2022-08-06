@@ -14,7 +14,18 @@ internal class TypeConverter<TComplexType, TSimpleType> : ITypeConverter
 	private readonly Func<TComplexType, TSimpleType> _convertToSimple;
 	private readonly Func<TSimpleType, TComplexType> _convertToComplex;
 
-	public Type SimpleType => typeof(TSimpleType);
+	public Type SimpleType
+	{
+		get
+		{
+			var simpleType = typeof(TSimpleType);
+			if (simpleType.IsValueType) // Wrap in nullable to support nulls
+			{
+				simpleType = typeof(Nullable<>).MakeGenericType(simpleType);
+			}
+			return simpleType;
+		}
+	}
 
 	public TypeConverter(Func<TComplexType, TSimpleType> convertToSimple, Func<TSimpleType, TComplexType> convertToComplex)
 	{

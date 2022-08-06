@@ -50,13 +50,13 @@ internal class MySqlQueryGenerator<TAggregate> : IQueryGenerator<TAggregate>
 	{
 		var whereClause = GenerateWhereClause();
 
-		var outputProperties = GeneratePropertyList(_entityName, _properties);
+		var outputProperties = GeneratePropertyList(_entityName);
 		return $@"SELECT {outputProperties} FROM {_entityName} WHERE {whereClause};DELETE FROM {_entityName} WHERE {whereClause};";
 	}
 
 	public string GenerateGetAllQuery()
 	{
-		var propertyList = GeneratePropertyList(_entityName, _properties);
+		var propertyList = GeneratePropertyList(_entityName);
 		return $"SELECT {propertyList} FROM {_entityName};";
 	}
 
@@ -64,7 +64,7 @@ internal class MySqlQueryGenerator<TAggregate> : IQueryGenerator<TAggregate>
 	{
 		var whereClause = GenerateWhereClause();
 
-		var propertyList = GeneratePropertyList(_entityName, _properties);
+		var propertyList = GeneratePropertyList(_entityName);
 
 		return $"SELECT {propertyList} FROM {_entityName} WHERE {whereClause};";
 	}
@@ -86,7 +86,7 @@ internal class MySqlQueryGenerator<TAggregate> : IQueryGenerator<TAggregate>
 				throw new InvalidOperationException("Cannot generate INSERT query for table with multiple identity properties");
 			}
 			var property = identityProperties.First();
-			var propertyList = GeneratePropertyList(_entityName, _properties);
+			var propertyList = GeneratePropertyList(_entityName);
 			selectStatement = $"SELECT {propertyList} FROM {_entityName} WHERE {_entityName}.{property.Name} = LAST_INSERT_ID();";
 		}
 		else
@@ -106,7 +106,6 @@ internal class MySqlQueryGenerator<TAggregate> : IQueryGenerator<TAggregate>
 			throw new InvalidOperationException($"GenerateGetQuery for aggregate of type {typeof(TAggregate).FullName} failed as the type has no properties with a setter.");
 		}
 
-		GeneratePropertyList("inserted", _properties);
 		var selectStatement = GenerateGetQuery();
 		return $@"UPDATE {_entityName} SET {setClause} WHERE {GenerateWhereClause()};{selectStatement}";
 	}
@@ -128,9 +127,9 @@ internal class MySqlQueryGenerator<TAggregate> : IQueryGenerator<TAggregate>
 		return string.Join(" AND ", primaryKeys.Select(property => $"{_entityName}.{property.Name} = @{property.Name}"));
 	}
 
-	private string GeneratePropertyList(string tableName, IEnumerable<ExtendedPropertyInfo> propertiess)
+	public string GeneratePropertyList(string tableName)
 	{
-		return string.Join(", ", propertiess.Select(property => GeneratePropertyClause(tableName, property)));
+		return string.Join(", ", _properties.Select(property => GeneratePropertyClause(tableName, property)));
 	}
 
 	private static string GeneratePropertyClause(string tableName, ExtendedPropertyInfo property)

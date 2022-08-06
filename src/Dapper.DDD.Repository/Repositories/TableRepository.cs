@@ -6,10 +6,13 @@ where TAggregateId : notnull
 {
 	protected string TableName { get; }
 
+	protected string PropertyList { get; }
+
 	public TableRepository(IOptions<TableAggregateConfiguration<TAggregate>> options, IOptions<DefaultConfiguration> defaultOptions) : base(options.Value, defaultOptions.Value)
 	{
 		ArgumentNullException.ThrowIfNull(options.Value.TableName);
 		TableName = options.Value.TableName;
+		PropertyList = _queryGenerator.GeneratePropertyList(TableName);
 	}
 
 	#region ITableRepository

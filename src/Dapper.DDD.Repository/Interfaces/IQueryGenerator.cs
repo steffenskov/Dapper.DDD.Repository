@@ -1,6 +1,6 @@
-namespace Dapper.DDD.Repository.Interfaces;
+﻿namespace Dapper.DDD.Repository.Interfaces;
 
-public interface IQueryGenerator<TAggregate>
+public interface IQueryGenerator<in TAggregate>
 
 {
 	string GenerateDeleteQuery();
@@ -12,4 +12,6 @@ public interface IQueryGenerator<TAggregate>
 	string GenerateGetQuery();
 
 	string GenerateUpdateQuery(TAggregate aggregate);
+
+	string GeneratePropertyList(string tableName);
 }
