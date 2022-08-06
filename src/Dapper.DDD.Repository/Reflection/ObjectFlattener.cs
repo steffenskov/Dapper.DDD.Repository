@@ -1,4 +1,5 @@
-﻿using System.Collections.Concurrent;
+﻿using System.Collections;
+using System.Collections.Concurrent;
 using System.Reflection;
 using System.Reflection.Emit;
 
@@ -189,6 +190,7 @@ internal class ObjectFlattener
 			{
 				return true;
 			}
+
 			if (t.IsSimpleOrBuiltIn())
 			{
 				return false;
@@ -213,10 +215,14 @@ internal class ObjectFlattener
 		{
 			var propValue = prop.GetValue(aggregate);
 			var destinationPropType = prop.Type;
-			if (_typeConverters.TryGetValue(prop.Type, out var flatteningConverter) && propValue is not null)
+			if (_typeConverters.TryGetValue(prop.Type, out var typeConverter) && propValue is not null)
 			{
-				propValue = flatteningConverter.ConvertToSimple(propValue);
-				destinationPropType = flatteningConverter.SimpleType;
+				propValue = typeConverter.ConvertToSimple(propValue);
+				destinationPropType = typeConverter.SimpleType;
+			}
+			else if (prop.Type.IsGenericType && prop.Type.GetGenericArguments().SingleOrDefault(type => _typeConverters.ContainsKey(type)) != null)
+			{
+				propValue = ConvertCollectionToSimple(prop, propValue, ref typeConverter);
 			}
 			if (destinationPropType.IsSimpleOrBuiltIn())
 			{
@@ -232,6 +238,30 @@ internal class ObjectFlattener
 		}
 	}
 
+	private object? ConvertCollectionToSimple(ExtendedPropertyInfo prop, object? propValue, ref ITypeConverter? typeConverter)
+	{
+		var enumerable = (propValue as IEnumerable);
+		if (enumerable is not null && _typeConverters.TryGetValue(prop.Type.GetGenericArguments()[0], out typeConverter))
+		{
+			var enumerator = enumerable.GetEnumerator();
+			var count = 0;
+			while (enumerator.MoveNext())
+			{
+				count++;
+			}
+
+			enumerator.Reset();
+			var destinationArray = Array.CreateInstance(typeConverter.SimpleType, count);
+			var i = 0;
+			while (enumerator.MoveNext())
+			{
+				destinationArray.SetValue(typeConverter.ConvertToSimple(enumerator.Current), i++);
+			}
+			return destinationArray;
+		}
+		return propValue;
+	}
+
 	private object CreateFlattenedInstance(Type type)
 	{
 		var flatType = _flatTypeMap.GetOrAdd(type, CreateFlattenedType);
@@ -240,6 +270,7 @@ internal class ObjectFlattener
 
 	private Type CreateFlattenedType(Type type)
 	{
+		var typeName = type.Name;
 		var tb = _moduleBuilder.DefineType($"{type.Name}Flattened{GenerateStrippedGuid()}", TypeAttributes.Public);
 		CreateProperties(type, tb);
 
@@ -252,13 +283,24 @@ internal class ObjectFlattener
 
 		foreach (var prop in properties)
 		{
-			if (prop.Type.IsSimpleOrBuiltIn())
-			{
-				CreateProperty(typeBuilder, prefix, prop);
-			}
-			else if (_typeConverters.TryGetValue(prop.Type, out var typeConverter))
+			if (_typeConverters.TryGetValue(prop.Type, out var typeConverter))
 			{
 				CreateProperty(typeBuilder, prefix, prop.Name, typeConverter.SimpleType);
+			}
+			else if (prop.Type.IsGenericType && prop.Type.GetGenericArguments().SingleOrDefault(genericParamType => _typeConverters.ContainsKey(genericParamType)) is not null)
+			{
+				var genericParams = prop.Type.GetGenericArguments();
+				var convertedGenericParams = prop.Type
+													.GetGenericArguments()
+													.Select(type => _typeConverters.TryGetValue(type, out var typeConverter) ? typeConverter.SimpleType : type)
+													.ToArray();
+
+				var convertedGenericType = prop.Type.GetGenericTypeDefinition().MakeGenericType(convertedGenericParams);
+				CreateProperty(typeBuilder, prefix, prop.Name, convertedGenericType);
+			}
+			else if (prop.Type.IsSimpleOrBuiltIn())
+			{
+				CreateProperty(typeBuilder, prefix, prop);
 			}
 			else
 			{

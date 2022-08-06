@@ -164,7 +164,13 @@ where TAggregate : notnull
 	{
 		using var connection = _connectionFactory.CreateConnection();
 
-		if (_objectFlattener.ShouldFlattenType<TResult>())
+		if (_objectFlattener.TryGetTypeConverter(typeof(TResult), out var converter))
+		{
+			var simpleType = converter!.SimpleType;
+			var result = await _dapperInjection.QueryAsync(connection, simpleType, query, _objectFlattener.Flatten(param), transaction, commandTimeout, commandType, cancellationToken);
+			return result.Select(simple => (TResult)converter.ConvertToComplex(simple));
+		}
+		else if (_objectFlattener.ShouldFlattenType<TResult>())
 		{
 			var flatType = _objectFlattener.GetFlattenedType<TResult>();
 			var result = await _dapperInjection.QueryAsync(connection, flatType, query, _objectFlattener.Flatten(param), transaction, commandTimeout, commandType, cancellationToken);
@@ -181,7 +187,13 @@ where TAggregate : notnull
 	where TResult : notnull
 	{
 		using var connection = _connectionFactory.CreateConnection();
-		if (_objectFlattener.ShouldFlattenType<TResult>())
+		if (_objectFlattener.TryGetTypeConverter(typeof(TResult), out var converter))
+		{
+			var simpleType = converter!.SimpleType;
+			var result = await _dapperInjection.QuerySingleOrDefaultAsync(connection, simpleType, query, _objectFlattener.Flatten(param), transaction, commandTimeout, commandType, cancellationToken);
+			return result is not null ? (TResult)converter.ConvertToComplex(result) : default;
+		}
+		else if (_objectFlattener.ShouldFlattenType<TResult>())
 		{
 			var flatType = _objectFlattener.GetFlattenedType<TResult>();
 			var result = await _dapperInjection.QuerySingleOrDefaultAsync(connection, flatType, query, _objectFlattener.Flatten(param), transaction, commandTimeout, commandType, cancellationToken);
@@ -199,7 +211,13 @@ where TAggregate : notnull
 	{
 		using var connection = _connectionFactory.CreateConnection();
 
-		if (_objectFlattener.ShouldFlattenType<TResult>())
+		if (_objectFlattener.TryGetTypeConverter(typeof(TResult), out var converter))
+		{
+			var simpleType = converter!.SimpleType;
+			var result = await _dapperInjection.QuerySingleAsync(connection, simpleType, query, _objectFlattener.Flatten(param), transaction, commandTimeout, commandType, cancellationToken);
+			return (TResult)converter.ConvertToComplex(result);
+		}
+		else if (_objectFlattener.ShouldFlattenType<TResult>())
 		{
 			var flatType = _objectFlattener.GetFlattenedType<TResult>();
 			var result = await _dapperInjection.QuerySingleAsync(connection, flatType, query, _objectFlattener.Flatten(param), transaction, commandTimeout, commandType, cancellationToken);

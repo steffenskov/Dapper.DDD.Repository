@@ -54,7 +54,7 @@ internal class SqlQueryGenerator<TAggregate> : IQueryGenerator<TAggregate>
 	{
 		var whereClause = GenerateWhereClause();
 
-		var outputProperties = GeneratePropertyList("deleted", _properties);
+		var outputProperties = GeneratePropertyList("deleted");
 		return $"DELETE FROM {_schemaAndEntity} OUTPUT {outputProperties} WHERE {whereClause};";
 	}
 
@@ -67,13 +67,13 @@ internal class SqlQueryGenerator<TAggregate> : IQueryGenerator<TAggregate>
 									.Where(property => !identityProperties.Contains(property) && (!propertiesWithDefaultValues.Contains(property) || !property.HasDefaultValue(aggregate)))
 									.ToList();
 
-		var outputProperties = GeneratePropertyList("inserted", _properties);
+		var outputProperties = GeneratePropertyList("inserted");
 		return $"INSERT INTO {_schemaAndEntity} ({string.Join(", ", propertiesToInsert.Select(property => AddSquareBrackets(property.Name)))}) OUTPUT {outputProperties} VALUES ({string.Join(", ", propertiesToInsert.Select(property => $"@{property.Name}"))});";
 	}
 
 	public string GenerateGetAllQuery()
 	{
-		var propertyList = GeneratePropertyList(_schemaAndEntity, _properties);
+		var propertyList = GeneratePropertyList(_schemaAndEntity);
 		return $"SELECT {propertyList} FROM {_schemaAndEntity};";
 	}
 
@@ -81,7 +81,7 @@ internal class SqlQueryGenerator<TAggregate> : IQueryGenerator<TAggregate>
 	{
 		var whereClause = GenerateWhereClause();
 
-		var propertyList = GeneratePropertyList(_schemaAndEntity, _properties);
+		var propertyList = GeneratePropertyList(_schemaAndEntity);
 
 		return $"SELECT {propertyList} FROM {_schemaAndEntity} WHERE {whereClause};";
 	}
@@ -95,7 +95,7 @@ internal class SqlQueryGenerator<TAggregate> : IQueryGenerator<TAggregate>
 			throw new InvalidOperationException($"GenerateUpdateQuery for aggregate of type {typeof(TAggregate).FullName} failed as the type has no properties with a setter.");
 		}
 
-		var outputProperties = GeneratePropertyList("inserted", _properties);
+		var outputProperties = GeneratePropertyList("inserted");
 
 		return $"UPDATE {_schemaAndEntity} SET {setClause} OUTPUT {outputProperties} WHERE {GenerateWhereClause()};";
 	}
@@ -115,17 +115,17 @@ internal class SqlQueryGenerator<TAggregate> : IQueryGenerator<TAggregate>
 	}
 
 
-	private string GeneratePropertyList(string tableName, IEnumerable<ExtendedPropertyInfo> properties, string prefix = "")
+	public string GeneratePropertyList(string tableName)
 	{
 		tableName = EnsureSquareBrackets(tableName);
 
-		return string.Join(", ", properties.Select(property => GeneratePropertyClause(tableName, property, prefix)));
+		return string.Join(", ", _properties.Select(property => GeneratePropertyClause(tableName, property)));
 	}
 
-	private string GeneratePropertyClause(string tableName, ExtendedPropertyInfo property, string prefix = "")
+	private string GeneratePropertyClause(string tableName, ExtendedPropertyInfo property)
 	{
 		var shouldSerialize = ShouldSerializeColumnType(property.Type);
-		var result = $"{tableName}.{AddSquareBrackets(prefix + property.Name)}";
+		var result = $"{tableName}.{AddSquareBrackets(property.Name)}";
 		return shouldSerialize
 					? $"({result}).Serialize() AS [{property.Name}]"
 					: result;

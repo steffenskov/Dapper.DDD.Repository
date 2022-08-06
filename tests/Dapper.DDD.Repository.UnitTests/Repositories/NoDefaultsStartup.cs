@@ -13,7 +13,7 @@ public class NoDefaultsStartup
 		services.AddTableRepository<UserAggregate, Guid>(options =>
 		{
 			options.ConnectionFactory = Mock.Of<IConnectionFactory>();
-			options.QueryGeneratorFactory = Mock.Of<IQueryGeneratorFactory>();
+			options.QueryGeneratorFactory = new MockQueryGeneratorFactory();
 			options.DapperInjectionFactory = Mock.Of<IDapperInjectionFactory>();
 			options.TableName = "Users";
 			options.HasKey(x => x.Id);
@@ -21,7 +21,7 @@ public class NoDefaultsStartup
 		services.AddViewRepository<UserAggregate, Guid>(options =>
 		{
 			options.ConnectionFactory = Mock.Of<IConnectionFactory>();
-			options.QueryGeneratorFactory = Mock.Of<IQueryGeneratorFactory>();
+			options.QueryGeneratorFactory = new MockQueryGeneratorFactory();
 			options.DapperInjectionFactory = Mock.Of<IDapperInjectionFactory>();
 			options.ViewName = "Users";
 			options.HasKey(x => x.Id);
