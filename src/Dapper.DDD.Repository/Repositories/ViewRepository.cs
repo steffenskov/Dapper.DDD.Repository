@@ -5,10 +5,13 @@ where TAggregateId : notnull
 {
 	protected string ViewName { get; }
 
+	protected string PropertyList { get; }
+
 	public ViewRepository(IOptions<ViewAggregateConfiguration<TAggregate>> options, IOptions<DefaultConfiguration> defaultOptions) : base(options.Value, defaultOptions.Value)
 	{
 		ArgumentNullException.ThrowIfNull(options.Value.ViewName);
 		ViewName = options.Value.ViewName;
+		PropertyList = _queryGenerator.GeneratePropertyList(ViewName);
 	}
 }
 

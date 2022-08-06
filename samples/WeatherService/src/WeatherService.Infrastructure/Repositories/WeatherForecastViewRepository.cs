@@ -14,27 +14,27 @@ namespace WeatherService.Infrastructure.Repositories
 
 		public async Task<WeatherForecastView?> GetAsync(long id, CancellationToken cancellationToken)
 		{
-			return await QuerySingleOrDefaultAsync("SELECT * FROM WeatherForecastView WHERE Id = @id", new { id }, cancellationToken: cancellationToken);
+			return await QuerySingleOrDefaultAsync($"SELECT {PropertyList} FROM {ViewName} WHERE Id = @id", new { id }, cancellationToken: cancellationToken);
 		}
 
 		public async Task<IEnumerable<WeatherForecastView>> GetLatestAsync(CancellationToken cancellationToken)
 		{
-			return await QueryAsync(@"WITH
+			return await QueryAsync(@$"WITH
   CTE AS(
     SELECT
       WeatherStation_id,
       Max(Timestamp) as LatestTimestamp
     FROM
-      WeatherForecastView
+      {ViewName}
     GROUP BY
       WeatherStation_id
   )
 SELECT
-  WeatherForecastView.*
+  {ViewName}.*
 FROM
-  WeatherForecastView
-  INNER JOIN CTE ON CTE.WeatherStation_id = WeatherForecastView.WeatherStation_id
-  AND CTE.LatestTimestamp = WeatherForecastView.Timestamp", cancellationToken: cancellationToken);
+  {ViewName}
+  INNER JOIN CTE ON CTE.WeatherStation_id = {ViewName}.WeatherStation_id
+  AND CTE.LatestTimestamp = {ViewName}.Timestamp", cancellationToken: cancellationToken);
 		}
 	}
 }

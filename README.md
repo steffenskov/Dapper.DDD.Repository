@@ -207,7 +207,7 @@ public class UserRepository : TableRepository<User, int>, IUserRepository
 
 	public async Task<IEnumerable<User>> GetUsersWithoutPasswordAsync(CancellationToken cancellationToken)
 	{
-		return await QueryAsync($"SELECT * FROM {TableName} WHERE Name = @name", new { name }, cancellationToken: cancellationToken);
+		return await QueryAsync($"SELECT {PropertyList} FROM {TableName} WHERE Name = @name", new { name }, cancellationToken: cancellationToken);
 	}
 }
 ```

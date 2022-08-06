@@ -12,7 +12,7 @@ public class CustomerRepository : TableRepository<Customer, Guid>, ICustomerRepo
 
 	public async Task<IEnumerable<Customer>> GetByZipcodeAsync(Zipcode zipcode)
 	{
-		return await QueryAsync($"SELECT * FROM {TableName} WHERE InvoiceAddress_Zipcode = @zipcode OR DeliveryAddress_Zipcode = @zipcode", new { zipcode });
+		return await QueryAsync($"SELECT {PropertyList} FROM {TableName} WHERE InvoiceAddress_Zipcode = @zipcode OR DeliveryAddress_Zipcode = @zipcode", new { zipcode });
 	}
 
 	public async Task UpdateDeliveryAddress(Guid id, Address newDeliveryAddress)
