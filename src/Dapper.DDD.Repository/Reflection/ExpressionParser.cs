@@ -3,7 +3,7 @@
 namespace Dapper.DDD.Repository.Reflection;
 internal class ExpressionParser<TAggregate>
 {
-	public IEnumerable<ExtendedPropertyInfo> GetExtendedPropertiesFromExpression(Expression<Func<TAggregate, object>> expression)
+	public IEnumerable<ExtendedPropertyInfo> GetExtendedPropertiesFromExpression(Expression<Func<TAggregate, object?>> expression)
 	{
 		var propertyNames = GetMemberName(expression);
 		var properties = TypePropertiesCache.GetProperties<TAggregate>();

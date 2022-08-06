@@ -33,7 +33,7 @@ public abstract class BaseAggregateConfiguration<TAggregate> : IReadAggregateCon
 		_typeConverters = defaults._typeConverters;
 	}
 
-	public void HasKey(Expression<Func<TAggregate, object>> expression)
+	public void HasKey(Expression<Func<TAggregate, object?>> expression)
 	{
 		if (_keyProperties is not null)
 		{
@@ -43,21 +43,21 @@ public abstract class BaseAggregateConfiguration<TAggregate> : IReadAggregateCon
 		_keyProperties = new(new ExpressionParser<TAggregate>().GetExtendedPropertiesFromExpression(expression));
 	}
 
-	public void Ignore(Expression<Func<TAggregate, object>> expression)
+	public void Ignore(Expression<Func<TAggregate, object?>> expression)
 	{
 		var properties = new ExpressionParser<TAggregate>().GetExtendedPropertiesFromExpression(expression);
 
 		_ignores.AddRange(properties);
 	}
 
-	public void HasDefault(Expression<Func<TAggregate, object>> expression)
+	public void HasDefault(Expression<Func<TAggregate, object?>> expression)
 	{
 		var properties = new ExpressionParser<TAggregate>().GetExtendedPropertiesFromExpression(expression);
 
 		_defaults.AddRange(properties);
 	}
 
-	public void HasIdentity(Expression<Func<TAggregate, object>> expression)
+	public void HasIdentity(Expression<Func<TAggregate, object?>> expression)
 	{
 		var properties = new ExpressionParser<TAggregate>().GetExtendedPropertiesFromExpression(expression);
 
