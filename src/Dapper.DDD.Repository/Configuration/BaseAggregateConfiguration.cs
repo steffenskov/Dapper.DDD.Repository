@@ -95,7 +95,9 @@ public abstract class BaseAggregateConfiguration<TAggregate> : IReadAggregateCon
 
 	IEnumerable<ExtendedPropertyInfo> IReadAggregateConfiguration<TAggregate>.GetValueObjects()
 	{
+		var ignoredNames = _ignores.Select(prop => prop.Name).ToHashSet();
 		return TypePropertiesCache.GetProperties<TAggregate>()
+									.Where(prop => !ignoredNames.Contains(prop.Name))
 									.Where(prop => !prop.Type.IsSimpleOrBuiltIn() && !_typeConverters.ContainsKey(prop.Type));
 	}
 }
