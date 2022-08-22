@@ -102,6 +102,19 @@ public class QueryGeneratorTests
 	}
 
 	[Fact]
+	public void GenerateDeleteQuery_HasIgnoredValueObject_Valid()
+	{
+		// Arrange
+		var generator = CreateUserAggregateIgnoreDeliveryAddressQueryGenerator();
+
+		// Act
+		var query = generator.GenerateDeleteQuery();
+
+		// Assert
+		Assert.Equal($"DELETE FROM [dbo].[Users] OUTPUT [deleted].[Id], [deleted].[InvoiceAddress_City], [deleted].[InvoiceAddress_Street] WHERE [dbo].[Users].[Id] = @Id;", query);
+	}
+
+	[Fact]
 	public void GenerateDeleteQuery_CustomSchema_Valid()
 	{
 		// Arrange
@@ -126,8 +139,6 @@ public class QueryGeneratorTests
 		// Assert
 		Assert.Equal($"DELETE FROM [dbo].[Users] OUTPUT [deleted].[Id], [deleted].[Username], [deleted].[Password] WHERE [dbo].[Users].[Id] = @Id;", deleteQuery);
 	}
-
-
 
 	[Fact]
 	public void GenerateDeleteQuery_CompositePrimaryKey_Valid()
@@ -173,6 +184,7 @@ public class QueryGeneratorTests
 	[Fact]
 	public void GenerateGetAllQuery_HasValueObject_Valid()
 	{
+		// Arrange
 		var generator = CreateUserAggregateQueryGenerator();
 
 		// Act
@@ -180,6 +192,19 @@ public class QueryGeneratorTests
 
 		// Assert
 		Assert.Equal($"SELECT [dbo].[Users].[Id], [dbo].[Users].[DeliveryAddress_City], [dbo].[Users].[DeliveryAddress_Street], [dbo].[Users].[InvoiceAddress_City], [dbo].[Users].[InvoiceAddress_Street] FROM [dbo].[Users];", query);
+	}
+
+	[Fact]
+	public void GenerateGetAllQuery_HasIgnoredValueObject_Valid()
+	{
+		// Arrange
+		var generator = CreateUserAggregateIgnoreDeliveryAddressQueryGenerator();
+
+		// Act
+		var query = generator.GenerateGetAllQuery();
+
+		// Assert
+		Assert.Equal($"SELECT [dbo].[Users].[Id], [dbo].[Users].[InvoiceAddress_City], [dbo].[Users].[InvoiceAddress_Street] FROM [dbo].[Users];", query);
 	}
 
 	[Fact]
@@ -227,6 +252,7 @@ public class QueryGeneratorTests
 	[Fact]
 	public void GenerateGetQuery_HasValueObject_Valid()
 	{
+		// Arrange
 		var generator = CreateUserAggregateQueryGenerator();
 
 		// Act
@@ -234,6 +260,19 @@ public class QueryGeneratorTests
 
 		// Assert
 		Assert.Equal($"SELECT [dbo].[Users].[Id], [dbo].[Users].[DeliveryAddress_City], [dbo].[Users].[DeliveryAddress_Street], [dbo].[Users].[InvoiceAddress_City], [dbo].[Users].[InvoiceAddress_Street] FROM [dbo].[Users] WHERE [dbo].[Users].[Id] = @Id;", query);
+	}
+
+	[Fact]
+	public void GenerateGetQuery_HasIgnoredValueObject_Valid()
+	{
+		// Arrange
+		var generator = CreateUserAggregateIgnoreDeliveryAddressQueryGenerator();
+
+		// Act
+		var query = generator.GenerateGetQuery();
+
+		// Assert
+		Assert.Equal($"SELECT [dbo].[Users].[Id], [dbo].[Users].[InvoiceAddress_City], [dbo].[Users].[InvoiceAddress_Street] FROM [dbo].[Users] WHERE [dbo].[Users].[Id] = @Id;", query);
 	}
 
 	[Fact]
@@ -271,7 +310,7 @@ public class QueryGeneratorTests
 		var generator = CreateAggregateWithValueObjectIdQueryGenerator();
 
 		// Act
-		var query = generator.GenerateInsertQuery(new ());
+		var query = generator.GenerateInsertQuery(new());
 
 		// Assert
 		Assert.Equal($"INSERT INTO [dbo].[Users] ([Age], [Id_Password], [Id_Username]) OUTPUT [inserted].[Age], [inserted].[Id_Password], [inserted].[Id_Username] VALUES (@Age, @Id_Password, @Id_Username);", query);
@@ -284,7 +323,7 @@ public class QueryGeneratorTests
 		var generator = CreateAggregateWithGeometryQueryGenerator();
 
 		// Act
-		var query = generator.GenerateInsertQuery(new ());
+		var query = generator.GenerateInsertQuery(new());
 
 		// Assert
 		Assert.Equal($"INSERT INTO [dbo].[Users] ([Id], [Area]) OUTPUT [inserted].[Id], ([inserted].[Area]).Serialize() AS [Area] VALUES (@Id, @Area);", query);
@@ -297,10 +336,23 @@ public class QueryGeneratorTests
 		var generator = CreateUserAggregateQueryGenerator();
 
 		// Act
-		var query = generator.GenerateInsertQuery(new ());
+		var query = generator.GenerateInsertQuery(new());
 
 		// Assert
 		Assert.Equal($"INSERT INTO [dbo].[Users] ([Id], [DeliveryAddress_City], [DeliveryAddress_Street], [InvoiceAddress_City], [InvoiceAddress_Street]) OUTPUT [inserted].[Id], [inserted].[DeliveryAddress_City], [inserted].[DeliveryAddress_Street], [inserted].[InvoiceAddress_City], [inserted].[InvoiceAddress_Street] VALUES (@Id, @DeliveryAddress_City, @DeliveryAddress_Street, @InvoiceAddress_City, @InvoiceAddress_Street);", query);
+	}
+
+	[Fact]
+	public void GenerateInsertQuery_HasIgnoredValueObject_Valid()
+	{
+		// Arrange
+		var generator = CreateUserAggregateIgnoreDeliveryAddressQueryGenerator();
+
+		// Act
+		var query = generator.GenerateInsertQuery(new());
+
+		// Assert
+		Assert.Equal($"INSERT INTO [dbo].[Users] ([Id], [InvoiceAddress_City], [InvoiceAddress_Street]) OUTPUT [inserted].[Id], [inserted].[InvoiceAddress_City], [inserted].[InvoiceAddress_Street] VALUES (@Id, @InvoiceAddress_City, @InvoiceAddress_Street);", query);
 	}
 
 	[Fact]
@@ -310,7 +362,7 @@ public class QueryGeneratorTests
 		var generator = CreateSinglePrimaryKeyAggregateWithCustomSchemaQueryGenerator();
 
 		// Act
-		var query = generator.GenerateInsertQuery(new ());
+		var query = generator.GenerateInsertQuery(new());
 
 		// Assert
 		Assert.Equal("INSERT INTO [account].[Users] ([Username], [Password]) OUTPUT [inserted].[Id], [inserted].[Username], [inserted].[Password] VALUES (@Username, @Password);", query);
@@ -323,7 +375,7 @@ public class QueryGeneratorTests
 		var generator = CreateHasDefaultConstraintAggregateQueryGenerator();
 
 		// Actj
-		var query = generator.GenerateInsertQuery(new ());
+		var query = generator.GenerateInsertQuery(new());
 
 		// Assert
 		Assert.Equal("INSERT INTO [dbo].[Users] ([Id]) OUTPUT [inserted].[Id], [inserted].[DateCreated] VALUES (@Id);", query);
@@ -424,6 +476,18 @@ public class QueryGeneratorTests
 
 		// Assert
 		Assert.Equal($"UPDATE [dbo].[Users] SET [dbo].[Users].[DeliveryAddress_City] = @DeliveryAddress_City, [dbo].[Users].[DeliveryAddress_Street] = @DeliveryAddress_Street, [dbo].[Users].[InvoiceAddress_City] = @InvoiceAddress_City, [dbo].[Users].[InvoiceAddress_Street] = @InvoiceAddress_Street OUTPUT [inserted].[Id], [inserted].[DeliveryAddress_City], [inserted].[DeliveryAddress_Street], [inserted].[InvoiceAddress_City], [inserted].[InvoiceAddress_Street] WHERE [dbo].[Users].[Id] = @Id;", query);
+	}
+
+	[Fact]
+	public void GenerateUpdateQuery_HasIgnoredValueObject_Valid()
+	{
+		var generator = CreateUserAggregateIgnoreDeliveryAddressQueryGenerator();
+
+		// Act
+		var query = generator.GenerateUpdateQuery(new());
+
+		// Assert
+		Assert.Equal($"UPDATE [dbo].[Users] SET [dbo].[Users].[InvoiceAddress_City] = @InvoiceAddress_City, [dbo].[Users].[InvoiceAddress_Street] = @InvoiceAddress_Street OUTPUT [inserted].[Id], [inserted].[InvoiceAddress_City], [inserted].[InvoiceAddress_Street] WHERE [dbo].[Users].[Id] = @Id;", query);
 	}
 
 	[Fact]
@@ -550,6 +614,19 @@ public class QueryGeneratorTests
 			TableName = "Users"
 		};
 		config.HasKey(x => x.Id);
+		var generator = new SqlQueryGenerator<UserAggregate>(config);
+		return generator;
+	}
+
+	private static SqlQueryGenerator<UserAggregate> CreateUserAggregateIgnoreDeliveryAddressQueryGenerator()
+	{
+		var config = new TableAggregateConfiguration<UserAggregate>()
+		{
+			Schema = "dbo",
+			TableName = "Users"
+		};
+		config.HasKey(x => x.Id);
+		config.Ignore(x => x.DeliveryAddress);
 		var generator = new SqlQueryGenerator<UserAggregate>(config);
 		return generator;
 	}
