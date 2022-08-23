@@ -8,6 +8,7 @@ Also it's inspired by [Domain-Driven Design](https://en.wikipedia.org/wiki/Domai
 - FAST: When benchmarked against raw Dapper the CPU time difference is neglible. Feel free to run the benchmark project to see the numbers.
 - Domain-Driven Design friendly with Fluent configuration outside the domain layer using DependencyInjection.
 - Fully supports ValueObjects, and you can even infinitely nest them.
+- Fully supports `record` types including the primary constructor syntax for very concise ValueObjects (or even Aggregates!)
 - Built-in support for MS SqlServer and MySql / MariaDB, easy to extend with support for other databases.
 - Built-in CRUD methods
 - Support for custom types via TypeConverters such as e.g. [StrongTypedId](https://github.com/steffenskov/StrongTypedId) (Which I also highly recommend using for Domain-Driven Design)
@@ -40,7 +41,6 @@ Also it currently only supports Microsoft SQL Server and MySql (MariaDB should w
 
 Currently the library only supports tables with a primary key (no heap support), views are supported both with and without including primary keys.
 Also all the methods are kept `Async` and no synchronous versions are currently planned. This is because database calls (like all I/O) should ideally be kept async for improved performance and responsiveness.
-Both `class` and `record` types are supported, however `records` cannot use their primary constructor syntax, as it makes it impossible for the library to create them when fetching data from the database.
 
 ## Usage:
 
