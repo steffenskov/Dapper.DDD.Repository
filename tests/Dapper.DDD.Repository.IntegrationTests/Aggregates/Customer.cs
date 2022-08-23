@@ -19,8 +19,4 @@ public record Customer
 	public string IdAndName => $"{Name} ({Id})"; // Only here to test .Ignore works correctly when configuring aggregates
 }
 
-public record Address
-{
-	public string Street { get; init; } = default!;
-	public Zipcode Zipcode { get; init; } = default!;
-}
+public record Address(string Street, Zipcode Zipcode);

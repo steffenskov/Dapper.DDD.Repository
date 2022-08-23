@@ -8,9 +8,4 @@ public record CompositeUser
 	public int? Age { get; init; }
 }
 
-public record CompositeUserId
-{
-	public string Username { get; init; } = default!;
-
-	public string Password { get; init; } = default!;
-}
+public record CompositeUserId(string Username, string Password);

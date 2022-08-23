@@ -1,5 +1,4 @@
-﻿using System.Collections.Concurrent;
-using System.Reflection;
+﻿using System.Reflection;
 using System.Reflection.Emit;
 
 namespace Dapper.DDD.Repository.Reflection;
@@ -25,11 +24,7 @@ internal static class TypeInstantiator
 
 	private static Func<object> CreateConstructorDelegate(Type type)
 	{
-		var ctorInfo = type.GetConstructor(BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public, null, Type.EmptyTypes, null);
-		if (ctorInfo is null)
-		{
-			throw new InvalidOperationException($"Type {type.Name} does not have a default constructor");
-		}
+		var ctorInfo = type.GetConstructor(BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public, null, Type.EmptyTypes, null) ?? ConstructorBuilder.CreateEmptyConstructor(type);
 
 		var ctorDelegate = (Func<object>)CreateDelegate(ctorInfo, typeof(Func<object>));
 		return ctorDelegate;
