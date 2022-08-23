@@ -29,16 +29,8 @@ public abstract class BaseCustomRepositoryTests
 		var repository = _serviceProvider.GetService<ICustomerRepository>()!;
 		await repository.InsertAsync(new Customer
 		{
-			DeliveryAddress = new Address
-			{
-				Street = "Some road",
-				Zipcode = new Zipcode(1234)
-			},
-			InvoiceAddress = new Address
-			{
-				Street = "Some other street",
-				Zipcode = new Zipcode(5678)
-			},
+			DeliveryAddress = new Address("Some road", new Zipcode(1234)),
+			InvoiceAddress = new Address("Some other street", new Zipcode(5678)),
 			Id = Guid.NewGuid(),
 			Name = "My customer name"
 		});
@@ -57,22 +49,14 @@ public abstract class BaseCustomRepositoryTests
 		var repository = _serviceProvider.GetService<ICustomerRepository>()!;
 		var inserted = await repository.InsertAsync(new Customer
 		{
-			DeliveryAddress = new Address
-			{
-				Street = "Some road",
-				Zipcode = new Zipcode(1234)
-			},
-			InvoiceAddress = new Address
-			{
-				Street = "Some other street",
-				Zipcode = new Zipcode(5678)
-			},
+			DeliveryAddress = new Address("Some road", new Zipcode(1234)),
+			InvoiceAddress = new Address("Some other street", new Zipcode(5678)),
 			Id = Guid.NewGuid(),
 			Name = "My customer name"
 		});
 
 		// Act
-		await repository.UpdateDeliveryAddress(inserted.Id, new Address { Street = "A brand new road", Zipcode = new Zipcode(9999) });
+		await repository.UpdateDeliveryAddress(inserted.Id, new Address("A brand new road", new Zipcode(9999)));
 		var fetched = await repository.GetAsync(inserted.Id);
 
 		// Assert

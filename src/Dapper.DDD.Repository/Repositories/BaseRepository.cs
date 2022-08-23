@@ -1,4 +1,5 @@
-﻿using Dapper.DDD.Repository.Reflection;
+﻿using Dapper.DDD.Repository.Exceptions;
+using Dapper.DDD.Repository.Reflection;
 
 namespace Dapper.DDD.Repository.Repositories;
 
@@ -117,45 +118,66 @@ where TAggregate : notnull
 	protected async Task<IEnumerable<TAggregate>> QueryAsync(string query, object? param = null, IDbTransaction? transaction = null, int? commandTimeout = null, CommandType? commandType = null, CancellationToken cancellationToken = default)
 	{
 		using var connection = _connectionFactory.CreateConnection();
-		if (_shouldFlattenAggregate)
+		try
 		{
-			var flatType = _objectFlattener.GetFlattenedType<TAggregate>();
-			var result = await _dapperInjection.QueryAsync(connection, flatType, query, _objectFlattener.Flatten(param), transaction, commandTimeout, commandType, cancellationToken);
-			return result.Select(_objectFlattener.Unflatten<TAggregate>);
+			if (_shouldFlattenAggregate)
+			{
+				var flatType = _objectFlattener.GetFlattenedType<TAggregate>();
+				var result = await _dapperInjection.QueryAsync(connection, flatType, query, _objectFlattener.Flatten(param), transaction, commandTimeout, commandType, cancellationToken);
+				return result.Select(_objectFlattener.Unflatten<TAggregate>);
+			}
+			else
+			{
+				return await _dapperInjection.QueryAsync(connection, query, _objectFlattener.Flatten(param), transaction, commandTimeout, commandType, cancellationToken);
+			}
 		}
-		else
+		catch (Exception ex)
 		{
-			return await _dapperInjection.QueryAsync(connection, query, _objectFlattener.Flatten(param), transaction, commandTimeout, commandType, cancellationToken);
+			throw new DapperRepositoryQueryException(query, ex);
 		}
 	}
 
 	protected async Task<TAggregate?> QuerySingleOrDefaultAsync(string query, object? param = null, IDbTransaction? transaction = null, int? commandTimeout = null, CommandType? commandType = null, CancellationToken cancellationToken = default)
 	{
 		using var connection = _connectionFactory.CreateConnection();
-		if (_shouldFlattenAggregate)
+		try
 		{
-			var flatType = _objectFlattener.GetFlattenedType<TAggregate>();
-			var result = await _dapperInjection.QuerySingleOrDefaultAsync(connection, flatType, query, _objectFlattener.Flatten(param), transaction, commandTimeout, commandType, cancellationToken);
-			return result is not null ? _objectFlattener.Unflatten<TAggregate>(result) : default;
+			if (_shouldFlattenAggregate)
+			{
+				var flatType = _objectFlattener.GetFlattenedType<TAggregate>();
+				var result = await _dapperInjection.QuerySingleOrDefaultAsync(connection, flatType, query, _objectFlattener.Flatten(param), transaction, commandTimeout, commandType, cancellationToken);
+				return result is not null ? _objectFlattener.Unflatten<TAggregate>(result) : default;
+			}
+			else
+			{
+				return await _dapperInjection.QuerySingleOrDefaultAsync(connection, query, _objectFlattener.Flatten(param), transaction, commandTimeout, commandType, cancellationToken);
+			}
 		}
-		else
+		catch (Exception ex)
 		{
-			return await _dapperInjection.QuerySingleOrDefaultAsync(connection, query, _objectFlattener.Flatten(param), transaction, commandTimeout, commandType, cancellationToken);
+			throw new DapperRepositoryQueryException(query, ex);
 		}
 	}
 
 	protected async Task<TAggregate> QuerySingleAsync(string query, object? param = null, IDbTransaction? transaction = null, int? commandTimeout = null, CommandType? commandType = null, CancellationToken cancellationToken = default)
 	{
 		using var connection = _connectionFactory.CreateConnection();
-		if (_shouldFlattenAggregate)
+		try
 		{
-			var flatType = _objectFlattener.GetFlattenedType<TAggregate>();
-			var result = await _dapperInjection.QuerySingleAsync(connection, flatType, query, _objectFlattener.Flatten(param), transaction, commandTimeout, commandType, cancellationToken);
-			return _objectFlattener.Unflatten<TAggregate>(result);
+			if (_shouldFlattenAggregate)
+			{
+				var flatType = _objectFlattener.GetFlattenedType<TAggregate>();
+				var result = await _dapperInjection.QuerySingleAsync(connection, flatType, query, _objectFlattener.Flatten(param), transaction, commandTimeout, commandType, cancellationToken);
+				return _objectFlattener.Unflatten<TAggregate>(result);
+			}
+			else
+			{
+				return await _dapperInjection.QuerySingleAsync(connection, query, _objectFlattener.Flatten(param), transaction, commandTimeout, commandType, cancellationToken);
+			}
 		}
-		else
+		catch (Exception ex)
 		{
-			return await _dapperInjection.QuerySingleAsync(connection, query, _objectFlattener.Flatten(param), transaction, commandTimeout, commandType, cancellationToken);
+			throw new DapperRepositoryQueryException(query, ex);
 		}
 	}
 
@@ -163,23 +185,29 @@ where TAggregate : notnull
 	where TResult : notnull
 	{
 		using var connection = _connectionFactory.CreateConnection();
-
-		if (_objectFlattener.TryGetTypeConverter(typeof(TResult), out var converter))
+		try
 		{
-			var simpleType = converter!.SimpleType;
-			var result = await _dapperInjection.QueryAsync(connection, simpleType, query, _objectFlattener.Flatten(param), transaction, commandTimeout, commandType, cancellationToken);
-			return result.Select(simple => (TResult)converter.ConvertToComplex(simple));
+			if (_objectFlattener.TryGetTypeConverter(typeof(TResult), out var converter))
+			{
+				var simpleType = converter!.SimpleType;
+				var result = await _dapperInjection.QueryAsync(connection, simpleType, query, _objectFlattener.Flatten(param), transaction, commandTimeout, commandType, cancellationToken);
+				return result.Select(simple => (TResult)converter.ConvertToComplex(simple));
+			}
+			else if (_objectFlattener.ShouldFlattenType<TResult>())
+			{
+				var flatType = _objectFlattener.GetFlattenedType<TResult>();
+				var result = await _dapperInjection.QueryAsync(connection, flatType, query, _objectFlattener.Flatten(param), transaction, commandTimeout, commandType, cancellationToken);
+				return result.Select(_objectFlattener.Unflatten<TResult>);
+			}
+			else
+			{
+				var dapperInjection = _dapperInjectionFactory.Create<TResult>();
+				return await dapperInjection.QueryAsync(connection, query, _objectFlattener.Flatten(param), transaction, commandTimeout, commandType, cancellationToken);
+			}
 		}
-		else if (_objectFlattener.ShouldFlattenType<TResult>())
+		catch (Exception ex)
 		{
-			var flatType = _objectFlattener.GetFlattenedType<TResult>();
-			var result = await _dapperInjection.QueryAsync(connection, flatType, query, _objectFlattener.Flatten(param), transaction, commandTimeout, commandType, cancellationToken);
-			return result.Select(_objectFlattener.Unflatten<TResult>);
-		}
-		else
-		{
-			var dapperInjection = _dapperInjectionFactory.Create<TResult>();
-			return await dapperInjection.QueryAsync(connection, query, _objectFlattener.Flatten(param), transaction, commandTimeout, commandType, cancellationToken);
+			throw new DapperRepositoryQueryException(query, ex);
 		}
 	}
 
@@ -187,22 +215,29 @@ where TAggregate : notnull
 	where TResult : notnull
 	{
 		using var connection = _connectionFactory.CreateConnection();
-		if (_objectFlattener.TryGetTypeConverter(typeof(TResult), out var converter))
+		try
 		{
-			var simpleType = converter!.SimpleType;
-			var result = await _dapperInjection.QuerySingleOrDefaultAsync(connection, simpleType, query, _objectFlattener.Flatten(param), transaction, commandTimeout, commandType, cancellationToken);
-			return result is not null ? (TResult)converter.ConvertToComplex(result) : default;
+			if (_objectFlattener.TryGetTypeConverter(typeof(TResult), out var converter))
+			{
+				var simpleType = converter!.SimpleType;
+				var result = await _dapperInjection.QuerySingleOrDefaultAsync(connection, simpleType, query, _objectFlattener.Flatten(param), transaction, commandTimeout, commandType, cancellationToken);
+				return result is not null ? (TResult)converter.ConvertToComplex(result) : default;
+			}
+			else if (_objectFlattener.ShouldFlattenType<TResult>())
+			{
+				var flatType = _objectFlattener.GetFlattenedType<TResult>();
+				var result = await _dapperInjection.QuerySingleOrDefaultAsync(connection, flatType, query, _objectFlattener.Flatten(param), transaction, commandTimeout, commandType, cancellationToken);
+				return result is not null ? _objectFlattener.Unflatten<TResult>(result) : default;
+			}
+			else
+			{
+				var dapperInjection = _dapperInjectionFactory.Create<TResult>();
+				return await dapperInjection.QuerySingleOrDefaultAsync(connection, query, _objectFlattener.Flatten(param), transaction, commandTimeout, commandType, cancellationToken);
+			}
 		}
-		else if (_objectFlattener.ShouldFlattenType<TResult>())
+		catch (Exception ex)
 		{
-			var flatType = _objectFlattener.GetFlattenedType<TResult>();
-			var result = await _dapperInjection.QuerySingleOrDefaultAsync(connection, flatType, query, _objectFlattener.Flatten(param), transaction, commandTimeout, commandType, cancellationToken);
-			return result is not null ? _objectFlattener.Unflatten<TResult>(result) : default;
-		}
-		else
-		{
-			var dapperInjection = _dapperInjectionFactory.Create<TResult>();
-			return await dapperInjection.QuerySingleOrDefaultAsync(connection, query, _objectFlattener.Flatten(param), transaction, commandTimeout, commandType, cancellationToken);
+			throw new DapperRepositoryQueryException(query, ex);
 		}
 	}
 
@@ -211,29 +246,43 @@ where TAggregate : notnull
 	{
 		using var connection = _connectionFactory.CreateConnection();
 
-		if (_objectFlattener.TryGetTypeConverter(typeof(TResult), out var converter))
+		try
 		{
-			var simpleType = converter!.SimpleType;
-			var result = await _dapperInjection.QuerySingleAsync(connection, simpleType, query, _objectFlattener.Flatten(param), transaction, commandTimeout, commandType, cancellationToken);
-			return (TResult)converter.ConvertToComplex(result);
+			if (_objectFlattener.TryGetTypeConverter(typeof(TResult), out var converter))
+			{
+				var simpleType = converter!.SimpleType;
+				var result = await _dapperInjection.QuerySingleAsync(connection, simpleType, query, _objectFlattener.Flatten(param), transaction, commandTimeout, commandType, cancellationToken);
+				return (TResult)converter.ConvertToComplex(result);
+			}
+			else if (_objectFlattener.ShouldFlattenType<TResult>())
+			{
+				var flatType = _objectFlattener.GetFlattenedType<TResult>();
+				var result = await _dapperInjection.QuerySingleAsync(connection, flatType, query, _objectFlattener.Flatten(param), transaction, commandTimeout, commandType, cancellationToken);
+				return _objectFlattener.Unflatten<TResult>(result);
+			}
+			else
+			{
+				var dapperInjection = _dapperInjectionFactory.Create<TResult>();
+				return await dapperInjection.QuerySingleAsync(connection, query, _objectFlattener.Flatten(param), transaction, commandTimeout, commandType, cancellationToken);
+			}
 		}
-		else if (_objectFlattener.ShouldFlattenType<TResult>())
+		catch (Exception ex)
 		{
-			var flatType = _objectFlattener.GetFlattenedType<TResult>();
-			var result = await _dapperInjection.QuerySingleAsync(connection, flatType, query, _objectFlattener.Flatten(param), transaction, commandTimeout, commandType, cancellationToken);
-			return _objectFlattener.Unflatten<TResult>(result);
-		}
-		else
-		{
-			var dapperInjection = _dapperInjectionFactory.Create<TResult>();
-			return await dapperInjection.QuerySingleAsync(connection, query, _objectFlattener.Flatten(param), transaction, commandTimeout, commandType, cancellationToken);
+			throw new DapperRepositoryQueryException(query, ex);
 		}
 	}
 
 	protected async Task<int> ExecuteAsync(string query, object? param = null, IDbTransaction? transaction = null, int? commandTimeout = null, CommandType? commandType = null, CancellationToken cancellationToken = default)
 	{
 		using var connection = _connectionFactory.CreateConnection();
-		return await _dapperInjection.ExecuteAsync(connection, query, _objectFlattener.Flatten(param), transaction, commandTimeout, commandType, cancellationToken);
+		try
+		{
+			return await _dapperInjection.ExecuteAsync(connection, query, _objectFlattener.Flatten(param), transaction, commandTimeout, commandType, cancellationToken);
+		}
+		catch (Exception ex)
+		{
+			throw new DapperRepositoryQueryException(query, ex);
+		}
 	}
 	#endregion
 }

@@ -12,7 +12,7 @@ public abstract class BaseCompositePrimaryKeyAsyncTests
 	public async Task Delete_UseMissingPrimaryKeyValue_ReturnsNull()
 	{
 		// Act
-		var deleted = await _repository.DeleteAsync(new CompositeUserId { Username = "async My name", Password = "Secret" });
+		var deleted = await _repository.DeleteAsync(new CompositeUserId("async My name", "Secret"));
 
 		// Assert
 		Assert.Null(deleted);
@@ -25,7 +25,7 @@ public abstract class BaseCompositePrimaryKeyAsyncTests
 		var insertedAggregate = await _repository.InsertAsync(aggregate);
 
 		// Act
-		var deleted = await _repository.DeleteAsync(new CompositeUserId { Username = aggregate.Id.Username, Password = aggregate.Id.Password });
+		var deleted = await _repository.DeleteAsync(new CompositeUserId(aggregate.Id.Username, aggregate.Id.Password));
 
 		// Assert
 		Assert.Equal(aggregate.Id.Username, deleted?.Id.Username);
@@ -37,7 +37,7 @@ public abstract class BaseCompositePrimaryKeyAsyncTests
 	public async Task Get_UseMissingPrimaryKeyValue_ReturnsNull()
 	{
 		// Act
-		var gotten = await _repository.GetAsync(new CompositeUserId { Username = "async My name", Password = "Secret" });
+		var gotten = await _repository.GetAsync(new CompositeUserId("async My name", "Secret"));
 
 		// Assert
 		Assert.Null(gotten);
@@ -68,7 +68,7 @@ public abstract class BaseCompositePrimaryKeyAsyncTests
 		var insertedAggregate = await _repository.InsertAsync(aggregate);
 
 		// Act
-		var updated = await _repository.UpdateAsync(insertedAggregate with { Id = new CompositeUserId { Username = "Doesnt exist", Password = "Secret" } });
+		var updated = await _repository.UpdateAsync(insertedAggregate with { Id = new CompositeUserId("Doesnt exist", "Secret") });
 
 		// Assert
 		Assert.Null(updated);

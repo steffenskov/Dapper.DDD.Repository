@@ -151,11 +151,7 @@ where TDbException : Exception
 		{
 			Id = Guid.NewGuid(),
 			Name = "Hello world",
-			InvoiceAddress = new Address
-			{
-				Street = "Road",
-				Zipcode = new Zipcode(1200)
-			}
+			InvoiceAddress = new Address("Road", new Zipcode(1200))
 		};
 
 		// Act 
