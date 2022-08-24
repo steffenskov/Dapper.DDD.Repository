@@ -40,7 +40,7 @@ internal class MemberAccessor
 		var method = property.GetSetMethod(true);
 		if (method is null)
 		{
-			return null;
+			return CreateSetterMethod(property);
 		}
 		else
 		{
@@ -67,6 +67,46 @@ internal class MemberAccessor
 			return (Action<object, object?>)dm.CreateDelegate(typeof(Action<object, object?>));
 		}
 	}
+
+	private static Action<object, object?>? CreateSetterMethod(PropertyInfo property)
+	{
+		var field = GetBackingField(property);
+		if (field is null)
+			return null;
+
+		return CreateSetterMethodForField(property.Name, field);
+	}
+
+	private static FieldInfo? GetBackingField(PropertyInfo property)
+	{
+		return property.DeclaringType?.GetField($"<{property.Name}>k__BackingField", BindingFlags.Instance | BindingFlags.NonPublic);
+	}
+
+	private static Action<object, object?>? CreateSetterMethodForField(string propertyName, FieldInfo field)
+	{
+		var dm = new DynamicMethod("__set_" + propertyName, null, new Type[] { typeof(object), typeof(object) }, field.DeclaringType!.Module);
+
+		var il = dm.GetILGenerator();
+
+		il.Emit(OpCodes.Ldarg_0);
+		il.Emit(OpCodes.Castclass, field.DeclaringType!);
+		il.Emit(OpCodes.Ldarg_1);
+
+		if (field.FieldType.IsValueType)
+		{
+			il.Emit(OpCodes.Unbox_Any, field.FieldType);
+		}
+		else
+		{
+			il.Emit(OpCodes.Castclass, field.FieldType);
+		}
+
+		il.Emit(OpCodes.Stfld, field);
+		il.Emit(OpCodes.Ret);
+
+		return (Action<object, object?>)dm.CreateDelegate(typeof(Action<object, object?>));
+	}
+
 	#endregion
 
 	private readonly Func<object, object?>? _getter;

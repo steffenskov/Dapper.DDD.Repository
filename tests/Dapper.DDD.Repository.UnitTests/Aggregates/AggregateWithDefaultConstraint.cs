@@ -8,6 +8,6 @@ namespace Dapper.DDD.Repository.UnitTests.Aggregates
 
 		public int Age { get; set; }
 
-		public DateTime DateCreated { get; private init; }
+		public DateTime DateCreated { get; }
 	}
 }

@@ -7,5 +7,5 @@ internal record CompositePrimaryKeyAggregate
 	public string Username { get; init; } = default!;
 	public string Password { get; init; } = default!;
 
-	public DateTime DateCreated { get; init; }
+	public DateTime DateCreated { get; }
 }

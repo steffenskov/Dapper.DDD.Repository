@@ -5,6 +5,28 @@ namespace Dapper.DDD.Repository.UnitTests.Reflection;
 
 public class ObjectFlattenerTests
 {
+	public class NoDefaultConstructorWithPrivateSetterProperty
+	{
+		public int Age { get; private set; }
+		public NoDefaultConstructorWithPrivateSetterProperty(int age)
+		{
+			Age = age;
+		}
+	}
+
+	public class PropertiesWithNoSetter
+	{
+		public int Age { get; }
+		public string Name { get; }
+		public double? Factor { get; }
+		public PropertiesWithNoSetter(int age, string name, double? factor)
+		{
+			Age = age;
+			Name = name;
+			Factor = factor;
+		}
+	}
+
 	[Fact]
 	public void Flatten_ObjectWithSimpleProperties_ReturnsSameObject()
 	{
@@ -183,5 +205,39 @@ public class ObjectFlattenerTests
 		Assert.Equal(obj.Id, complex.Id);
 		Assert.Equal(obj.User.Id, complex.User.Id);
 		Assert.Equal(obj.User.Username, complex.User.Username);
+	}
+
+	[Fact]
+	public void Unflatten_HasNoDefaultConstructorAndPropertyWithPrivateSetter_ReturnsComplexObject()
+	{
+		// Arrange
+		var objectFlattener = new ObjectFlattener();
+		var obj = new NoDefaultConstructorWithPrivateSetterProperty(42);
+
+		var flat = objectFlattener.Flatten(obj);
+
+		// Act
+		var complex = objectFlattener.Unflatten<NoDefaultConstructorWithPrivateSetterProperty>(flat);
+
+		// Assert
+		Assert.Equal(obj.Age, complex.Age);
+	}
+
+	[Fact]
+	public void Unflatten_HasPropertiesWithNoSetter_ReturnsComplexObject()
+	{
+		// Arrange
+		var objectFlattener = new ObjectFlattener();
+		var obj = new PropertiesWithNoSetter(42, "Username", null);
+
+		var flat = objectFlattener.Flatten(obj);
+
+		// Act
+		var complex = objectFlattener.Unflatten<PropertiesWithNoSetter>(flat);
+
+		// Assert
+		Assert.Equal(obj.Age, complex.Age);
+		Assert.Equal(obj.Name, complex.Name);
+		Assert.Equal(obj.Factor, complex.Factor);
 	}
 }

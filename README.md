@@ -161,7 +161,7 @@ public class User
 	public string Username { get; set; }
 	public string Password { get; set; }
 	public string? Description { get; set; } // If you're not using the new nullability feature, just remove the questionmark
-	public DateTime DateCreated { get; private init; } // private init because of the database default constraint - we don't want to ever change this property in code.
+	public DateTime DateCreated { get; } // No setter because of the database default constraint - we don't want to ever change this property in code.
 }
 ```
 
@@ -226,4 +226,3 @@ From here on you can inject an `IUserRepository` anywhere with the built-in Depe
 
 ## Upcoming features
 - Improvements to AggregateConfiguration injection, as the current "explicit interface" approach is a bit annoying for when adding support for new databases.
-- MAYBE support for properties without setter
