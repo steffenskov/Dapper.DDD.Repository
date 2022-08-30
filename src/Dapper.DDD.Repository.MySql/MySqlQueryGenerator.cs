@@ -32,12 +32,13 @@ internal class MySqlQueryGenerator<TAggregate> : IQueryGenerator<TAggregate>
 		var valueObjects = readConfiguration.GetValueObjects();
 		foreach (var valueObject in valueObjects)
 		{
+			var valueObjectProperties = valueObject.GetFlattenedPropertiesOrdered(configuration);
 			properties.Remove(valueObject);
-			properties.AddRange(valueObject.GetPropertiesOrdered());
+			properties.AddRange(valueObjectProperties);
 			if (keys.Contains(valueObject))
 			{
 				keys.Remove(valueObject);
-				keys.AddRange(valueObject.GetPropertiesOrdered());
+				keys.AddRange(valueObjectProperties);
 			}
 		}
 		_properties = properties;

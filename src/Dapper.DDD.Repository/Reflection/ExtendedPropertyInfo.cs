@@ -50,9 +50,35 @@ public class ExtendedPropertyInfo
 
 	public IReadOnlyExtendedPropertyInfoCollection GetPropertiesOrdered()
 	{
-		return new ExtendedPropertyInfoCollection(
-					TypePropertiesCache.GetProperties(Type)
-					.Select(prop => new ExtendedPropertyInfo(prop, Name))
-					.OrderBy(prop => prop.Name));
+		return new ExtendedPropertyInfoCollection(GetPropertiesOrdered(Type, Name));
+	}
+
+	private IOrderedEnumerable<ExtendedPropertyInfo> GetPropertiesOrdered(Type type, string prefix)
+	{
+		return TypePropertiesCache.GetProperties(type)
+							.Select(prop => new ExtendedPropertyInfo(prop, prefix))
+							.OrderBy(prop => prop.Name);
+	}
+
+	public IReadOnlyExtendedPropertyInfoCollection GetFlattenedPropertiesOrdered<TAggregate>(BaseAggregateConfiguration<TAggregate> configuration) where TAggregate : notnull
+	{
+		return new ExtendedPropertyInfoCollection(GetFlattenedPropertiesOrdered(Type, Name, configuration));
+	}
+
+	private IEnumerable<ExtendedPropertyInfo> GetFlattenedPropertiesOrdered<TAggregate>(Type type, string prefix, BaseAggregateConfiguration<TAggregate> configuration) where TAggregate : notnull
+	{
+		var properties = GetPropertiesOrdered(type, prefix);
+		foreach (var prop in properties)
+		{
+			if (prop.Type.IsSimpleOrBuiltIn() || configuration.HasTypeConverter(prop.Type))
+				yield return prop;
+			else
+			{
+				foreach (var nestedProp in GetFlattenedPropertiesOrdered(prop.Type, prop.Name, configuration))
+				{
+					yield return nestedProp;
+				}
+			}
+		}
 	}
 }
