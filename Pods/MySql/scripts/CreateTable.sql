@@ -576,6 +576,18 @@ CREATE TABLE IF NOT EXISTS `northwind`.`customers_with_value_object` (
 	DEFAULT CHARACTER SET = utf8;
 
 
+CREATE TABLE IF NOT EXISTS `northwind`.`customers_with_nested_value_object` (
+	`Id` CHAR(36) NOT NULL, -- UUID
+	`Name` VARCHAR(100) NOT NULL,
+  `Addresses_Invoice_Zipcode` INT(11) NOT NULL,
+  `Addresses_Invoice_Street` VARCHAR(200) NOT NULL,
+  `Addresses_Delivery_Zipcode` INT(11) NOT NULL,
+  `Addresses_Delivery_Street` VARCHAR(200) NOT NULL,
+	PRIMARY KEY (`Id`))
+	ENGINE = InnoDB
+	DEFAULT CHARACTER SET = utf8;
+
+
 CREATE VIEW `northwind`.`current_product_list` AS
 SELECT Product_List.id AS ProductID, Product_List.product_name AS ProductName
 FROM products AS Product_List
