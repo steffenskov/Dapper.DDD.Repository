@@ -1,5 +1,4 @@
-﻿using System.Collections.Concurrent;
-using System.Linq.Expressions;
+﻿using System.Linq.Expressions;
 using Dapper.DDD.Repository.Reflection;
 
 namespace Dapper.DDD.Repository.Configuration;
@@ -7,7 +6,7 @@ namespace Dapper.DDD.Repository.Configuration;
 public abstract class BaseAggregateConfiguration<TAggregate> : IReadAggregateConfiguration<TAggregate>
 {
 	private ExtendedPropertyInfoCollection? _keyProperties;
-	private ConcurrentDictionary<Type, ITypeConverter> _typeConverters = new();
+	private DefaultConfiguration? _defaultConfiguration;
 	private readonly ExtendedPropertyInfoCollection _defaults = new();
 	private readonly ExtendedPropertyInfoCollection _identities = new();
 	private readonly ExtendedPropertyInfoCollection _ignores = new();
@@ -25,12 +24,12 @@ public abstract class BaseAggregateConfiguration<TAggregate> : IReadAggregateCon
 		{
 			return;
 		}
+		this._defaultConfiguration = defaults;
 
 		Schema ??= defaults.Schema;
 		QueryGeneratorFactory ??= defaults.QueryGeneratorFactory;
 		ConnectionFactory ??= defaults.ConnectionFactory;
 		DapperInjectionFactory ??= defaults.DapperInjectionFactory;
-		_typeConverters = defaults._typeConverters;
 	}
 
 	public void HasKey(Expression<Func<TAggregate, object?>> expression)
@@ -98,6 +97,11 @@ public abstract class BaseAggregateConfiguration<TAggregate> : IReadAggregateCon
 		var ignoredNames = _ignores.Select(prop => prop.Name).ToHashSet();
 		return TypePropertiesCache.GetProperties<TAggregate>()
 									.Where(prop => !ignoredNames.Contains(prop.Name))
-									.Where(prop => !prop.Type.IsSimpleOrBuiltIn() && !_typeConverters.ContainsKey(prop.Type));
+									.Where(prop => !prop.Type.IsSimpleOrBuiltIn() && !HasTypeConverter(prop.Type));
+	}
+
+	public bool HasTypeConverter(Type type)
+	{
+		return _defaultConfiguration?.HasTypeConverter(type) == true;
 	}
 }

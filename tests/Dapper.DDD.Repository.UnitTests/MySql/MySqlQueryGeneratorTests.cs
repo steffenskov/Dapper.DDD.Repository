@@ -1,5 +1,4 @@
-﻿using Dapper.DDD.Repository.Configuration;
-using Dapper.DDD.Repository.MySql;
+﻿using Dapper.DDD.Repository.MySql;
 using Dapper.DDD.Repository.UnitTests.Aggregates;
 
 namespace Dapper.DDD.Repository.UnitTests.MySql
@@ -35,6 +34,19 @@ namespace Dapper.DDD.Repository.UnitTests.MySql
 		#endregion
 
 		#region Delete
+		[Fact]
+		public void GenerateDeleteQuery_HasNestedValueObject_Valid()
+		{
+			// Arrange
+			var generator = CreateAggregateWithNestedValueObjectGenerator();
+
+			// Act
+			var query = generator.GenerateDeleteQuery();
+
+			// Assert
+			Assert.Equal($"SELECT Users.Id, Users.FirstLevel_SecondLevel_Name FROM Users WHERE Users.Id = @Id;DELETE FROM Users WHERE Users.Id = @Id;", query);
+		}
+
 		[Fact]
 		public void GenerateDeleteQuery_HasValueObjectAsId_Valid()
 		{
@@ -89,6 +101,19 @@ namespace Dapper.DDD.Repository.UnitTests.MySql
 
 		#region GetAll
 		[Fact]
+		public void GenerateGetAllQuery_HasNestedValueObject_Valid()
+		{
+			// Arrange
+			var generator = CreateAggregateWithNestedValueObjectGenerator();
+
+			// Act
+			var query = generator.GenerateGetAllQuery();
+
+			// Assert
+			Assert.Equal($"SELECT Users.Id, Users.FirstLevel_SecondLevel_Name FROM Users;", query);
+		}
+
+		[Fact]
 		public void GenerateGetAllQuery_HasValueObjectAsId_Valid()
 		{
 			// Arrange
@@ -129,6 +154,19 @@ namespace Dapper.DDD.Repository.UnitTests.MySql
 		#endregion
 
 		#region Get
+		[Fact]
+		public void GenerateGetQuery_HasNestedValueObject_Valid()
+		{
+			// Arrange
+			var generator = CreateAggregateWithNestedValueObjectGenerator();
+
+			// Act
+			var query = generator.GenerateGetQuery();
+
+			// Assert
+			Assert.Equal($"SELECT Users.Id, Users.FirstLevel_SecondLevel_Name FROM Users WHERE Users.Id = @Id;", query);
+		}
+
 		[Fact]
 		public void GenerateGetQuery_HasValueObjectAsId_Valid()
 		{
@@ -182,6 +220,19 @@ namespace Dapper.DDD.Repository.UnitTests.MySql
 		#endregion
 
 		#region Insert
+		[Fact]
+		public void GenerateInsertQuery_HasNestedValueObject_Valid()
+		{
+			// Arrange
+			var generator = CreateAggregateWithNestedValueObjectGenerator();
+
+			// Act
+			var query = generator.GenerateInsertQuery(new(Guid.NewGuid(), new(new("Hello world"))));
+
+			// Assert
+			Assert.Equal($"INSERT INTO Users (Id, FirstLevel_SecondLevel_Name) VALUES (@Id, @FirstLevel_SecondLevel_Name);SELECT Users.Id, Users.FirstLevel_SecondLevel_Name FROM Users WHERE Users.Id = @Id;", query);
+		}
+
 		[Fact]
 		public void GenerateInsertQuery_HasValueObjectAsId_Valid()
 		{
@@ -299,6 +350,19 @@ namespace Dapper.DDD.Repository.UnitTests.MySql
 		#endregion
 
 		#region Update
+		[Fact]
+		public void GenerateUpdateQuery_HasNestedValueObject_Valid()
+		{
+			// Arrange
+			var generator = CreateAggregateWithNestedValueObjectGenerator();
+
+			// Act
+			var query = generator.GenerateUpdateQuery(new(Guid.NewGuid(), new(new("Hello world"))));
+
+			// Assert
+			Assert.Equal($"UPDATE Users SET FirstLevel_SecondLevel_Name = @FirstLevel_SecondLevel_Name WHERE Users.Id = @Id;SELECT Users.Id, Users.FirstLevel_SecondLevel_Name FROM Users WHERE Users.Id = @Id;", query);
+		}
+
 		[Fact]
 		public void GenerateUpdateQuery_HasValueObjectAsId_Valid()
 		{
@@ -441,6 +505,19 @@ namespace Dapper.DDD.Repository.UnitTests.MySql
 			};
 			config.HasKey(x => x.Id);
 			var generator = new MySqlQueryGenerator<AggregateWithValueObjectId>(config);
+			return generator;
+		}
+
+		private static MySqlQueryGenerator<AggregateWithNestedValueObject> CreateAggregateWithNestedValueObjectGenerator()
+		{
+			var defaultConfig = new DefaultConfiguration();
+			var config = new TableAggregateConfiguration<AggregateWithNestedValueObject>()
+			{
+				TableName = "Users"
+			};
+			config.HasKey(x => x.Id);
+			config.SetDefaults(defaultConfig);
+			var generator = new MySqlQueryGenerator<AggregateWithNestedValueObject>(config);
 			return generator;
 		}
 		#endregion

@@ -1,8 +1,8 @@
-﻿using Dapper.DDD.Repository.IntegrationTests.Repositories;
+﻿using Dapper.DDD.Repository.Exceptions;
+using Dapper.DDD.Repository.IntegrationTests.Repositories;
 
 namespace Dapper.DDD.Repository.IntegrationTests;
-public abstract class BaseAggregateWithValueObjectAsyncTests<TDbException>
-where TDbException : Exception
+public abstract class BaseAggregateWithValueObjectAsyncTests
 {
 	private readonly ICustomerRepository _repository;
 
@@ -114,7 +114,7 @@ where TDbException : Exception
 		aggregate = aggregate with { InvoiceAddress = aggregate.InvoiceAddress with { Street = null! } };
 
 		// Act && Assert
-		_ = await Assert.ThrowsAsync<TDbException>(async () => await _repository.InsertAsync(aggregate));
+		_ = await Assert.ThrowsAsync<DapperRepositoryQueryException>(async () => await _repository.InsertAsync(aggregate));
 	}
 	#endregion
 

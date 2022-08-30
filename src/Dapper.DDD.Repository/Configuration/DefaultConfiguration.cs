@@ -32,4 +32,9 @@ public class DefaultConfiguration
 			throw new InvalidOperationException($"A TypeConverter has already been added of this type: <{typeof(TComplex)},{typeof(TSimple)}>");
 		}
 	}
+
+	public bool HasTypeConverter(Type type)
+	{
+		return _typeConverters.ContainsKey(type);
+	}
 }

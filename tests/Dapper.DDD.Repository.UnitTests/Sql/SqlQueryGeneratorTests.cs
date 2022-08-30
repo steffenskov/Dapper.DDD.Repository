@@ -1,5 +1,4 @@
-﻿using Dapper.DDD.Repository.Configuration;
-using Dapper.DDD.Repository.Sql;
+﻿using Dapper.DDD.Repository.Sql;
 using Dapper.DDD.Repository.UnitTests.Aggregates;
 using NetTopologySuite.Geometries;
 using NetTopologySuite.IO;
@@ -63,6 +62,19 @@ public class QueryGeneratorTests
 	#endregion
 
 	#region Delete
+	[Fact]
+	public void GenerateDeleteQuery_HasNestedValueObject_Valid()
+	{
+		// Arrange
+		var generator = CreateAggregateWithNestedValueObjectGenerator();
+
+		// Act
+		var query = generator.GenerateDeleteQuery();
+
+		// Assert
+		Assert.Equal($"DELETE FROM [dbo].[Users] OUTPUT [deleted].[Id], [deleted].[FirstLevel_SecondLevel_Name] WHERE [dbo].[Users].[Id] = @Id;", query);
+	}
+
 	[Fact]
 	public void GenerateDeleteQuery_HasSerializedType_Valid()
 	{
@@ -156,6 +168,19 @@ public class QueryGeneratorTests
 
 	#region GetAll
 	[Fact]
+	public void GenerateGetAllQuery_HasNestedValueObject_Valid()
+	{
+		// Arrange
+		var generator = CreateAggregateWithNestedValueObjectGenerator();
+
+		// Act
+		var query = generator.GenerateGetAllQuery();
+
+		// Assert
+		Assert.Equal($"SELECT [dbo].[Users].[Id], [dbo].[Users].[FirstLevel_SecondLevel_Name] FROM [dbo].[Users];", query);
+	}
+
+	[Fact]
 	public void GenerateGetAllQuery_HasValueObjectAsId_Valid()
 	{
 		// Arrange
@@ -223,6 +248,19 @@ public class QueryGeneratorTests
 	#endregion
 
 	#region Get
+	[Fact]
+	public void GenerateGetQuery_HasNestedValueObject_Valid()
+	{
+		// Arrange
+		var generator = CreateAggregateWithNestedValueObjectGenerator();
+
+		// Act
+		var query = generator.GenerateGetQuery();
+
+		// Assert
+		Assert.Equal($"SELECT [dbo].[Users].[Id], [dbo].[Users].[FirstLevel_SecondLevel_Name] FROM [dbo].[Users] WHERE [dbo].[Users].[Id] = @Id;", query);
+	}
+
 	[Fact]
 	public void GenerateGetQuery_HasValueObjectAsId_Valid()
 	{
@@ -303,6 +341,19 @@ public class QueryGeneratorTests
 	#endregion
 
 	#region Insert
+	[Fact]
+	public void GenerateInsertQuery_HasNestedValueObject_Valid()
+	{
+		// Arrange
+		var generator = CreateAggregateWithNestedValueObjectGenerator();
+
+		// Act
+		var query = generator.GenerateInsertQuery(new(Guid.NewGuid(), new(new("Hello world"))));
+
+		// Assert
+		Assert.Equal($"INSERT INTO [dbo].[Users] ([Id], [FirstLevel_SecondLevel_Name]) OUTPUT [inserted].[Id], [inserted].[FirstLevel_SecondLevel_Name] VALUES (@Id, @FirstLevel_SecondLevel_Name);", query);
+	}
+
 	[Fact]
 	public void GenerateInsertQuery_HasValueObjectAsId_Valid()
 	{
@@ -440,6 +491,19 @@ public class QueryGeneratorTests
 	#endregion
 
 	#region Update
+	[Fact]
+	public void GenerateUpdateQuery_HasNestedValueObject_Valid()
+	{
+		// Arrange
+		var generator = CreateAggregateWithNestedValueObjectGenerator();
+
+		// Act
+		var query = generator.GenerateUpdateQuery(new(Guid.NewGuid(), new(new("Hello world"))));
+
+		// Assert
+		Assert.Equal($"UPDATE [dbo].[Users] SET [dbo].[Users].[FirstLevel_SecondLevel_Name] = @FirstLevel_SecondLevel_Name OUTPUT [inserted].[Id], [inserted].[FirstLevel_SecondLevel_Name] WHERE [dbo].[Users].[Id] = @Id;", query);
+	}
+
 	[Fact]
 	public void GenerateUpdateQuery_HasValueObjectAsId_Valid()
 	{
@@ -656,6 +720,20 @@ public class QueryGeneratorTests
 		config.SetDefaults(defaultConfig);
 		Predicate<Type> polygonPredicate = (Type type) => type == typeof(Polygon);
 		var generator = new SqlQueryGenerator<AggregateWithGeometry>(config, new[] { polygonPredicate });
+		return generator;
+	}
+
+	private static SqlQueryGenerator<AggregateWithNestedValueObject> CreateAggregateWithNestedValueObjectGenerator()
+	{
+		var defaultConfig = new DefaultConfiguration();
+		var config = new TableAggregateConfiguration<AggregateWithNestedValueObject>()
+		{
+			Schema = "dbo",
+			TableName = "Users"
+		};
+		config.HasKey(x => x.Id);
+		config.SetDefaults(defaultConfig);
+		var generator = new SqlQueryGenerator<AggregateWithNestedValueObject>(config);
 		return generator;
 	}
 	#endregion

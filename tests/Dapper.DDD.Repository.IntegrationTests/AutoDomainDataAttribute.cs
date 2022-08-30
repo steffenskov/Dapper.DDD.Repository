@@ -16,6 +16,10 @@ public class AutoDomainDataAttribute : AutoDataAttribute
 														.With(customer => customer.Id, Guid.NewGuid())
 														.With(customer => customer.InvoiceAddress, new Address("Streetname" + Guid.NewGuid(), new Zipcode(Random.Shared.Next(int.MaxValue))))
 														.With(customer => customer.DeliveryAddress, new Address("Streetname" + Guid.NewGuid(), new Zipcode(Random.Shared.Next(int.MaxValue)))));
+
+		  fixture.Customize<CustomerWithNestedAddresses>(transform => transform
+																		  .With(customer => customer.Id, Guid.NewGuid())
+																		  .With(customer => customer.Addresses, new Addresses(new Address("Streetname" + Guid.NewGuid(), new Zipcode(Random.Shared.Next(int.MaxValue))), new Address("Streetname" + Guid.NewGuid(), new Zipcode(Random.Shared.Next(int.MaxValue))))));
 		  return fixture;
 	  })
 	{
