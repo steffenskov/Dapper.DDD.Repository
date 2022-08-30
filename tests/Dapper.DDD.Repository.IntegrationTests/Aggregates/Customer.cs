@@ -20,3 +20,12 @@ public record Customer
 }
 
 public record Address(string Street, Zipcode Zipcode);
+
+public record CustomerWithNestedAddresses
+{
+	public Guid Id { get; init; }
+	public string Name { get; init; } = default!;
+	public Addresses Addresses { get; init; } = default!;
+}
+
+public record Addresses(Address Invoice, Address Delivery);

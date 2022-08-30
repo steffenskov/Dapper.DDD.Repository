@@ -57,6 +57,11 @@ public class Startup
 			options.TableName = "Cities";
 			options.HasKey(x => x.Id);
 		});
+		services.AddTableRepository<CustomerWithNestedAddresses, Guid>(options =>
+		{
+			options.TableName = "CustomersWithNestedValueObject";
+			options.HasKey(x => x.Id);
+		});
 		Provider = services.BuildServiceProvider();
 	}
 
