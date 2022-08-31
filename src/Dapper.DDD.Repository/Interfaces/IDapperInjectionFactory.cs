@@ -2,6 +2,5 @@ namespace Dapper.DDD.Repository.Interfaces;
 
 public interface IDapperInjectionFactory
 {
-	IDapperInjection<T> Create<T>()
-	where T : notnull;
+	IDapperInjection<T> Create<T>();
 }

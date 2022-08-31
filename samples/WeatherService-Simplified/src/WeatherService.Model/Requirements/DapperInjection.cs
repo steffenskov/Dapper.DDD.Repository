@@ -5,7 +5,6 @@ using Dapper.DDD.Repository.Interfaces;
 namespace WeatherService.Model.Requirements;
 
 public class DapperInjection<T> : IDapperInjection<T>
-where T : notnull
 {
 	public Task<int> ExecuteAsync(IDbConnection cnn, string sql, object? param = null, IDbTransaction? transaction = null, int? commandTimeout = null, CommandType? commandType = null, CancellationToken cancellationToken = default)
 	{

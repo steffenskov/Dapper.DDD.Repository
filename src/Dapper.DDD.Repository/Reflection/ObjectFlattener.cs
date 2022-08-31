@@ -113,7 +113,6 @@ internal class ObjectFlattener
 	/// <typeparam name="T">The original type the flattenedObject is based on</typeparam>
 	/// <param name="flattenedObject">A flattened object</param>
 	public T Unflatten<T>(object flattenedObject)
-		where T : notnull
 	{
 		var result = TypeInstantiator.CreateInstance<T>();
 		var destinationProperties = GetProperties(typeof(T));
@@ -146,8 +145,9 @@ internal class ObjectFlattener
 		return result;
 	}
 
-	private (object Value, IReadOnlyExtendedPropertyInfoCollection Properties) CopyValueToNestedDestination<T>(T result, string[] parts, object? sourceValue) where T : notnull
+	private (object Value, IReadOnlyExtendedPropertyInfoCollection Properties) CopyValueToNestedDestination<T>(T result, string[] parts, object? sourceValue)
 	{
+		ArgumentNullException.ThrowIfNull(result);
 		object destinationObject = result;
 		var destinationProperties = GetProperties(destinationObject.GetType());
 		ExtendedPropertyInfo destinationProperty;

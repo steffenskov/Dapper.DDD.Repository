@@ -56,7 +56,6 @@ using Dapper.DDD.Repository.Interfaces;
 namespace YOUR_NAMESPACE_HERE;
 
 internal class DapperInjection<T> : IDapperInjection<T>
-where T : notnull
 {
 	public Task<int> ExecuteAsync(IDbConnection cnn, string sql, object? param = null, IDbTransaction? transaction = null, int? commandTimeout = null, CommandType? commandType = null, CancellationToken cancellationToken = default)
 	{
@@ -103,7 +102,6 @@ namespace YOUR_NAMESPACE_HERE;
 internal class DapperInjectionFactory : IDapperInjectionFactory
 {
 	public IDapperInjection<T> Create<T>()
-	where T : notnull
 	{
 		return new DapperInjection<T>();
 	}

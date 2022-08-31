@@ -1,7 +1,6 @@
 ﻿namespace Dapper.DDD.Repository.Interfaces;
 
 public interface IDapperInjection<T>
-where T : notnull
 {
 	Task<int> ExecuteAsync(IDbConnection cnn, string sql, object? param = null, IDbTransaction? transaction = null, int? commandTimeout = null, CommandType? commandType = null, CancellationToken cancellationToken = default);
 	Task<IEnumerable<T>> QueryAsync(IDbConnection cnn, string sql, object? param = null, IDbTransaction? transaction = null, int? commandTimeout = null, CommandType? commandType = null, CancellationToken cancellationToken = default);

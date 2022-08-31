@@ -43,8 +43,9 @@ public class ExtendedPropertyInfo
 	}
 
 	public void SetValue<T>(T aggregate, object? value)
-	where T : notnull
 	{
+		if (aggregate is null)
+			return;
 		_accessor.SetValue(aggregate, value);
 	}
 

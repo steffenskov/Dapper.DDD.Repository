@@ -5,7 +5,7 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
-    <Version>1.5.1</Version>
+    <Version>1.5.2</Version>
     <Authors>Steffen Skov</Authors>
     <Company>Steffen Skov</Company>
     <Description>Domain-Driven-Design based repository pattern for Dapper.</Description>
