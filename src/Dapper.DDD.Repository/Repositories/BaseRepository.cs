@@ -182,7 +182,6 @@ where TAggregate : notnull
 	}
 
 	protected async Task<IEnumerable<TResult>> ScalarMultipleAsync<TResult>(string query, object? param, IDbTransaction? transaction = null, int? commandTimeout = null, CommandType? commandType = null, CancellationToken cancellationToken = default)
-	where TResult : notnull
 	{
 		using var connection = _connectionFactory.CreateConnection();
 		try
@@ -212,7 +211,6 @@ where TAggregate : notnull
 	}
 
 	protected async Task<TResult?> ScalarSingleOrDefaultAsync<TResult>(string query, object? param, IDbTransaction? transaction = null, int? commandTimeout = null, CommandType? commandType = null, CancellationToken cancellationToken = default)
-	where TResult : notnull
 	{
 		using var connection = _connectionFactory.CreateConnection();
 		try
@@ -242,7 +240,6 @@ where TAggregate : notnull
 	}
 
 	protected async Task<TResult> ScalarSingleAsync<TResult>(string query, object? param, IDbTransaction? transaction = null, int? commandTimeout = null, CommandType? commandType = null, CancellationToken cancellationToken = default)
-	where TResult : notnull
 	{
 		using var connection = _connectionFactory.CreateConnection();
 

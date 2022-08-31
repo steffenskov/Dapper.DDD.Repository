@@ -13,4 +13,9 @@ public class ProductListViewRepository : ViewRepository<ProductListView, int>, I
 	{
 		return await QuerySingleOrDefaultAsync($"SELECT {PropertyList} FROM {ViewName} WHERE ProductName = @name", new { name }, cancellationToken: cancellationToken);
 	}
+
+	public async Task<int?> GetProductIdByNameAsync(string name, CancellationToken cancellationToken = default)
+	{
+		return await ScalarSingleOrDefaultAsync<int?>($"SELECT ProductId FROM {ViewName} WHERE ProductName = @name", new { name }, cancellationToken: cancellationToken);
+	}
 }

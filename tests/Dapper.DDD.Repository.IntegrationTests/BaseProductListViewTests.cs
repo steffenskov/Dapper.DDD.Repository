@@ -11,6 +11,31 @@ public abstract class BaseProductListViewTests
 	}
 
 	[Fact]
+	public async Task GetNullableIdByName_NameDoesNotExist_ReturnsNull()
+	{
+		// Act
+		var productId = await _repository.GetProductIdByNameAsync("SomeNameThatDoesNotExistAtAll");
+
+		// Assert
+		Assert.Null(productId);
+	}
+
+	[Fact]
+	public async Task GetNullableIdByName_NameExists_ReturnsValue()
+	{
+		// Arrange
+		var all = await _repository.GetAllAsync();
+		var first = all.First();
+
+		// Act
+
+		var productId = await _repository.GetProductIdByNameAsync(first.ProductName);
+
+		// Assert
+		Assert.Equal(first.ProductID, productId);
+	}
+
+	[Fact]
 	public async Task GetAll_HaveRows_Valid()
 	{
 		// Act

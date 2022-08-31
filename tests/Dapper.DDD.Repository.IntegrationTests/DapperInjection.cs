@@ -3,7 +3,6 @@
 namespace Dapper.DDD.Repository.IntegrationTests;
 
 public class DapperInjection<T> : IDapperInjection<T>
-where T : notnull
 {
 	public Task<int> ExecuteAsync(IDbConnection cnn, string sql, object? param = null, IDbTransaction? transaction = null, int? commandTimeout = null, CommandType? commandType = null, CancellationToken cancellationToken = default)
 	{
