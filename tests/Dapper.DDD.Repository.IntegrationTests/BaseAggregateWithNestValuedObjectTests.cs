@@ -1,14 +1,16 @@
 namespace Dapper.DDD.Repository.IntegrationTests;
+
 public abstract class BaseAggregateWithNestedValueObjectTests
 {
-	private ITableRepository<CustomerWithNestedAddresses, Guid> _repository;
+	private readonly ITableRepository<CustomerWithNestedAddresses, Guid> _repository;
 
 	protected BaseAggregateWithNestedValueObjectTests(IServiceProvider serviceProvider)
 	{
 		_repository = serviceProvider.GetService<ITableRepository<CustomerWithNestedAddresses, Guid>>()!;
 	}
 
-	[Theory, AutoDomainData]
+	[Theory]
+	[AutoDomainData]
 	public async Task Delete_Valid_ReturnsNestedValues(CustomerWithNestedAddresses aggregate)
 	{
 		// Arrange
@@ -22,7 +24,8 @@ public abstract class BaseAggregateWithNestedValueObjectTests
 		Assert.Equal(aggregate, deleted);
 	}
 
-	[Theory, AutoDomainData]
+	[Theory]
+	[AutoDomainData]
 	public async Task Insert_Valid_ReturnsNestedValues(CustomerWithNestedAddresses aggregate)
 	{
 		// Arrange && Act
@@ -33,7 +36,8 @@ public abstract class BaseAggregateWithNestedValueObjectTests
 		Assert.Equal(aggregate, inserted);
 	}
 
-	[Theory, AutoDomainData]
+	[Theory]
+	[AutoDomainData]
 	public async Task Get_UsePrimaryKey_Valid(CustomerWithNestedAddresses aggregate)
 	{
 		// Arrange
@@ -46,7 +50,8 @@ public abstract class BaseAggregateWithNestedValueObjectTests
 		Assert.Equal(aggregate, fetched);
 	}
 
-	[Theory, AutoDomainData]
+	[Theory]
+	[AutoDomainData]
 	public async Task GetAll_Valid_ContainsNestedValues(CustomerWithNestedAddresses aggregate)
 	{
 		// Arrange
@@ -59,14 +64,19 @@ public abstract class BaseAggregateWithNestedValueObjectTests
 		Assert.Equal(aggregate, fetched);
 	}
 
-	[Theory, AutoDomainData]
+	[Theory]
+	[AutoDomainData]
 	public async Task Update_Valid_ReturnsNestedValues(CustomerWithNestedAddresses aggregate)
 	{
 		// Arrange
 		await _repository.InsertAsync(aggregate);
 
 		// Act
-		var toUpdate = aggregate with { Addresses = new Addresses(new Address("Other name", new Zipcode(Random.Shared.Next(int.MaxValue))), new Address("Other name", Zipcode.New())) };
+		var toUpdate = aggregate with
+		{
+			Addresses = new Addresses(new Address("Other name", new Zipcode(Random.Shared.Next(int.MaxValue))),
+				new Address("Other name", Zipcode.New()))
+		};
 		var updated = await _repository.UpdateAsync(toUpdate);
 
 		// Assert

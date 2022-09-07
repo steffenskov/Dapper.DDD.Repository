@@ -5,7 +5,8 @@ This package provides support for using Dapper.DDD.Repository with MySql and Mar
 # Usage
 
 Install the package [MySql.Data](https://www.nuget.org/packages/MySql.Data) in your project.
-Then simply provide an instance of `MySqlQueryGenerator` as your `QueryGenerator`, and create a `MySqlConnectionFactory` in your project, and you're done:
+Then simply provide an instance of `MySqlQueryGenerator` as your `QueryGenerator`, and create a `MySqlConnectionFactory`
+in your project, and you're done:
 
 ```
 	...

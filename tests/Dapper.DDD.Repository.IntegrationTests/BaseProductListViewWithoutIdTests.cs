@@ -1,4 +1,5 @@
 namespace Dapper.DDD.Repository.IntegrationTests;
+
 public abstract class BaseProductListViewWithoutIdTests
 {
 	private readonly IViewRepository<ProductListView> _repository;

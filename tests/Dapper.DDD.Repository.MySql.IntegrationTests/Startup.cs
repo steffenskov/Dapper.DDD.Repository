@@ -11,7 +11,8 @@ public class Startup
 		_ = services.AddOptions();
 		_ = services.ConfigureDapperRepositoryDefaults(options =>
 		{
-			options.ConnectionFactory = new MySqlConnectionFactory("Server=localhost;Port=33060;Database=northwind;Uid=root;Pwd=mysql1337;AllowPublicKeyRetrieval=true;");
+			options.ConnectionFactory = new MySqlConnectionFactory(
+				"Server=localhost;Port=33060;Database=northwind;Uid=root;Pwd=mysql1337;AllowPublicKeyRetrieval=true;");
 			options.DapperInjectionFactory = new DapperInjectionFactory();
 			options.QueryGeneratorFactory = new MySqlQueryGeneratorFactory();
 			options.AddTypeConverter<CategoryId, int>(categoryId => categoryId.PrimitiveId, CategoryId.Create);
@@ -30,15 +31,13 @@ public class Startup
 			options.HasDefault(x => x.DateCreated);
 		});
 
-		_ = services.AddViewRepository<ProductListView, int, IProductListViewRepository, ProductListViewRepository>(options =>
-		{
-			options.ViewName = "current_product_list";
-			options.HasKey(x => x.ProductID);
-		});
-		_ = services.AddViewRepository<ProductListView>(options =>
-		{
-			options.ViewName = "current_product_list";
-		});
+		_ = services.AddViewRepository<ProductListView, int, IProductListViewRepository, ProductListViewRepository>(
+			options =>
+			{
+				options.ViewName = "current_product_list";
+				options.HasKey(x => x.ProductID);
+			});
+		_ = services.AddViewRepository<ProductListView>(options => { options.ViewName = "current_product_list"; });
 
 		_ = services.AddTableRepository<Customer, Guid, ICustomerRepository, CustomerRepository>(options =>
 		{

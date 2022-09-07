@@ -1,32 +1,11 @@
 ﻿using Dapper.DDD.Repository.Reflection;
 using Dapper.DDD.Repository.UnitTests.Aggregates;
+using Dapper.DDD.Repository.UnitTests.ValueObjects;
 
 namespace Dapper.DDD.Repository.UnitTests.Reflection;
 
 public class ObjectFlattenerTests
 {
-	public class NoDefaultConstructorWithPrivateSetterProperty
-	{
-		public int Age { get; private set; }
-		public NoDefaultConstructorWithPrivateSetterProperty(int age)
-		{
-			Age = age;
-		}
-	}
-
-	public class PropertiesWithNoSetter
-	{
-		public int Age { get; }
-		public string Name { get; }
-		public double? Factor { get; }
-		public PropertiesWithNoSetter(int age, string name, double? factor)
-		{
-			Age = age;
-			Name = name;
-			Factor = factor;
-		}
-	}
-
 	[Fact]
 	public void Flatten_ObjectWithSimpleProperties_ReturnsSameObject()
 	{
@@ -62,13 +41,7 @@ public class ObjectFlattenerTests
 		var objectFlattener = new ObjectFlattener();
 		var obj = new
 		{
-			Id = Guid.NewGuid(),
-			Name = "Test",
-			Address = new
-			{
-				Street = "Test street",
-				City = "Test city"
-			}
+			Id = Guid.NewGuid(), Name = "Test", Address = new { Street = "Test street", City = "Test city" }
 		};
 
 		// Act
@@ -93,10 +66,13 @@ public class ObjectFlattenerTests
 	{
 		// Arrange
 		var objectFlattener = new ObjectFlattener();
-		objectFlattener.AddTypeConverter(typeof(StrongUserId), new TypeConverter<StrongUserId, int>(uid => uid.PrimitiveId, uid => new StrongUserId(uid)));
+		objectFlattener.AddTypeConverter(typeof(StrongUserId),
+			new TypeConverter<StrongUserId, int>(uid => uid.PrimitiveId, uid => new StrongUserId(uid)));
 
 		// Act & Assert
-		var ex = Assert.Throws<InvalidOperationException>(() => objectFlattener.AddTypeConverter(typeof(StrongUserId), new TypeConverter<StrongUserId, int>(uid => uid.PrimitiveId, uid => new StrongUserId(uid))));
+		var ex = Assert.Throws<InvalidOperationException>(() =>
+			objectFlattener.AddTypeConverter(typeof(StrongUserId),
+				new TypeConverter<StrongUserId, int>(uid => uid.PrimitiveId, uid => new StrongUserId(uid))));
 
 		Assert.Equal($"A TypeConverter for the type {typeof(StrongUserId)} has already been added.", ex.Message);
 	}
@@ -106,13 +82,10 @@ public class ObjectFlattenerTests
 	{
 		// Arrange
 		var objectFlattener = new ObjectFlattener();
-		var obj = new UserWithStrongTypedId
-		{
-			Id = new StrongUserId(42),
-			Username = "Some name"
-		};
+		var obj = new UserWithStrongTypedId { Id = new StrongUserId(42), Username = "Some name" };
 
-		objectFlattener.AddTypeConverter(typeof(StrongUserId), new TypeConverter<StrongUserId, int>(uid => uid.PrimitiveId, uid => new StrongUserId(uid)));
+		objectFlattener.AddTypeConverter(typeof(StrongUserId),
+			new TypeConverter<StrongUserId, int>(uid => uid.PrimitiveId, uid => new StrongUserId(uid)));
 
 		// Act
 		var result = objectFlattener.Flatten(obj);
@@ -137,11 +110,11 @@ public class ObjectFlattenerTests
 		var objectFlattener = new ObjectFlattener();
 		var obj = new CustomerWithUser
 		{
-			Id = 42,
-			User = new ValueObjects.UserValueObject { Id = new StrongUserId(1337), Username = "Some user" }
+			Id = 42, User = new UserValueObject { Id = new StrongUserId(1337), Username = "Some user" }
 		};
 
-		objectFlattener.AddTypeConverter(typeof(StrongUserId), new TypeConverter<StrongUserId, int>(uid => uid.PrimitiveId, uid => new StrongUserId(uid)));
+		objectFlattener.AddTypeConverter(typeof(StrongUserId),
+			new TypeConverter<StrongUserId, int>(uid => uid.PrimitiveId, uid => new StrongUserId(uid)));
 
 		// Act
 		var result = objectFlattener.Flatten(obj);
@@ -165,13 +138,10 @@ public class ObjectFlattenerTests
 	{
 		// Arrange
 		var objectFlattener = new ObjectFlattener();
-		var obj = new UserWithStrongTypedId
-		{
-			Id = new StrongUserId(42),
-			Username = "Some name"
-		};
+		var obj = new UserWithStrongTypedId { Id = new StrongUserId(42), Username = "Some name" };
 
-		objectFlattener.AddTypeConverter(typeof(StrongUserId), new TypeConverter<StrongUserId, int>(uid => uid.PrimitiveId, uid => new StrongUserId(uid)));
+		objectFlattener.AddTypeConverter(typeof(StrongUserId),
+			new TypeConverter<StrongUserId, int>(uid => uid.PrimitiveId, uid => new StrongUserId(uid)));
 		var flat = objectFlattener.Flatten(obj);
 
 		// Act
@@ -190,11 +160,11 @@ public class ObjectFlattenerTests
 		var objectFlattener = new ObjectFlattener();
 		var obj = new CustomerWithUser
 		{
-			Id = 42,
-			User = new ValueObjects.UserValueObject { Id = new StrongUserId(1337), Username = "Some user" }
+			Id = 42, User = new UserValueObject { Id = new StrongUserId(1337), Username = "Some user" }
 		};
 
-		objectFlattener.AddTypeConverter(typeof(StrongUserId), new TypeConverter<StrongUserId, int>(uid => uid.PrimitiveId, uid => new StrongUserId(uid)));
+		objectFlattener.AddTypeConverter(typeof(StrongUserId),
+			new TypeConverter<StrongUserId, int>(uid => uid.PrimitiveId, uid => new StrongUserId(uid)));
 		var flat = objectFlattener.Flatten(obj);
 
 		// Act
@@ -239,5 +209,29 @@ public class ObjectFlattenerTests
 		Assert.Equal(obj.Age, complex.Age);
 		Assert.Equal(obj.Name, complex.Name);
 		Assert.Equal(obj.Factor, complex.Factor);
+	}
+
+	public class NoDefaultConstructorWithPrivateSetterProperty
+	{
+		public NoDefaultConstructorWithPrivateSetterProperty(int age)
+		{
+			Age = age;
+		}
+
+		public int Age { get; }
+	}
+
+	public class PropertiesWithNoSetter
+	{
+		public PropertiesWithNoSetter(int age, string name, double? factor)
+		{
+			Age = age;
+			Name = name;
+			Factor = factor;
+		}
+
+		public int Age { get; }
+		public string Name { get; }
+		public double? Factor { get; }
 	}
 }

@@ -13,15 +13,21 @@ public class Startup
 		_ = services.AddOptions();
 		_ = services.ConfigureDapperRepositoryDefaults(options =>
 		{
-			options.ConnectionFactory = new SqlConnectionFactory("Server=127.0.0.1;Database=Northwind;User Id=sa;Password=SqlServerPassword#&%¤2019;Encrypt=False;");
+			options.ConnectionFactory = new SqlConnectionFactory(
+				"Server=127.0.0.1;Database=Northwind;User Id=sa;Password=SqlServerPassword#&%¤2019;Encrypt=False;");
 			options.DapperInjectionFactory = new DapperInjectionFactory();
-			options.QueryGeneratorFactory = new SqlQueryGeneratorFactory().SerializeColumnType(type => type.Namespace == "NetTopologySuite.Geometries");
+			options.QueryGeneratorFactory =
+				new SqlQueryGeneratorFactory().SerializeColumnType(type =>
+					type.Namespace == "NetTopologySuite.Geometries");
 			options.Schema = "dbo";
 			options.AddTypeConverter<CategoryId, int>(categoryId => categoryId.PrimitiveId, CategoryId.Create);
 			options.AddTypeConverter<Zipcode, int>(zipcode => zipcode.PrimitiveId, Zipcode.Create);
-			options.AddTypeConverter<Point, byte[]>(geo => new SqlServerBytesWriter() { IsGeography = false }.Write(geo), bytes => (Point)new SqlServerBytesReader() { IsGeography = false }.Read(bytes));
-			options.AddTypeConverter<Polygon, byte[]>(geo => new SqlServerBytesWriter() { IsGeography = false }.Write(geo), bytes => (Polygon)new SqlServerBytesReader() { IsGeography = false }.Read(bytes));
-
+			options.AddTypeConverter<Point, byte[]>(
+				geo => new SqlServerBytesWriter { IsGeography = false }.Write(geo),
+				bytes => (Point)new SqlServerBytesReader { IsGeography = false }.Read(bytes));
+			options.AddTypeConverter<Polygon, byte[]>(
+				geo => new SqlServerBytesWriter { IsGeography = false }.Write(geo),
+				bytes => (Polygon)new SqlServerBytesReader { IsGeography = false }.Read(bytes));
 		});
 		_ = services.AddTableRepository<Category, CategoryId>(options =>
 		{
@@ -36,15 +42,13 @@ public class Startup
 			options.HasDefault(x => x.DateCreated);
 		});
 
-		_ = services.AddViewRepository<ProductListView, int, IProductListViewRepository, ProductListViewRepository>(options =>
-		{
-			options.ViewName = "[Current Product List]";
-			options.HasKey(x => x.ProductID);
-		});
-		_ = services.AddViewRepository<ProductListView>(options =>
-		{
-			options.ViewName = "[Current Product List]";
-		});
+		_ = services.AddViewRepository<ProductListView, int, IProductListViewRepository, ProductListViewRepository>(
+			options =>
+			{
+				options.ViewName = "[Current Product List]";
+				options.HasKey(x => x.ProductID);
+			});
+		_ = services.AddViewRepository<ProductListView>(options => { options.ViewName = "[Current Product List]"; });
 
 		_ = services.AddTableRepository<Customer, Guid, ICustomerRepository, CustomerRepository>(options =>
 		{

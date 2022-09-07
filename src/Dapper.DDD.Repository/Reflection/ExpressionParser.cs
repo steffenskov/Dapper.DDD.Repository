@@ -1,16 +1,19 @@
 ﻿using System.Linq.Expressions;
 
 namespace Dapper.DDD.Repository.Reflection;
+
 internal class ExpressionParser<TAggregate>
 {
-	public IEnumerable<ExtendedPropertyInfo> GetExtendedPropertiesFromExpression(Expression<Func<TAggregate, object?>> expression)
+	public IEnumerable<ExtendedPropertyInfo> GetExtendedPropertiesFromExpression(
+		Expression<Func<TAggregate, object?>> expression)
 	{
 		var propertyNames = GetMemberName(expression);
 		var properties = TypePropertiesCache.GetProperties<TAggregate>();
 		foreach (var propertyName in propertyNames)
 		{
 			yield return !properties.TryGetValue(propertyName, out var property)
-				? throw new InvalidOperationException($"{typeof(TAggregate).Name} doesn't contain a property named {propertyName}.")
+				? throw new InvalidOperationException(
+					$"{typeof(TAggregate).Name} doesn't contain a property named {propertyName}.")
 				: property!;
 		}
 	}

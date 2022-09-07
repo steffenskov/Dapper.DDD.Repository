@@ -2,9 +2,10 @@ using Dapper.DDD.Repository.Repositories;
 using Dapper.DDD.Repository.UnitTests.Aggregates;
 
 namespace Dapper.DDD.Repository.UnitTests.Repositories;
+
 public class TableRepositoryTests : IClassFixture<NoDefaultsStartup>
 {
-	private ServiceProvider _provider;
+	private readonly ServiceProvider _provider;
 
 	public TableRepositoryTests(NoDefaultsStartup startup)
 	{
@@ -26,17 +27,13 @@ public class TableRepositoryTests : IClassFixture<NoDefaultsStartup>
 	{
 		// Arrange && Assert
 		var ex = Assert.Throws<ArgumentNullException>(() =>
-		new TableRepository<UserAggregate, Guid>(Options.Create(
-			new Configuration.TableAggregateConfiguration<UserAggregate>
-			{
-				DapperInjectionFactory = Mock.Of<IDapperInjectionFactory>(),
-				QueryGeneratorFactory = new MockQueryGeneratorFactory()
-
-			}
-		), Options.Create(new Configuration.DefaultConfiguration
-		{
-
-		})));
+			new TableRepository<UserAggregate, Guid>(Options.Create(
+				new TableAggregateConfiguration<UserAggregate>
+				{
+					DapperInjectionFactory = Mock.Of<IDapperInjectionFactory>(),
+					QueryGeneratorFactory = new MockQueryGeneratorFactory()
+				}
+			), Options.Create(new DefaultConfiguration())));
 
 		Assert.Contains("ConnectionFactory", ex.Message);
 	}
@@ -46,17 +43,13 @@ public class TableRepositoryTests : IClassFixture<NoDefaultsStartup>
 	{
 		// Arrange && Assert
 		var ex = Assert.Throws<ArgumentNullException>(() =>
-				new TableRepository<UserAggregate, Guid>(Options.Create(
-					new Configuration.TableAggregateConfiguration<UserAggregate>
-					{
-						DapperInjectionFactory = Mock.Of<IDapperInjectionFactory>(),
-						ConnectionFactory = Mock.Of<IConnectionFactory>()
-
-					}
-				), Options.Create(new Configuration.DefaultConfiguration
+			new TableRepository<UserAggregate, Guid>(Options.Create(
+				new TableAggregateConfiguration<UserAggregate>
 				{
-
-				})));
+					DapperInjectionFactory = Mock.Of<IDapperInjectionFactory>(),
+					ConnectionFactory = Mock.Of<IConnectionFactory>()
+				}
+			), Options.Create(new DefaultConfiguration())));
 
 		Assert.Contains("QueryGeneratorFactory", ex.Message);
 	}
@@ -66,17 +59,13 @@ public class TableRepositoryTests : IClassFixture<NoDefaultsStartup>
 	{
 		// Arrange && Assert
 		var ex = Assert.Throws<ArgumentNullException>(() =>
-				new TableRepository<UserAggregate, Guid>(Options.Create(
-					new Configuration.TableAggregateConfiguration<UserAggregate>
-					{
-						ConnectionFactory = Mock.Of<IConnectionFactory>(),
-						QueryGeneratorFactory = new MockQueryGeneratorFactory()
-
-					}
-				), Options.Create(new Configuration.DefaultConfiguration
+			new TableRepository<UserAggregate, Guid>(Options.Create(
+				new TableAggregateConfiguration<UserAggregate>
 				{
-
-				})));
+					ConnectionFactory = Mock.Of<IConnectionFactory>(),
+					QueryGeneratorFactory = new MockQueryGeneratorFactory()
+				}
+			), Options.Create(new DefaultConfiguration())));
 
 		Assert.Contains("DapperInjectionFactory", ex.Message);
 	}
@@ -85,7 +74,7 @@ public class TableRepositoryTests : IClassFixture<NoDefaultsStartup>
 	public void Constructor_NoTableName_Throws()
 	{
 		// Arrange
-		var config = new Configuration.TableAggregateConfiguration<UserAggregate>
+		var config = new TableAggregateConfiguration<UserAggregate>
 		{
 			ConnectionFactory = Mock.Of<IConnectionFactory>(),
 			QueryGeneratorFactory = new MockQueryGeneratorFactory(),
@@ -96,9 +85,9 @@ public class TableRepositoryTests : IClassFixture<NoDefaultsStartup>
 
 		// Act && Assert
 		var ex = Assert.Throws<ArgumentNullException>(() =>
-				new TableRepository<UserAggregate, Guid>(Options.Create(
-					config
-				), Options.Create(new Configuration.DefaultConfiguration())));
+			new TableRepository<UserAggregate, Guid>(Options.Create(
+				config
+			), Options.Create(new DefaultConfiguration())));
 
 		Assert.Contains("TableName", ex.Message);
 	}
@@ -107,7 +96,7 @@ public class TableRepositoryTests : IClassFixture<NoDefaultsStartup>
 	public void Constructor_NoKey_Throws()
 	{
 		// Arrange
-		var config = new Configuration.TableAggregateConfiguration<UserAggregate>
+		var config = new TableAggregateConfiguration<UserAggregate>
 		{
 			ConnectionFactory = Mock.Of<IConnectionFactory>(),
 			QueryGeneratorFactory = new MockQueryGeneratorFactory(),
@@ -117,9 +106,9 @@ public class TableRepositoryTests : IClassFixture<NoDefaultsStartup>
 
 		// Act && Assert
 		var ex = Assert.Throws<ArgumentException>(() =>
-						new TableRepository<UserAggregate, Guid>(Options.Create(
-							config
-						), Options.Create(new Configuration.DefaultConfiguration())));
+			new TableRepository<UserAggregate, Guid>(Options.Create(
+				config
+			), Options.Create(new DefaultConfiguration())));
 
 		Assert.Contains("No key has been specified for this aggregate", ex.Message);
 	}
@@ -128,7 +117,7 @@ public class TableRepositoryTests : IClassFixture<NoDefaultsStartup>
 	public void Constructor_NoSchemaName_Valid()
 	{
 		// Arrange
-		var config = new Configuration.TableAggregateConfiguration<UserAggregate>
+		var config = new TableAggregateConfiguration<UserAggregate>
 		{
 			ConnectionFactory = Mock.Of<IConnectionFactory>(),
 			QueryGeneratorFactory = new MockQueryGeneratorFactory(),
@@ -140,7 +129,7 @@ public class TableRepositoryTests : IClassFixture<NoDefaultsStartup>
 		// Act
 		var repo = new TableRepository<UserAggregate, Guid>(Options.Create(
 			config
-		), Options.Create(new Configuration.DefaultConfiguration()));
+		), Options.Create(new DefaultConfiguration()));
 
 		// Assert
 		Assert.NotNull(repo);

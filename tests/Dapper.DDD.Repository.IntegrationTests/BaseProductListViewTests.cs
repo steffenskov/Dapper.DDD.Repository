@@ -1,6 +1,7 @@
 using Dapper.DDD.Repository.IntegrationTests.Repositories;
 
 namespace Dapper.DDD.Repository.IntegrationTests;
+
 public abstract class BaseProductListViewTests
 {
 	private readonly IProductListViewRepository _repository;

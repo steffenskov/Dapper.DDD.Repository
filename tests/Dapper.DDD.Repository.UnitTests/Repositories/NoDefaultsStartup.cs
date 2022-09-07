@@ -1,6 +1,5 @@
 using Dapper.DDD.Repository.DependencyInjection;
 using Dapper.DDD.Repository.UnitTests.Aggregates;
-using Microsoft.Extensions.DependencyInjection;
 
 namespace Dapper.DDD.Repository.UnitTests.Repositories;
 

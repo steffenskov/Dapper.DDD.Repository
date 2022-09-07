@@ -4,14 +4,16 @@ This package provides support for using Dapper.DDD.Repository with the built-in 
 
 # Usage
 
-After adding this package, you can use the methods 
+After adding this package, you can use the methods
+
 - ConfigureDapperRepositoryDefaults
 - AddTableRepository (Multiple overloads available)
 - AddViewRepository (Multiple overloads available)
 
 On an `IServiceCollection` to inject all the repositories you're going to use.
 
-Typically this will be available in `Program.cs`, though I suggest moving the actual Dapper configuration to your infrastructure layer, similar to this:
+Typically this will be available in `Program.cs`, though I suggest moving the actual Dapper configuration to your
+infrastructure layer, similar to this:
 
 ```
 public static IServiceCollection AddInfrastructure(this IServiceCollection services, string connectionString)

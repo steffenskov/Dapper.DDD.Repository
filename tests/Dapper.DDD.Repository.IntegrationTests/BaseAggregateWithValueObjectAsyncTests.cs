@@ -2,6 +2,7 @@
 using Dapper.DDD.Repository.IntegrationTests.Repositories;
 
 namespace Dapper.DDD.Repository.IntegrationTests;
+
 public abstract class BaseAggregateWithValueObjectAsyncTests
 {
 	private readonly ICustomerRepository _repository;
@@ -10,6 +11,24 @@ public abstract class BaseAggregateWithValueObjectAsyncTests
 	{
 		_repository = serviceProvider.GetService<ICustomerRepository>()!;
 	}
+
+	#region GetAll
+
+	[Theory]
+	[AutoDomainData]
+	public async Task GetAll_NoInput_Valid(Customer aggregate)
+	{
+		// Arrange
+		_ = await _repository.InsertAsync(aggregate);
+
+		// Act
+		var fetchedEntities = await _repository.GetAllAsync();
+
+		// Assert
+		Assert.True(fetchedEntities.Count() > 0);
+	}
+
+	#endregion
 
 	#region Delete
 
@@ -23,7 +42,8 @@ public abstract class BaseAggregateWithValueObjectAsyncTests
 		Assert.Null(deleted);
 	}
 
-	[Theory, AutoDomainData]
+	[Theory]
+	[AutoDomainData]
 	public async Task Delete_UsePrimaryKey_Valid(Customer aggregate)
 	{
 		// Arrange
@@ -36,11 +56,13 @@ public abstract class BaseAggregateWithValueObjectAsyncTests
 		Assert.Equal(insertedAggregate, deleted);
 		Assert.NotSame(insertedAggregate, deleted);
 	}
+
 	#endregion
 
 	#region Get
 
-	[Theory, AutoDomainData]
+	[Theory]
+	[AutoDomainData]
 	public async Task Get_UsePrimaryKey_Valid(Customer aggregate)
 	{
 		// Arrange
@@ -65,24 +87,11 @@ public abstract class BaseAggregateWithValueObjectAsyncTests
 		// Assert
 		Assert.Null(gotten);
 	}
-	#endregion
 
-	#region GetAll
-	[Theory, AutoDomainData]
-	public async Task GetAll_NoInput_Valid(Customer aggregate)
-	{
-		// Arrange
-		_ = await _repository.InsertAsync(aggregate);
-
-		// Act
-		var fetchedEntities = await _repository.GetAllAsync();
-
-		// Assert
-		Assert.True(fetchedEntities.Count() > 0);
-	}
 	#endregion
 
 	#region Insert
+
 	[Fact]
 	public async Task Insert_InputIsNull_Throws()
 	{
@@ -90,7 +99,8 @@ public abstract class BaseAggregateWithValueObjectAsyncTests
 		_ = await Assert.ThrowsAsync<ArgumentNullException>(async () => await _repository.InsertAsync(null!));
 	}
 
-	[Theory, AutoDomainData]
+	[Theory]
+	[AutoDomainData]
 	public async Task Insert_HasAllValues_IsInserted(Customer aggregate)
 	{
 		// Act
@@ -107,18 +117,22 @@ public abstract class BaseAggregateWithValueObjectAsyncTests
 		}
 	}
 
-	[Theory, AutoDomainData]
+	[Theory]
+	[AutoDomainData]
 	public async Task Insert_NonNullPropertyMissing_Throws(Customer aggregate)
 	{
 		// Arrange
 		aggregate = aggregate with { InvoiceAddress = aggregate.InvoiceAddress with { Street = null! } };
 
 		// Act && Assert
-		_ = await Assert.ThrowsAsync<DapperRepositoryQueryException>(async () => await _repository.InsertAsync(aggregate));
+		_ = await Assert.ThrowsAsync<DapperRepositoryQueryException>(async () =>
+			await _repository.InsertAsync(aggregate));
 	}
+
 	#endregion
 
 	#region Update
+
 	[Fact]
 	public async Task Update_InputIsNull_Throws()
 	{
@@ -126,7 +140,8 @@ public abstract class BaseAggregateWithValueObjectAsyncTests
 		_ = await Assert.ThrowsAsync<ArgumentNullException>(async () => await _repository.UpdateAsync(null!));
 	}
 
-	[Theory, AutoDomainData]
+	[Theory]
+	[AutoDomainData]
 	public async Task Update_UseAggregate_Valid(Customer aggregate)
 	{
 		// Arrange
@@ -149,9 +164,7 @@ public abstract class BaseAggregateWithValueObjectAsyncTests
 		// Arrange
 		var aggregate = new Customer
 		{
-			Id = Guid.NewGuid(),
-			Name = "Hello world",
-			InvoiceAddress = new Address("Road", new Zipcode(1200))
+			Id = Guid.NewGuid(), Name = "Hello world", InvoiceAddress = new Address("Road", new Zipcode(1200))
 		};
 
 		// Act 
@@ -160,5 +173,6 @@ public abstract class BaseAggregateWithValueObjectAsyncTests
 		// Assert
 		Assert.Null(updated);
 	}
+
 	#endregion
 }

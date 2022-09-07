@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace Dapper.DDD.Repository.UnitTests.Aggregates;
+﻿namespace Dapper.DDD.Repository.UnitTests.Aggregates;
 
 internal record CompositePrimaryKeyAggregate
 {

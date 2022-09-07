@@ -5,14 +5,15 @@ namespace Dapper.DDD.Repository.Sql;
 internal class SqlQueryGenerator<TAggregate> : IQueryGenerator<TAggregate>
 	where TAggregate : notnull
 {
-	private readonly string _schemaAndEntity;
-	private readonly IReadOnlyExtendedPropertyInfoCollection _properties;
+	private readonly IReadOnlyExtendedPropertyInfoCollection _defaultConstraints;
 	private readonly IReadOnlyExtendedPropertyInfoCollection _identities;
 	private readonly IReadOnlyExtendedPropertyInfoCollection _keys;
-	private readonly IReadOnlyExtendedPropertyInfoCollection _defaultConstraints;
+	private readonly IReadOnlyExtendedPropertyInfoCollection _properties;
+	private readonly string _schemaAndEntity;
 	private readonly IList<Predicate<Type>> _serializeColumnTypePredicates;
 
-	public SqlQueryGenerator(BaseAggregateConfiguration<TAggregate> configuration, IList<Predicate<Type>>? serializeColumnTypePredicates = null)
+	public SqlQueryGenerator(BaseAggregateConfiguration<TAggregate> configuration,
+		IList<Predicate<Type>>? serializeColumnTypePredicates = null)
 	{
 		_serializeColumnTypePredicates = serializeColumnTypePredicates ?? Array.Empty<Predicate<Type>>();
 		var readConfiguration = (IReadAggregateConfiguration<TAggregate>)configuration;
@@ -29,7 +30,8 @@ internal class SqlQueryGenerator<TAggregate> : IQueryGenerator<TAggregate>
 			throw new ArgumentException("Entity name cannot be null or whitespace.", nameof(configuration));
 		}
 
-		_schemaAndEntity = $"{EnsureSquareBrackets(configuration.Schema)}.{EnsureSquareBrackets(readConfiguration.EntityName)}";
+		_schemaAndEntity =
+			$"{EnsureSquareBrackets(configuration.Schema)}.{EnsureSquareBrackets(readConfiguration.EntityName)}";
 
 		var properties = readConfiguration.GetProperties();
 		var keys = new ExtendedPropertyInfoCollection(readConfiguration.GetKeys());
@@ -45,6 +47,7 @@ internal class SqlQueryGenerator<TAggregate> : IQueryGenerator<TAggregate>
 				keys.AddRange(valueObjectProperties);
 			}
 		}
+
 		_properties = properties;
 		_identities = readConfiguration.GetIdentityProperties();
 		_keys = keys;
@@ -65,11 +68,14 @@ internal class SqlQueryGenerator<TAggregate> : IQueryGenerator<TAggregate>
 		var propertiesWithDefaultValues = _defaultConstraints;
 
 		var propertiesToInsert = _properties
-									.Where(property => !identityProperties.Contains(property) && (!propertiesWithDefaultValues.Contains(property) || !property.HasDefaultValue(aggregate)))
-									.ToList();
+			.Where(property => !identityProperties.Contains(property) &&
+			                   (!propertiesWithDefaultValues.Contains(property) ||
+			                    !property.HasDefaultValue(aggregate)))
+			.ToList();
 
 		var outputProperties = GeneratePropertyList("inserted");
-		return $"INSERT INTO {_schemaAndEntity} ({string.Join(", ", propertiesToInsert.Select(property => AddSquareBrackets(property.Name)))}) OUTPUT {outputProperties} VALUES ({string.Join(", ", propertiesToInsert.Select(property => $"@{property.Name}"))});";
+		return
+			$"INSERT INTO {_schemaAndEntity} ({string.Join(", ", propertiesToInsert.Select(property => AddSquareBrackets(property.Name)))}) OUTPUT {outputProperties} VALUES ({string.Join(", ", propertiesToInsert.Select(property => $"@{property.Name}"))});";
 	}
 
 	public string GenerateGetAllQuery()
@@ -93,26 +99,14 @@ internal class SqlQueryGenerator<TAggregate> : IQueryGenerator<TAggregate>
 
 		if (string.IsNullOrEmpty(setClause))
 		{
-			throw new InvalidOperationException($"GenerateUpdateQuery for aggregate of type {typeof(TAggregate).FullName} failed as the type has no properties with a setter.");
+			throw new InvalidOperationException(
+				$"GenerateUpdateQuery for aggregate of type {typeof(TAggregate).FullName} failed as the type has no properties with a setter.");
 		}
 
 		var outputProperties = GeneratePropertyList("inserted");
 
-		return $"UPDATE {_schemaAndEntity} SET {setClause} OUTPUT {outputProperties} WHERE {GenerateWhereClause()};";
-	}
-
-	private string GenerateSetClause(TAggregate aggregate)
-	{
-		var primaryKeys = _keys;
-		var propertiesWithDefaultValues = _defaultConstraints;
-		var propertiesToSet = _properties.Where(property => !primaryKeys.Contains(property) && property.HasSetter && (!propertiesWithDefaultValues.Contains(property) || !property.HasDefaultValue(aggregate)));
-		var result = string.Join(", ", propertiesToSet.Select(property => $"{_schemaAndEntity}.{AddSquareBrackets(property.Name)} = @{property.Name}"));
-		return result;
-	}
-
-	private string GenerateWhereClause()
-	{
-		return string.Join(" AND ", _keys.Select(property => $"{_schemaAndEntity}.{AddSquareBrackets(property.Name)} = @{property.Name}"));
+		return
+			$"UPDATE {_schemaAndEntity} SET {setClause} OUTPUT {outputProperties} WHERE {GenerateWhereClause()};";
 	}
 
 
@@ -123,13 +117,32 @@ internal class SqlQueryGenerator<TAggregate> : IQueryGenerator<TAggregate>
 		return string.Join(", ", _properties.Select(property => GeneratePropertyClause(tableName, property)));
 	}
 
+	private string GenerateSetClause(TAggregate aggregate)
+	{
+		var primaryKeys = _keys;
+		var propertiesWithDefaultValues = _defaultConstraints;
+		var propertiesToSet = _properties.Where(property =>
+			!primaryKeys.Contains(property) && property.HasSetter &&
+			(!propertiesWithDefaultValues.Contains(property) || !property.HasDefaultValue(aggregate)));
+		var result = string.Join(", ",
+			propertiesToSet.Select(property =>
+				$"{_schemaAndEntity}.{AddSquareBrackets(property.Name)} = @{property.Name}"));
+		return result;
+	}
+
+	private string GenerateWhereClause()
+	{
+		return string.Join(" AND ",
+			_keys.Select(property => $"{_schemaAndEntity}.{AddSquareBrackets(property.Name)} = @{property.Name}"));
+	}
+
 	private string GeneratePropertyClause(string tableName, ExtendedPropertyInfo property)
 	{
 		var shouldSerialize = ShouldSerializeColumnType(property.Type);
 		var result = $"{tableName}.{AddSquareBrackets(property.Name)}";
 		return shouldSerialize
-					? $"({result}).Serialize() AS [{property.Name}]"
-					: result;
+			? $"({result}).Serialize() AS [{property.Name}]"
+			: result;
 	}
 
 	private bool ShouldSerializeColumnType(Type type)
@@ -147,4 +160,3 @@ internal class SqlQueryGenerator<TAggregate> : IQueryGenerator<TAggregate>
 		return $"[{name}]";
 	}
 }
-

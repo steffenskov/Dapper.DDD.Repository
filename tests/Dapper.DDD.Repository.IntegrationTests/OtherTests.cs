@@ -1,4 +1,5 @@
 namespace Dapper.DDD.Repository.IntegrationTests;
+
 public abstract class OtherTests
 {
 	private readonly ITableRepository<CompositeUser, CompositeUserId> _repository;
@@ -8,7 +9,8 @@ public abstract class OtherTests
 		_repository = serviceProvider.GetService<ITableRepository<CompositeUser, CompositeUserId>>()!;
 	}
 
-	[Theory, AutoDomainData]
+	[Theory]
+	[AutoDomainData]
 	public async Task Insert_RelyOnDefaultConstraint_Valid(CompositeUser aggregate)
 	{
 		// Act
@@ -27,7 +29,8 @@ public abstract class OtherTests
 		}
 	}
 
-	[Theory, AutoDomainData]
+	[Theory]
+	[AutoDomainData]
 	public async Task Update_PropertyHasMissingSetter_PropertyIsExcluded(CompositeUser aggregate)
 	{
 		// Act

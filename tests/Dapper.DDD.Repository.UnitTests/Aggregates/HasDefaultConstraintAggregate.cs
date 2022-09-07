@@ -1,5 +1,3 @@
-using System;
-
 namespace Dapper.DDD.Repository.UnitTests.Aggregates;
 
 public record HasDefaultConstraintAggregate
