@@ -1,6 +1,7 @@
 ﻿using Dapper.DDD.Repository.UnitTests.ValueObjects;
 
 namespace Dapper.DDD.Repository.UnitTests.Aggregates;
+
 public record UserAggregate
 {
 	public Guid Id { get; init; }

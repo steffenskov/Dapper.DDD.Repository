@@ -2,17 +2,24 @@
 
 internal interface ITypeConverter
 {
+	Type SimpleType { get; }
 	object ConvertToSimple(object source);
 	object ConvertToComplex(object source);
-	Type SimpleType { get; }
 }
 
 internal class TypeConverter<TComplexType, TSimpleType> : ITypeConverter
 	where TComplexType : notnull
 	where TSimpleType : notnull
 {
-	private readonly Func<TComplexType, TSimpleType> _convertToSimple;
 	private readonly Func<TSimpleType, TComplexType> _convertToComplex;
+	private readonly Func<TComplexType, TSimpleType> _convertToSimple;
+
+	public TypeConverter(Func<TComplexType, TSimpleType> convertToSimple,
+		Func<TSimpleType, TComplexType> convertToComplex)
+	{
+		_convertToSimple = convertToSimple;
+		_convertToComplex = convertToComplex;
+	}
 
 	public Type SimpleType
 	{
@@ -23,14 +30,9 @@ internal class TypeConverter<TComplexType, TSimpleType> : ITypeConverter
 			{
 				simpleType = typeof(Nullable<>).MakeGenericType(simpleType);
 			}
+
 			return simpleType;
 		}
-	}
-
-	public TypeConverter(Func<TComplexType, TSimpleType> convertToSimple, Func<TSimpleType, TComplexType> convertToComplex)
-	{
-		_convertToSimple = convertToSimple;
-		_convertToComplex = convertToComplex;
 	}
 
 	public object ConvertToSimple(object source)

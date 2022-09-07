@@ -1,13 +1,10 @@
-using System;
+namespace Dapper.DDD.Repository.UnitTests.Aggregates;
 
-namespace Dapper.DDD.Repository.UnitTests.Aggregates
+public record AggregateWithDefaultConstraint
 {
-	public record AggregateWithDefaultConstraint
-	{
-		public int Id { get; set; }
+	public int Id { get; set; }
 
-		public int Age { get; set; }
+	public int Age { get; set; }
 
-		public DateTime DateCreated { get; }
-	}
+	public DateTime DateCreated { get; }
 }

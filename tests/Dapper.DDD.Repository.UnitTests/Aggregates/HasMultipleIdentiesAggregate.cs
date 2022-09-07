@@ -1,4 +1,5 @@
 namespace Dapper.DDD.Repository.UnitTests.Aggregates;
+
 public record HasMultipleIdentiesAggregate
 {
 	public int Id { get; init; }

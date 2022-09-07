@@ -2,12 +2,11 @@
 using Dapper.DDD.Repository.Reflection;
 
 namespace Dapper.DDD.Repository.Collections;
+
 public class ExtendedPropertyInfoCollection : IReadOnlyExtendedPropertyInfoCollection
 {
 	private readonly IDictionary<string, ExtendedPropertyInfo> _dictionary;
 	private readonly List<ExtendedPropertyInfo> _list;
-
-	public int Count => _list.Count;
 
 	public ExtendedPropertyInfoCollection()
 	{
@@ -20,12 +19,29 @@ public class ExtendedPropertyInfoCollection : IReadOnlyExtendedPropertyInfoColle
 		AddRange(properties);
 	}
 
+	public int Count => _list.Count;
+
 	public ExtendedPropertyInfo this[int index] => _list[index];
 	public ExtendedPropertyInfo this[string propertyName] => _dictionary[propertyName];
 
 	public bool TryGetValue(string propertyName, out ExtendedPropertyInfo? property)
 	{
 		return _dictionary.TryGetValue(propertyName, out property);
+	}
+
+	public bool Contains(ExtendedPropertyInfo property)
+	{
+		return _dictionary.ContainsKey(property.Name);
+	}
+
+	public IEnumerator<ExtendedPropertyInfo> GetEnumerator()
+	{
+		return _list.GetEnumerator();
+	}
+
+	IEnumerator IEnumerable.GetEnumerator()
+	{
+		return GetEnumerator();
 	}
 
 	public void AddRange(IEnumerable<ExtendedPropertyInfo> properties)
@@ -51,20 +67,5 @@ public class ExtendedPropertyInfoCollection : IReadOnlyExtendedPropertyInfoColle
 			_dictionary.Remove(property.Name);
 			_list.Remove(actualProperty);
 		}
-	}
-
-	public bool Contains(ExtendedPropertyInfo property)
-	{
-		return _dictionary.ContainsKey(property.Name);
-	}
-
-	public IEnumerator<ExtendedPropertyInfo> GetEnumerator()
-	{
-		return _list.GetEnumerator();
-	}
-
-	IEnumerator IEnumerable.GetEnumerator()
-	{
-		return GetEnumerator();
 	}
 }

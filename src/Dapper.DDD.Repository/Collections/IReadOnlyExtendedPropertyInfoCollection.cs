@@ -1,6 +1,7 @@
 ﻿using Dapper.DDD.Repository.Reflection;
 
 namespace Dapper.DDD.Repository.Collections;
+
 public interface IReadOnlyExtendedPropertyInfoCollection : IEnumerable<ExtendedPropertyInfo>
 {
 	int Count { get; }

@@ -1,27 +1,27 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
-  <ItemGroup>
-    <ProjectReference Include="..\Dapper.DDD.Repository\Dapper.DDD.Repository.csproj" />
-  </ItemGroup>
+	<ItemGroup>
+		<ProjectReference Include="..\Dapper.DDD.Repository\Dapper.DDD.Repository.csproj"/>
+	</ItemGroup>
 
-  <PropertyGroup>
-    <TargetFramework>net6.0</TargetFramework>
-    <ImplicitUsings>enable</ImplicitUsings>
-    <Nullable>enable</Nullable>
-    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
-    <Version>1.1.3</Version>
-    <Authors>Steffen Skov</Authors>
-    <Company>Steffen Skov</Company>
-    <Description>Domain-Driven-Design based repository pattern for Dapper.</Description>
-    <Copyright>Steffen Skov 2022</Copyright>
-    <PackageLicenseExpression>MIT</PackageLicenseExpression>
-    <PackageProjectUrl>https://github.com/steffenskov/Dapper.DDD.Repository</PackageProjectUrl>
-    <PackageTags>Dapper, DDD, Repository, ValueObject</PackageTags>
-    <PackageReadmeFile>README.md</PackageReadmeFile>
-  </PropertyGroup>
+	<PropertyGroup>
+		<TargetFramework>net6.0</TargetFramework>
+		<ImplicitUsings>enable</ImplicitUsings>
+		<Nullable>enable</Nullable>
+		<TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+		<Version>1.1.3</Version>
+		<Authors>Steffen Skov</Authors>
+		<Company>Steffen Skov</Company>
+		<Description>Domain-Driven-Design based repository pattern for Dapper.</Description>
+		<Copyright>Steffen Skov 2022</Copyright>
+		<PackageLicenseExpression>MIT</PackageLicenseExpression>
+		<PackageProjectUrl>https://github.com/steffenskov/Dapper.DDD.Repository</PackageProjectUrl>
+		<PackageTags>Dapper, DDD, Repository, ValueObject</PackageTags>
+		<PackageReadmeFile>README.md</PackageReadmeFile>
+	</PropertyGroup>
 
 	<ItemGroup>
-    <None Include="README.md" Pack="true" PackagePath="\" />
-  </ItemGroup>
+		<None Include="README.md" Pack="true" PackagePath="\"/>
+	</ItemGroup>
 
 </Project>

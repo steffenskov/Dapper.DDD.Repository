@@ -14,5 +14,4 @@ public class UserWithStrongTypedId
 	public StrongUserId? Id { get; set; }
 
 	public string Username { get; set; } = default!;
-
 }

@@ -41,7 +41,8 @@ public class ExpressionParserTests
 		var parser = new ExpressionParser<UserAggregate>();
 
 		// Act
-		var propertyInfos = parser.GetExtendedPropertiesFromExpression(user => new { user.Id, user.InvoiceAddress }).ToList();
+		var propertyInfos = parser.GetExtendedPropertiesFromExpression(user => new { user.Id, user.InvoiceAddress })
+			.ToList();
 
 		// Assert
 		Assert.Equal(2, propertyInfos.Count);
@@ -58,7 +59,8 @@ public class ExpressionParserTests
 		var id = 42;
 
 		// Act && Assert
-		Assert.Throws<InvalidOperationException>(() => parser.GetExtendedPropertiesFromExpression(user => id).ToList());
+		Assert.Throws<InvalidOperationException>(() =>
+			parser.GetExtendedPropertiesFromExpression(user => id).ToList());
 	}
 
 	[Fact]
@@ -79,6 +81,7 @@ public class ExpressionParserTests
 		var parser = new ExpressionParser<UserAggregate>();
 
 		// Act && Assert
-		Assert.Throws<InvalidOperationException>(() => parser.GetExtendedPropertiesFromExpression(user => new { id = user.Id }).ToList());
+		Assert.Throws<InvalidOperationException>(() =>
+			parser.GetExtendedPropertiesFromExpression(user => new { id = user.Id }).ToList());
 	}
 }

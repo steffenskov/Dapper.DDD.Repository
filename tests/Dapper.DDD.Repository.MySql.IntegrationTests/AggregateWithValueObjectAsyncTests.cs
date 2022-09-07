@@ -1,6 +1,4 @@
-﻿using Dapper.DDD.Repository.Exceptions;
-
-namespace Dapper.DDD.Repository.MySql.IntegrationTests;
+﻿namespace Dapper.DDD.Repository.MySql.IntegrationTests;
 
 public class AggregateWithValueObjectAsyncTests : BaseAggregateWithValueObjectAsyncTests, IClassFixture<Startup>
 {

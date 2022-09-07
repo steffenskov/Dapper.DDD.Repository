@@ -1,4 +1,5 @@
 ﻿namespace Dapper.DDD.Repository.IntegrationTests;
+
 public abstract class BaseCompositePrimaryKeyAsyncTests
 {
 	private readonly ITableRepository<CompositeUser, CompositeUserId> _repository;
@@ -18,14 +19,16 @@ public abstract class BaseCompositePrimaryKeyAsyncTests
 		Assert.Null(deleted);
 	}
 
-	[Theory, AutoDomainData]
+	[Theory]
+	[AutoDomainData]
 	public async Task Delete_UsePrimaryKey_Valid(CompositeUser aggregate)
 	{
 		// Arrange
 		var insertedAggregate = await _repository.InsertAsync(aggregate);
 
 		// Act
-		var deleted = await _repository.DeleteAsync(new CompositeUserId(aggregate.Id.Username, aggregate.Id.Password));
+		var deleted =
+			await _repository.DeleteAsync(new CompositeUserId(aggregate.Id.Username, aggregate.Id.Password));
 
 		// Assert
 		Assert.Equal(aggregate.Id.Username, deleted?.Id.Username);
@@ -43,7 +46,8 @@ public abstract class BaseCompositePrimaryKeyAsyncTests
 		Assert.Null(gotten);
 	}
 
-	[Theory, AutoDomainData]
+	[Theory]
+	[AutoDomainData]
 	public async Task Get_UsePrimaryKey_Valid(CompositeUser aggregate)
 	{
 		// Arrange
@@ -61,14 +65,18 @@ public abstract class BaseCompositePrimaryKeyAsyncTests
 		await _repository.DeleteAsync(insertedAggregate.Id);
 	}
 
-	[Theory, AutoDomainData]
+	[Theory]
+	[AutoDomainData]
 	public async Task Update_UseMissingPrimaryKeyValue_ReturnsNull(CompositeUser aggregate)
 	{
 		// Arrange
 		var insertedAggregate = await _repository.InsertAsync(aggregate);
 
 		// Act
-		var updated = await _repository.UpdateAsync(insertedAggregate with { Id = new CompositeUserId("Doesnt exist", "Secret") });
+		var updated = await _repository.UpdateAsync(insertedAggregate with
+		{
+			Id = new CompositeUserId("Doesnt exist", "Secret")
+		});
 
 		// Assert
 		Assert.Null(updated);
@@ -76,7 +84,8 @@ public abstract class BaseCompositePrimaryKeyAsyncTests
 		await _repository.DeleteAsync(insertedAggregate.Id);
 	}
 
-	[Theory, AutoDomainData]
+	[Theory]
+	[AutoDomainData]
 	public async Task Update_UsePrimaryKey_Valid(CompositeUser aggregate)
 	{
 		// Arrange

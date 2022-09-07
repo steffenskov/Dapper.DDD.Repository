@@ -1,8 +1,6 @@
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using System.Threading.Tasks;
 using Dapper.DDD.Repository.Reflection;
 using Dapper.DDD.Repository.UnitTests.Aggregates;
 
@@ -132,7 +130,9 @@ public class ExtendedPropertyInfoCollectionTests
 		var collection = new ExtendedPropertyInfoCollection();
 		var rawProps = typeof(UserAggregate).GetProperties(BindingFlags.Instance | BindingFlags.Public);
 		foreach (var prop in rawProps)
+		{
 			collection.Add(new ExtendedPropertyInfo(prop));
+		}
 
 		return collection;
 	}

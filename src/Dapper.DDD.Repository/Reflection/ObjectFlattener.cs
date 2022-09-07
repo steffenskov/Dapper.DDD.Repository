@@ -6,15 +6,18 @@ using System.Reflection.Emit;
 namespace Dapper.DDD.Repository.Reflection;
 
 /// <summary>
-/// Tool to flatten all public properties of an object.
+///     Tool to flatten all public properties of an object.
 /// </summary>
 internal class ObjectFlattener
 {
 	private static readonly LockedConcurrentDictionary<Type, Type> _flatTypeMap = new();
 	private static readonly LockedConcurrentDictionary<Type, bool> _shouldFlattenTypeMap = new();
-	private readonly ConcurrentDictionary<Type, ITypeConverter> _typeConverters = new();
-	private static readonly ConcurrentDictionary<Type, IReadOnlyExtendedPropertyInfoCollection> _typeProperties = new();
+
+	private static readonly ConcurrentDictionary<Type, IReadOnlyExtendedPropertyInfoCollection> _typeProperties =
+		new();
+
 	private static readonly ModuleBuilder _moduleBuilder;
+	private readonly ConcurrentDictionary<Type, ITypeConverter> _typeConverters = new();
 
 	static ObjectFlattener()
 	{
@@ -27,7 +30,8 @@ internal class ObjectFlattener
 
 	public static void SetTypeProperties(Type type, IReadOnlyExtendedPropertyInfoCollection properties)
 	{
-		_ = _typeProperties.TryAdd(type, properties); // Ignore if it already exists as it would be the same collection
+		_ = _typeProperties.TryAdd(type,
+			properties); // Ignore if it already exists as it would be the same collection
 	}
 
 	public void AddTypeConverter(Type type, ITypeConverter converter)
@@ -39,7 +43,7 @@ internal class ObjectFlattener
 	}
 
 	/// <summary>
-	/// Creates an empty flattened object based on the type T.
+	///     Creates an empty flattened object based on the type T.
 	/// </summary>
 	/// <typeparam name="T">Type to flatten</typeparam>
 	public object FlattenType<T>()
@@ -54,12 +58,12 @@ internal class ObjectFlattener
 	}
 
 	/// <summary>
-	/// Creates a flattened object based on the type T with all the properties from the aggregate given.
+	///     Creates a flattened object based on the type T with all the properties from the aggregate given.
 	/// </summary>
 	/// <typeparam name="T">Type to flatten</typeparam>
 	/// <param name="aggregate">Aggregate to copy properties from</param>
 	public object Flatten<T>(T aggregate)
-	where T : notnull
+		where T : notnull
 	{
 		var type = typeof(T);
 		if (!ShouldFlattenType(type))
@@ -75,7 +79,7 @@ internal class ObjectFlattener
 	}
 
 	/// <summary>
-	/// Creates a flattened object based on the aggregate given.
+	///     Creates a flattened object based on the aggregate given.
 	/// </summary>
 	/// <param name="aggregate">Aggregate to copy properties from</param>
 	public object? Flatten(object? aggregate)
@@ -99,7 +103,7 @@ internal class ObjectFlattener
 	}
 
 	/// <summary>
-	/// Retrieves the type of the flattened version of type T.
+	///     Retrieves the type of the flattened version of type T.
 	/// </summary>
 	/// <typeparam name="T">Type to flatten</typeparam>
 	public Type GetFlattenedType<T>()
@@ -108,7 +112,7 @@ internal class ObjectFlattener
 	}
 
 	/// <summary>
-	/// Unflattens the given flattenedAggregate into its original type T.
+	///     Unflattens the given flattenedAggregate into its original type T.
 	/// </summary>
 	/// <typeparam name="T">The original type the flattenedObject is based on</typeparam>
 	/// <param name="flattenedObject">A flattened object</param>
@@ -142,16 +146,19 @@ internal class ObjectFlattener
 				}
 			}
 		}
+
 		return result;
 	}
 
-	private (object Value, IReadOnlyExtendedPropertyInfoCollection Properties) CopyValueToNestedDestination<T>(T result, string[] parts, object? sourceValue)
+	private (object Value, IReadOnlyExtendedPropertyInfoCollection Properties) CopyValueToNestedDestination<T>(
+		T result, string[] parts, object? sourceValue)
 	{
 		ArgumentNullException.ThrowIfNull(result);
 		object destinationObject = result;
 		var destinationProperties = GetProperties(destinationObject.GetType());
 		ExtendedPropertyInfo destinationProperty;
-		foreach (var part in parts[..^1]) // Ensure properties exist for everything up til the one to set the source property on
+		foreach (var part in parts
+			         [..^1]) // Ensure properties exist for everything up til the one to set the source property on
 		{
 			destinationProperty = destinationProperties[part];
 			var existingValue = destinationProperty.GetValue(destinationObject);
@@ -160,6 +167,7 @@ internal class ObjectFlattener
 				existingValue = TypeInstantiator.CreateInstance(destinationProperty.Type);
 				destinationProperty.SetValue(destinationObject, existingValue);
 			}
+
 			destinationObject = existingValue;
 			destinationProperties = GetProperties(destinationObject.GetType());
 		}
@@ -203,6 +211,7 @@ internal class ObjectFlattener
 					return true;
 				}
 			}
+
 			return false;
 		});
 	}
@@ -220,10 +229,13 @@ internal class ObjectFlattener
 				propValue = typeConverter.ConvertToSimple(propValue);
 				destinationPropType = typeConverter.SimpleType;
 			}
-			else if (prop.Type.IsGenericType && prop.Type.GetGenericArguments().SingleOrDefault(type => _typeConverters.ContainsKey(type)) != null)
+			else if (prop.Type.IsGenericType &&
+			         prop.Type.GetGenericArguments().SingleOrDefault(type => _typeConverters.ContainsKey(type)) !=
+			         null)
 			{
 				propValue = ConvertCollectionToSimple(prop, propValue, ref typeConverter);
 			}
+
 			if (destinationPropType.IsSimpleOrBuiltIn())
 			{
 				destinationProperties[$"{prefix}{prop.Name}"].SetValue(flatResult, propValue);
@@ -238,10 +250,12 @@ internal class ObjectFlattener
 		}
 	}
 
-	private object? ConvertCollectionToSimple(ExtendedPropertyInfo prop, object? propValue, ref ITypeConverter? typeConverter)
+	private object? ConvertCollectionToSimple(ExtendedPropertyInfo prop, object? propValue,
+		ref ITypeConverter? typeConverter)
 	{
-		var enumerable = (propValue as IEnumerable);
-		if (enumerable is not null && _typeConverters.TryGetValue(prop.Type.GetGenericArguments()[0], out typeConverter))
+		var enumerable = propValue as IEnumerable;
+		if (enumerable is not null &&
+		    _typeConverters.TryGetValue(prop.Type.GetGenericArguments()[0], out typeConverter))
 		{
 			var enumerator = enumerable.GetEnumerator();
 			var count = 0;
@@ -257,8 +271,10 @@ internal class ObjectFlattener
 			{
 				destinationArray.SetValue(typeConverter.ConvertToSimple(enumerator.Current), i++);
 			}
+
 			return destinationArray;
 		}
+
 		return propValue;
 	}
 
@@ -287,15 +303,19 @@ internal class ObjectFlattener
 			{
 				CreateProperty(typeBuilder, prefix, prop.Name, typeConverter.SimpleType);
 			}
-			else if (prop.Type.IsGenericType && prop.Type.GetGenericArguments().SingleOrDefault(genericParamType => _typeConverters.ContainsKey(genericParamType)) is not null)
+			else if (prop.Type.IsGenericType &&
+			         prop.Type.GetGenericArguments().SingleOrDefault(genericParamType =>
+				         _typeConverters.ContainsKey(genericParamType)) is not null)
 			{
 				var genericParams = prop.Type.GetGenericArguments();
 				var convertedGenericParams = prop.Type
-													.GetGenericArguments()
-													.Select(type => _typeConverters.TryGetValue(type, out var typeConverter) ? typeConverter.SimpleType : type)
-													.ToArray();
+					.GetGenericArguments()
+					.Select(type =>
+						_typeConverters.TryGetValue(type, out var typeConverter) ? typeConverter.SimpleType : type)
+					.ToArray();
 
-				var convertedGenericType = prop.Type.GetGenericTypeDefinition().MakeGenericType(convertedGenericParams);
+				var convertedGenericType =
+					prop.Type.GetGenericTypeDefinition().MakeGenericType(convertedGenericParams);
 				CreateProperty(typeBuilder, prefix, prop.Name, convertedGenericType);
 			}
 			else if (prop.Type.IsSimpleOrBuiltIn())
@@ -314,15 +334,19 @@ internal class ObjectFlattener
 		CreateProperty(typeBuilder, prefix, prop.Name, prop.Type);
 	}
 
-	private static void CreateProperty(TypeBuilder typeBuilder, string prefix, string propertyName, Type propertyType)
+	private static void CreateProperty(TypeBuilder typeBuilder, string prefix, string propertyName,
+		Type propertyType)
 	{
-		var fieldBuilder = typeBuilder.DefineField($"_{prefix}{propertyName}", propertyType, FieldAttributes.Private);
-		var propertyBuilder = typeBuilder.DefineProperty($"{prefix}{propertyName}", PropertyAttributes.HasDefault, propertyType, null);
+		var fieldBuilder =
+			typeBuilder.DefineField($"_{prefix}{propertyName}", propertyType, FieldAttributes.Private);
+		var propertyBuilder = typeBuilder.DefineProperty($"{prefix}{propertyName}", PropertyAttributes.HasDefault,
+			propertyType, null);
 
 		var propVisibility = MethodAttributes.Public | MethodAttributes.SpecialName | MethodAttributes.HideBySig;
 
 		// Define the "get" accessor method for CustomerName.
-		var getMethod = typeBuilder.DefineMethod($"get_{prefix}{propertyName}", propVisibility, propertyType, Type.EmptyTypes);
+		var getMethod = typeBuilder.DefineMethod($"get_{prefix}{propertyName}", propVisibility, propertyType,
+			Type.EmptyTypes);
 
 		var custNameGetIL = getMethod.GetILGenerator();
 
@@ -331,7 +355,8 @@ internal class ObjectFlattener
 		custNameGetIL.Emit(OpCodes.Ret);
 
 		// Define the "set" accessor method for CustomerName.
-		var setMethod = typeBuilder.DefineMethod($"set_{prefix}{propertyName}", propVisibility, null, new Type[] { propertyType });
+		var setMethod = typeBuilder.DefineMethod($"set_{prefix}{propertyName}", propVisibility, null,
+			new[] { propertyType });
 
 		var custNameSetIL = setMethod.GetILGenerator();
 
@@ -357,6 +382,7 @@ internal class ObjectFlattener
 		{
 			result = TypePropertiesCache.GetProperties(type);
 		}
+
 		return result;
 	}
 }

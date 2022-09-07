@@ -2,6 +2,7 @@
 using System.Reflection.Emit;
 
 namespace Dapper.DDD.Repository.Reflection;
+
 internal static class TypeInstantiator
 {
 	private static readonly LockedConcurrentDictionary<Type, Func<object>> _constructors = new();
@@ -15,7 +16,10 @@ internal static class TypeInstantiator
 	{
 		if (type.IsValueType)
 		{
-			return Activator.CreateInstance(type)!; // Value types don't necessarily have a proper default constructor for the IL generation to work, so this is a safe workaround albeit slower than IL.
+			return
+				Activator.CreateInstance(
+					type)
+				!; // Value types don't necessarily have a proper default constructor for the IL generation to work, so this is a safe workaround albeit slower than IL.
 		}
 
 		var ctor = _constructors.GetOrAdd(type, CreateConstructorDelegate);
@@ -24,7 +28,9 @@ internal static class TypeInstantiator
 
 	private static Func<object> CreateConstructorDelegate(Type type)
 	{
-		var ctorInfo = type.GetConstructor(BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public, null, Type.EmptyTypes, null) ?? ConstructorBuilder.CreateEmptyConstructor(type);
+		var ctorInfo =
+			type.GetConstructor(BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public, null,
+				Type.EmptyTypes, null) ?? ConstructorBuilder.CreateEmptyConstructor(type);
 
 		var ctorDelegate = (Func<object>)CreateDelegate(ctorInfo, typeof(Func<object>));
 		return ctorDelegate;
@@ -33,7 +39,8 @@ internal static class TypeInstantiator
 	private static Delegate CreateDelegate(ConstructorInfo constructor, Type delegateType)
 	{
 		// Create the dynamic method
-		var method = new DynamicMethod(GenerateDynamicMethodName(constructor), constructor.DeclaringType, null, true);
+		var method = new DynamicMethod(GenerateDynamicMethodName(constructor), constructor.DeclaringType, null,
+			true);
 
 		// Create the il
 		var gen = method.GetILGenerator();

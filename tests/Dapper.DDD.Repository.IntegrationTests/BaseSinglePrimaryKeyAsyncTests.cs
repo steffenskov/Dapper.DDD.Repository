@@ -1,6 +1,7 @@
 ﻿namespace Dapper.DDD.Repository.IntegrationTests;
+
 public abstract class BaseSinglePrimaryKeyAsyncTests<TDbException>
-where TDbException : Exception
+	where TDbException : Exception
 {
 	private readonly ITableRepository<Category, CategoryId> _repository;
 
@@ -8,6 +9,20 @@ where TDbException : Exception
 	{
 		_repository = serviceProvider.GetService<ITableRepository<Category, CategoryId>>()!;
 	}
+
+	#region GetAll
+
+	[Fact]
+	public async Task GetAll_NoInput_Valid()
+	{
+		// Act
+		var fetchedEntities = await _repository.GetAllAsync();
+
+		// Assert
+		Assert.True(fetchedEntities.Count() > 0);
+	}
+
+	#endregion
 
 	#region Delete
 
@@ -21,7 +36,8 @@ where TDbException : Exception
 		Assert.Null(deleted);
 	}
 
-	[Theory, AutoDomainData]
+	[Theory]
+	[AutoDomainData]
 	public async Task Delete_UsePrimaryKey_Valid(Category aggregate)
 	{
 		// Arrange
@@ -36,11 +52,13 @@ where TDbException : Exception
 		Assert.Equal(aggregate.CategoryName, deleted?.CategoryName);
 		Assert.Equal(aggregate.Picture, deleted?.Picture);
 	}
+
 	#endregion
 
 	#region Get
 
-	[Theory, AutoDomainData]
+	[Theory]
+	[AutoDomainData]
 	public async Task Get_UsePrimaryKey_Valid(Category aggregate)
 	{
 		// Arrange
@@ -66,21 +84,11 @@ where TDbException : Exception
 		// Assert
 		Assert.Null(gotten);
 	}
-	#endregion
 
-	#region GetAll
-	[Fact]
-	public async Task GetAll_NoInput_Valid()
-	{
-		// Act
-		var fetchedEntities = await _repository.GetAllAsync();
-
-		// Assert
-		Assert.True(fetchedEntities.Count() > 0);
-	}
 	#endregion
 
 	#region Insert
+
 	[Fact]
 	public async Task Insert_InputIsNull_Throws()
 	{
@@ -104,7 +112,8 @@ where TDbException : Exception
 		await Assert.ThrowsAsync<ArgumentException>(async () => await _repository.InsertAsync(aggregate));
 	}
 
-	[Theory, AutoDomainData]
+	[Theory]
+	[AutoDomainData]
 	public async Task Insert_HasIdentityKeyWithoutValue_IsInserted(Category aggregate)
 	{
 		// Act
@@ -129,17 +138,17 @@ where TDbException : Exception
 		// Arrange
 		var aggregate = new Category
 		{
-			Description = "Lorem ipsum, dolor sit amit",
-			CategoryName = null!,
-			Picture = null
+			Description = "Lorem ipsum, dolor sit amit", CategoryName = null!, Picture = null
 		};
 
 		// Act && Assert
 		await Assert.ThrowsAsync<TDbException>(async () => await _repository.InsertAsync(aggregate));
 	}
+
 	#endregion
 
 	#region Update
+
 	[Fact]
 	public async Task Update_InputIsNull_Throws()
 	{
@@ -147,7 +156,8 @@ where TDbException : Exception
 		await Assert.ThrowsAsync<ArgumentNullException>(async () => await _repository.UpdateAsync(null!));
 	}
 
-	[Theory, AutoDomainData]
+	[Theory]
+	[AutoDomainData]
 	public async Task Update_UseAggregate_Valid(Category aggregate)
 	{
 		// Arrange
@@ -181,5 +191,6 @@ where TDbException : Exception
 		// Assert
 		Assert.Null(updated);
 	}
+
 	#endregion
 }

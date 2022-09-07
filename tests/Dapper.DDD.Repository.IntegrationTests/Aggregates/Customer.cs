@@ -16,7 +16,8 @@ public record Customer
 	public Address InvoiceAddress { get; init; } = default!;
 	public Address DeliveryAddress { get; init; } = default!;
 
-	public string IdAndName => $"{Name} ({Id})"; // Only here to test .Ignore works correctly when configuring aggregates
+	public string IdAndName =>
+		$"{Name} ({Id})"; // Only here to test .Ignore works correctly when configuring aggregates
 }
 
 public record Address(string Street, Zipcode Zipcode);

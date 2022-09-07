@@ -20,8 +20,11 @@ public class SerializedColumnTests : IClassFixture<Startup>
 		var city = new City
 		{
 			Id = Guid.NewGuid(),
-			GeoLocation = Point.DefaultFactory.CreatePoint(new Coordinate(42, 1337)),
-			Area = Polygon.DefaultFactory.CreatePolygon(new Coordinate[] { new(1, 1), new(1, 2), new(2, 2), new(2, 1), new(1, 1) })
+			GeoLocation = Geometry.DefaultFactory.CreatePoint(new Coordinate(42, 1337)),
+			Area = Geometry.DefaultFactory.CreatePolygon(new Coordinate[]
+			{
+				new(1, 1), new(1, 2), new(2, 2), new(2, 1), new(1, 1)
+			})
 		};
 		city.GeoLocation.SRID = 25832;
 		city.Area.SRID = 25832;
@@ -42,8 +45,11 @@ public class SerializedColumnTests : IClassFixture<Startup>
 		var city = new City
 		{
 			Id = Guid.NewGuid(),
-			GeoLocation = Point.DefaultFactory.CreatePoint(new Coordinate(42, 1337)),
-			Area = Polygon.DefaultFactory.CreatePolygon(new Coordinate[] { new(1, 1), new(1, 2), new(2, 2), new(2, 1), new(1, 1) })
+			GeoLocation = Geometry.DefaultFactory.CreatePoint(new Coordinate(42, 1337)),
+			Area = Geometry.DefaultFactory.CreatePolygon(new Coordinate[]
+			{
+				new(1, 1), new(1, 2), new(2, 2), new(2, 1), new(1, 1)
+			})
 		};
 		city.GeoLocation.SRID = 25832;
 		city.Area.SRID = 25832;
@@ -71,8 +77,11 @@ public class SerializedColumnTests : IClassFixture<Startup>
 		var city = new City
 		{
 			Id = Guid.NewGuid(),
-			GeoLocation = Point.DefaultFactory.CreatePoint(new Coordinate(42, 1337)),
-			Area = Polygon.DefaultFactory.CreatePolygon(new Coordinate[] { new(1, 1), new(1, 2), new(2, 2), new(2, 1), new(1, 1) })
+			GeoLocation = Geometry.DefaultFactory.CreatePoint(new Coordinate(42, 1337)),
+			Area = Geometry.DefaultFactory.CreatePolygon(new Coordinate[]
+			{
+				new(1, 1), new(1, 2), new(2, 2), new(2, 1), new(1, 1)
+			})
 		};
 		city.GeoLocation.SRID = 25832;
 		city.Area.SRID = 25832;
@@ -101,8 +110,11 @@ public class SerializedColumnTests : IClassFixture<Startup>
 		var city = new City
 		{
 			Id = Guid.NewGuid(),
-			GeoLocation = Point.DefaultFactory.CreatePoint(new Coordinate(42, 1337)),
-			Area = Polygon.DefaultFactory.CreatePolygon(new Coordinate[] { new(1, 1), new(1, 2), new(2, 2), new(2, 1), new(1, 1) })
+			GeoLocation = Geometry.DefaultFactory.CreatePoint(new Coordinate(42, 1337)),
+			Area = Geometry.DefaultFactory.CreatePolygon(new Coordinate[]
+			{
+				new(1, 1), new(1, 2), new(2, 2), new(2, 1), new(1, 1)
+			})
 		};
 		city.GeoLocation.SRID = 25832;
 		city.Area.SRID = 25832;
@@ -129,15 +141,21 @@ public class SerializedColumnTests : IClassFixture<Startup>
 		var city = new City
 		{
 			Id = Guid.NewGuid(),
-			GeoLocation = Point.DefaultFactory.CreatePoint(new Coordinate(42, 1337)),
-			Area = Polygon.DefaultFactory.CreatePolygon(new Coordinate[] { new(1, 1), new(1, 2), new(2, 2), new(2, 1), new(1, 1) })
+			GeoLocation = Geometry.DefaultFactory.CreatePoint(new Coordinate(42, 1337)),
+			Area = Geometry.DefaultFactory.CreatePolygon(new Coordinate[]
+			{
+				new(1, 1), new(1, 2), new(2, 2), new(2, 1), new(1, 1)
+			})
 		};
 		city.GeoLocation.SRID = 25832;
 		city.Area.SRID = 25832;
 		await _repository.InsertAsync(city);
 
 		// Act
-		var newArea = Polygon.DefaultFactory.CreatePolygon(new Coordinate[] { new(10, 10), new(10, 20), new(20, 20), new(20, 10), new(10, 10) });
+		var newArea = Geometry.DefaultFactory.CreatePolygon(new Coordinate[]
+		{
+			new(10, 10), new(10, 20), new(20, 20), new(20, 10), new(10, 10)
+		});
 		newArea.SRID = 1234;
 		var updatedCity = await _repository.UpdateAsync(city with { Area = newArea });
 

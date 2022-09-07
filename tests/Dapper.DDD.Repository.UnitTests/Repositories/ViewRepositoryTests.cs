@@ -2,9 +2,10 @@ using Dapper.DDD.Repository.Repositories;
 using Dapper.DDD.Repository.UnitTests.Aggregates;
 
 namespace Dapper.DDD.Repository.UnitTests.Repositories;
+
 public class ViewRepositoryTests : IClassFixture<NoDefaultsStartup>
 {
-	private ServiceProvider _provider;
+	private readonly ServiceProvider _provider;
 
 	public ViewRepositoryTests(NoDefaultsStartup startup)
 	{
@@ -25,7 +26,7 @@ public class ViewRepositoryTests : IClassFixture<NoDefaultsStartup>
 	public void Constructor_NoConnectionFactory_Throws()
 	{
 		// Arrange 
-		var config = new Configuration.ViewAggregateConfiguration<UserAggregate>
+		var config = new ViewAggregateConfiguration<UserAggregate>
 		{
 			DapperInjectionFactory = Mock.Of<IDapperInjectionFactory>(),
 			QueryGeneratorFactory = new MockQueryGeneratorFactory()
@@ -34,9 +35,9 @@ public class ViewRepositoryTests : IClassFixture<NoDefaultsStartup>
 
 		// Act && Assert
 		var ex = Assert.Throws<ArgumentNullException>(() =>
-		new ViewRepository<UserAggregate, Guid>(Options.Create(
-			config
-		), Options.Create(new Configuration.DefaultConfiguration())));
+			new ViewRepository<UserAggregate, Guid>(Options.Create(
+				config
+			), Options.Create(new DefaultConfiguration())));
 
 		Assert.Contains("ConnectionFactory", ex.Message);
 	}
@@ -45,7 +46,7 @@ public class ViewRepositoryTests : IClassFixture<NoDefaultsStartup>
 	public void Constructor_NoQueryGeneratorFactory_Throws()
 	{
 		// Arrange 
-		var config = new Configuration.ViewAggregateConfiguration<UserAggregate>
+		var config = new ViewAggregateConfiguration<UserAggregate>
 		{
 			DapperInjectionFactory = Mock.Of<IDapperInjectionFactory>(),
 			ConnectionFactory = Mock.Of<IConnectionFactory>()
@@ -54,9 +55,9 @@ public class ViewRepositoryTests : IClassFixture<NoDefaultsStartup>
 
 		// Act && Assert
 		var ex = Assert.Throws<ArgumentNullException>(() =>
-				new ViewRepository<UserAggregate, Guid>(Options.Create(
-					config
-				), Options.Create(new Configuration.DefaultConfiguration())));
+			new ViewRepository<UserAggregate, Guid>(Options.Create(
+				config
+			), Options.Create(new DefaultConfiguration())));
 
 		Assert.Contains("QueryGeneratorFactory", ex.Message);
 	}
@@ -65,7 +66,7 @@ public class ViewRepositoryTests : IClassFixture<NoDefaultsStartup>
 	public void Constructor_NoDapperInjectionFactory_Throws()
 	{
 		// Arrange
-		var config = new Configuration.ViewAggregateConfiguration<UserAggregate>
+		var config = new ViewAggregateConfiguration<UserAggregate>
 		{
 			ConnectionFactory = Mock.Of<IConnectionFactory>(),
 			QueryGeneratorFactory = new MockQueryGeneratorFactory()
@@ -74,9 +75,9 @@ public class ViewRepositoryTests : IClassFixture<NoDefaultsStartup>
 
 		// Act && Assert
 		var ex = Assert.Throws<ArgumentNullException>(() =>
-				new ViewRepository<UserAggregate, Guid>(Options.Create(
-					config
-				), Options.Create(new Configuration.DefaultConfiguration())));
+			new ViewRepository<UserAggregate, Guid>(Options.Create(
+				config
+			), Options.Create(new DefaultConfiguration())));
 
 		Assert.Contains("DapperInjectionFactory", ex.Message);
 	}
@@ -85,7 +86,7 @@ public class ViewRepositoryTests : IClassFixture<NoDefaultsStartup>
 	public void Constructor_NoViewName_Throws()
 	{
 		// Arrange
-		var config = new Configuration.ViewAggregateConfiguration<UserAggregate>
+		var config = new ViewAggregateConfiguration<UserAggregate>
 		{
 			ConnectionFactory = Mock.Of<IConnectionFactory>(),
 			QueryGeneratorFactory = new MockQueryGeneratorFactory(),
@@ -96,9 +97,9 @@ public class ViewRepositoryTests : IClassFixture<NoDefaultsStartup>
 
 		// Act && Assert
 		var ex = Assert.Throws<ArgumentNullException>(() =>
-				new ViewRepository<UserAggregate, Guid>(Options.Create(
-					config
-				), Options.Create(new Configuration.DefaultConfiguration())));
+			new ViewRepository<UserAggregate, Guid>(Options.Create(
+				config
+			), Options.Create(new DefaultConfiguration())));
 
 		Assert.Contains("ViewName", ex.Message);
 	}
@@ -107,7 +108,7 @@ public class ViewRepositoryTests : IClassFixture<NoDefaultsStartup>
 	public void Constructor_NoKey_Throws()
 	{
 		// Arrange
-		var config = new Configuration.ViewAggregateConfiguration<UserAggregate>
+		var config = new ViewAggregateConfiguration<UserAggregate>
 		{
 			ConnectionFactory = Mock.Of<IConnectionFactory>(),
 			QueryGeneratorFactory = new MockQueryGeneratorFactory(),
@@ -117,9 +118,9 @@ public class ViewRepositoryTests : IClassFixture<NoDefaultsStartup>
 
 		// Act && Assert
 		var ex = Assert.Throws<ArgumentException>(() =>
-				new ViewRepository<UserAggregate, Guid>(Options.Create(
-					config
-				), Options.Create(new Configuration.DefaultConfiguration())));
+			new ViewRepository<UserAggregate, Guid>(Options.Create(
+				config
+			), Options.Create(new DefaultConfiguration())));
 
 		Assert.Contains("No key has been specified for this aggregate", ex.Message);
 	}
@@ -128,7 +129,7 @@ public class ViewRepositoryTests : IClassFixture<NoDefaultsStartup>
 	public void ConstructorViewWithoutId_NoKey_Valid()
 	{
 		// Arrange
-		var config = new Configuration.ViewAggregateConfiguration<UserAggregate>
+		var config = new ViewAggregateConfiguration<UserAggregate>
 		{
 			ConnectionFactory = Mock.Of<IConnectionFactory>(),
 			QueryGeneratorFactory = new MockQueryGeneratorFactory(),
@@ -139,7 +140,7 @@ public class ViewRepositoryTests : IClassFixture<NoDefaultsStartup>
 		// Act
 		var repo = new ViewRepository<UserAggregate>(Options.Create(
 			config
-		), Options.Create(new Configuration.DefaultConfiguration()));
+		), Options.Create(new DefaultConfiguration()));
 
 		// Assert
 		Assert.NotNull(repo);
@@ -149,7 +150,7 @@ public class ViewRepositoryTests : IClassFixture<NoDefaultsStartup>
 	public void Constructor_NoSchemaName_Valid()
 	{
 		// Arrange
-		var config = new Configuration.ViewAggregateConfiguration<UserAggregate>
+		var config = new ViewAggregateConfiguration<UserAggregate>
 		{
 			ConnectionFactory = Mock.Of<IConnectionFactory>(),
 			QueryGeneratorFactory = new MockQueryGeneratorFactory(),
@@ -160,7 +161,7 @@ public class ViewRepositoryTests : IClassFixture<NoDefaultsStartup>
 
 		var repo = new ViewRepository<UserAggregate, Guid>(Options.Create(
 			config
-		), Options.Create(new Configuration.DefaultConfiguration()));
+		), Options.Create(new DefaultConfiguration()));
 
 		// Assert
 		Assert.NotNull(repo);

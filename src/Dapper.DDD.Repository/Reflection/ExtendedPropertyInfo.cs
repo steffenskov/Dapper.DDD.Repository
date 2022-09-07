@@ -4,13 +4,9 @@ namespace Dapper.DDD.Repository.Reflection;
 
 public class ExtendedPropertyInfo
 {
-	public string Name { get; }
-	public Type Type { get; }
-
-	public bool HasSetter => _accessor.HasSetter;
+	private readonly MemberAccessor _accessor;
 
 	private readonly object? _defaultValue;
-	private readonly MemberAccessor _accessor;
 
 	public ExtendedPropertyInfo(PropertyInfo property)
 	{
@@ -28,8 +24,13 @@ public class ExtendedPropertyInfo
 		_defaultValue = property._defaultValue;
 	}
 
+	public string Name { get; }
+	public Type Type { get; }
+
+	public bool HasSetter => _accessor.HasSetter;
+
 	public bool HasDefaultValue<T>(T aggregate)
-	where T : notnull
+		where T : notnull
 	{
 		var value = GetValue(aggregate);
 
@@ -37,7 +38,7 @@ public class ExtendedPropertyInfo
 	}
 
 	public object? GetValue<T>(T aggregate)
-	where T : notnull
+		where T : notnull
 	{
 		return _accessor.GetValue(aggregate);
 	}
@@ -45,7 +46,10 @@ public class ExtendedPropertyInfo
 	public void SetValue<T>(T aggregate, object? value)
 	{
 		if (aggregate is null)
+		{
 			return;
+		}
+
 		_accessor.SetValue(aggregate, value);
 	}
 
@@ -57,22 +61,26 @@ public class ExtendedPropertyInfo
 	private IOrderedEnumerable<ExtendedPropertyInfo> GetPropertiesOrdered(Type type, string prefix)
 	{
 		return TypePropertiesCache.GetProperties(type)
-							.Select(prop => new ExtendedPropertyInfo(prop, prefix))
-							.OrderBy(prop => prop.Name);
+			.Select(prop => new ExtendedPropertyInfo(prop, prefix))
+			.OrderBy(prop => prop.Name);
 	}
 
-	public IReadOnlyExtendedPropertyInfoCollection GetFlattenedPropertiesOrdered<TAggregate>(BaseAggregateConfiguration<TAggregate> configuration) where TAggregate : notnull
+	public IReadOnlyExtendedPropertyInfoCollection GetFlattenedPropertiesOrdered<TAggregate>(
+		BaseAggregateConfiguration<TAggregate> configuration) where TAggregate : notnull
 	{
 		return new ExtendedPropertyInfoCollection(GetFlattenedPropertiesOrdered(Type, Name, configuration));
 	}
 
-	private IEnumerable<ExtendedPropertyInfo> GetFlattenedPropertiesOrdered<TAggregate>(Type type, string prefix, BaseAggregateConfiguration<TAggregate> configuration) where TAggregate : notnull
+	private IEnumerable<ExtendedPropertyInfo> GetFlattenedPropertiesOrdered<TAggregate>(Type type, string prefix,
+		BaseAggregateConfiguration<TAggregate> configuration) where TAggregate : notnull
 	{
 		var properties = GetPropertiesOrdered(type, prefix);
 		foreach (var prop in properties)
 		{
 			if (prop.Type.IsSimpleOrBuiltIn() || configuration.HasTypeConverter(prop.Type))
+			{
 				yield return prop;
+			}
 			else
 			{
 				foreach (var nestedProp in GetFlattenedPropertiesOrdered(prop.Type, prop.Name, configuration))
