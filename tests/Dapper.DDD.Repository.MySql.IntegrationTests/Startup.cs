@@ -51,6 +51,14 @@ public class Startup
 			options.TableName = "customers_with_nested_value_object";
 			options.HasKey(x => x.Id);
 		});
+		services.AddViewRepository<string, IInvalidQueryRepository, InvalidQueryRepository>(options =>
+		{
+			options.ViewName = "InvalidView";
+		});
+		services.AddViewRepository<DummyAggregate, int>(options =>
+		{
+			options.ViewName = "DummyView";
+		});
 		Provider = services.BuildServiceProvider();
 	}
 

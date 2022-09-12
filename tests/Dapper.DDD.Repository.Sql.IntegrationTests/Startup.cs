@@ -1,5 +1,6 @@
 ﻿using Dapper.DDD.Repository.DependencyInjection;
 using Dapper.DDD.Repository.IntegrationTests.Repositories;
+using Microsoft.Extensions.Options;
 using NetTopologySuite.Geometries;
 using NetTopologySuite.IO;
 
@@ -66,6 +67,11 @@ public class Startup
 			options.TableName = "CustomersWithNestedValueObject";
 			options.HasKey(x => x.Id);
 		});
+		services.AddViewRepository<string, IInvalidQueryRepository, InvalidQueryRepository>(options =>
+		{
+			options.ViewName = "InvalidView";
+		});
+		services.AddViewRepository<DummyAggregate, int>(options => { options.ViewName = "DummyView"; });
 		Provider = services.BuildServiceProvider();
 	}
 
