@@ -27,7 +27,7 @@ jobs:
               run: docker-compose up -d --build
 
             - name: "Install dotnet"
-              uses: actions/setup-dotnet@v1
+              uses: actions/setup-dotnet@v2
               with:
                   dotnet-version: 6.0.x
 
@@ -58,25 +58,25 @@ jobs:
 
             - name: "Get repository version"
               id: version
-              uses: bbonkr/get-version-action@v1.0.4
+              uses: bbonkr/get-version-action@v1.0.5
               with:
                   project: ${{ env.PROJECT_PATH }}
 
             - name: "Get DI version"
               id: di_version
-              uses: bbonkr/get-version-action@v1.0.4
+              uses: bbonkr/get-version-action@v1.0.5
               with:
                   project: ${{ env.DI_PROJECT_PATH }}
 
             - name: "Get MySql version"
               id: mysql_version
-              uses: bbonkr/get-version-action@v1.0.4
+              uses: bbonkr/get-version-action@v1.0.5
               with:
                   project: ${{ env.MYSQL_PROJECT_PATH }}
 
             - name: "Get Sql version"
               id: sql_version
-              uses: bbonkr/get-version-action@v1.0.4
+              uses: bbonkr/get-version-action@v1.0.5
               with:
                   project: ${{ env.SQL_PROJECT_PATH }}
 
