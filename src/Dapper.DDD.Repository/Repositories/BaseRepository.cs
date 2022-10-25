@@ -195,7 +195,7 @@ public abstract class BaseRepository<TAggregate>
 		}
 	}
 
-	protected async Task<IEnumerable<TResult>> ScalarMultipleAsync<TResult>(string query, object? param,
+	protected async Task<IEnumerable<TResult>> ScalarMultipleAsync<TResult>(string query, object? param = null,
 		IDbTransaction? transaction = null, int? commandTimeout = null, CommandType? commandType = null,
 		CancellationToken cancellationToken = default)
 	{
@@ -228,7 +228,7 @@ public abstract class BaseRepository<TAggregate>
 		}
 	}
 
-	protected async Task<TResult?> ScalarSingleOrDefaultAsync<TResult>(string query, object? param,
+	protected async Task<TResult?> ScalarSingleOrDefaultAsync<TResult>(string query, object? param = null,
 		IDbTransaction? transaction = null, int? commandTimeout = null, CommandType? commandType = null,
 		CancellationToken cancellationToken = default)
 	{
@@ -261,7 +261,7 @@ public abstract class BaseRepository<TAggregate>
 		}
 	}
 
-	protected async Task<TResult> ScalarSingleAsync<TResult>(string query, object? param,
+	protected async Task<TResult> ScalarSingleAsync<TResult>(string query, object? param = null,
 		IDbTransaction? transaction = null, int? commandTimeout = null, CommandType? commandType = null,
 		CancellationToken cancellationToken = default)
 	{

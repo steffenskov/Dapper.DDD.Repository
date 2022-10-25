@@ -5,8 +5,8 @@
 		<IsPackable>false</IsPackable>
 	</PropertyGroup>
 	<ItemGroup>
-		<PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.11.0"/>
-		<PackageReference Include="xunit" Version="2.4.1"/>
+		<PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.11.0" />
+		<PackageReference Include="xunit" Version="2.4.1" />
 		<PackageReference Include="xunit.runner.visualstudio" Version="2.4.3">
 			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
 			<PrivateAssets>all</PrivateAssets>
@@ -15,11 +15,11 @@
 			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
 			<PrivateAssets>all</PrivateAssets>
 		</PackageReference>
-		<PackageReference Include="MySql.Data" Version="8.0.29"/>
+		<PackageReference Include="MySql.Data" Version="8.0.29" />
 	</ItemGroup>
 	<ItemGroup>
-		<ProjectReference Include="..\..\src\Dapper.DDD.Repository.MySql\Dapper.DDD.Repository.MySql.csproj"/>
-		<ProjectReference Include="..\Dapper.DDD.Repository.IntegrationTests\Dapper.DDD.Repository.IntegrationTests.csproj"/>
-		<ProjectReference Include="..\..\src\Dapper.DDD.Repository.DependencyInjection\Dapper.DDD.Repository.DependencyInjection.csproj"/>
+		<ProjectReference Include="..\..\src\Dapper.DDD.Repository.MySql\Dapper.DDD.Repository.MySql.csproj" />
+		<ProjectReference Include="..\Dapper.DDD.Repository.IntegrationTests\Dapper.DDD.Repository.IntegrationTests.csproj" />
+		<ProjectReference Include="..\..\src\Dapper.DDD.Repository.DependencyInjection\Dapper.DDD.Repository.DependencyInjection.csproj" />
 	</ItemGroup>
 </Project>

@@ -15,8 +15,11 @@ public class QueryGeneratorTests
 		var configuration = new TableAggregateConfiguration<SinglePrimaryKeyAggregate> { TableName = null! };
 
 		// Act && Assert
-		Assert.Throws<ArgumentNullException>(
+		var ex = Assert.Throws<ArgumentNullException>(
 			() => new MySqlQueryGenerator<SinglePrimaryKeyAggregate>(configuration));
+
+		Assert.Equal("Value cannot be null. (Parameter 'readConfiguration.EntityName')", ex.Message);
+
 	}
 
 	[Fact]
@@ -25,7 +28,20 @@ public class QueryGeneratorTests
 		// Arrange
 		var configuration = new TableAggregateConfiguration<SinglePrimaryKeyAggregate> { TableName = " " };
 		// Act && Assert
-		Assert.Throws<ArgumentException>(() => new MySqlQueryGenerator<SinglePrimaryKeyAggregate>(configuration));
+		var ex = Assert.Throws<ArgumentException>(() => new MySqlQueryGenerator<SinglePrimaryKeyAggregate>(configuration));
+
+		Assert.Equal("Table name cannot be null or whitespace. (Parameter 'configuration')", ex.Message);
+	}
+
+	[Fact]
+	public void Constructor_SchemaIsNotNull_Throws()
+	{
+		// Arrange
+		var configuration = new TableAggregateConfiguration<SinglePrimaryKeyAggregate> { TableName = "Some name", Schema = " "};
+		// Act && Assert
+		var ex = Assert.Throws<ArgumentException>(() => new MySqlQueryGenerator<SinglePrimaryKeyAggregate>(configuration));
+		
+		Assert.Equal("MySql doesn't support Schema. (Parameter 'configuration')", ex.Message);
 	}
 
 	#endregion
@@ -241,6 +257,26 @@ public class QueryGeneratorTests
 	#endregion
 
 	#region Insert
+
+	[Fact]
+	public void GenerateInsertQuery_HasMultipleIdentityProperties_Throws()
+	{
+		// Arrange
+		var defaultConfig = new DefaultConfiguration();
+		var config = new TableAggregateConfiguration<AggregateWithNestedValueObject> { TableName = "Users" };
+		config.HasKey(x => x.Id);
+		config.HasIdentity((x => x.Id));
+		config.HasIdentity((x => x.FirstLevel));
+		config.SetDefaults(defaultConfig);
+		var generator = new MySqlQueryGenerator<AggregateWithNestedValueObject>(config);
+		
+		// Act && Assert
+		var ex = Assert.Throws<InvalidOperationException>(() => generator.GenerateInsertQuery(new AggregateWithNestedValueObject(
+			Guid.NewGuid(),
+			new FirstLevelValueObject(new SecondLevelValueObject("Hello world")))));
+
+		Assert.Equal("Cannot generate INSERT query for table with multiple identity properties", ex.Message);
+	}
 
 	[Fact]
 	public void GenerateInsertQuery_HasNestedValueObject_Valid()

@@ -25,8 +25,8 @@ public static class DapperRepositoryDependencyInjection
 		where TAggregate : notnull
 		where TAggregateId : notnull
 	{
-		_ = services.Configure(configureOptions);
-		_ = services
+		services.Configure(configureOptions);
+		services
 			.AddSingleton<ITableRepository<TAggregate, TAggregateId>, TableRepository<TAggregate, TAggregateId>>();
 		return services;
 	}
@@ -40,8 +40,8 @@ public static class DapperRepositoryDependencyInjection
 		where TAggregate : notnull
 		where TAggregateId : notnull
 	{
-		_ = services.Configure(configureOptions);
-		_ = services
+		services.Configure(configureOptions);
+		services
 			.AddSingleton<IViewRepository<TAggregate, TAggregateId>, ViewRepository<TAggregate, TAggregateId>>();
 		return services;
 	}
@@ -54,8 +54,8 @@ public static class DapperRepositoryDependencyInjection
 		Action<ViewAggregateConfiguration<TAggregate>> configureOptions)
 		where TAggregate : notnull
 	{
-		_ = services.Configure(configureOptions);
-		_ = services.AddSingleton<IViewRepository<TAggregate>, ViewRepository<TAggregate>>();
+		services.Configure(configureOptions);
+		services.AddSingleton<IViewRepository<TAggregate>, ViewRepository<TAggregate>>();
 		return services;
 	}
 
@@ -76,8 +76,8 @@ public static class DapperRepositoryDependencyInjection
 		where TRepositoryInterface : class
 		where TRepositoryClass : TableRepository<TAggregate, TAggregateId>, TRepositoryInterface
 	{
-		_ = services.Configure(configureOptions);
-		_ = services.AddSingleton<TRepositoryInterface, TRepositoryClass>();
+		services.Configure(configureOptions);
+		services.AddSingleton<TRepositoryInterface, TRepositoryClass>();
 		return services;
 	}
 
@@ -98,8 +98,8 @@ public static class DapperRepositoryDependencyInjection
 		where TRepositoryInterface : class
 		where TRepositoryClass : ViewRepository<TAggregate, TAggregateId>, TRepositoryInterface
 	{
-		_ = services.Configure(configureOptions);
-		_ = services.AddSingleton<TRepositoryInterface, TRepositoryClass>();
+		services.Configure(configureOptions);
+		services.AddSingleton<TRepositoryInterface, TRepositoryClass>();
 		return services;
 	}
 
@@ -117,8 +117,8 @@ public static class DapperRepositoryDependencyInjection
 		where TRepositoryInterface : class
 		where TRepositoryClass : ViewRepository<TAggregate>, TRepositoryInterface
 	{
-		_ = services.Configure(configureOptions);
-		_ = services.AddSingleton<TRepositoryInterface, TRepositoryClass>();
+		services.Configure(configureOptions);
+		services.AddSingleton<TRepositoryInterface, TRepositoryClass>();
 		return services;
 	}
 }

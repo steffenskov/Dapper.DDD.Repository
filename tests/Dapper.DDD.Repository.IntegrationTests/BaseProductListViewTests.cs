@@ -1,3 +1,4 @@
+using Dapper.DDD.Repository.Exceptions;
 using Dapper.DDD.Repository.IntegrationTests.Repositories;
 
 namespace Dapper.DDD.Repository.IntegrationTests;

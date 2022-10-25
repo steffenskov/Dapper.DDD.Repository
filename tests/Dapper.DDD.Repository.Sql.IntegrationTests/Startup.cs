@@ -1,5 +1,6 @@
 ﻿using Dapper.DDD.Repository.DependencyInjection;
 using Dapper.DDD.Repository.IntegrationTests.Repositories;
+using Microsoft.Extensions.Options;
 using NetTopologySuite.Geometries;
 using NetTopologySuite.IO;
 
@@ -10,8 +11,8 @@ public class Startup
 	public Startup()
 	{
 		var services = new ServiceCollection();
-		_ = services.AddOptions();
-		_ = services.ConfigureDapperRepositoryDefaults(options =>
+		services.AddOptions();
+		services.ConfigureDapperRepositoryDefaults(options =>
 		{
 			options.ConnectionFactory = new SqlConnectionFactory(
 				"Server=127.0.0.1;Database=Northwind;User Id=sa;Password=SqlServerPassword#&%¤2019;Encrypt=False;");
@@ -29,28 +30,28 @@ public class Startup
 				geo => new SqlServerBytesWriter { IsGeography = false }.Write(geo),
 				bytes => (Polygon)new SqlServerBytesReader { IsGeography = false }.Read(bytes));
 		});
-		_ = services.AddTableRepository<Category, CategoryId>(options =>
+		services.AddTableRepository<Category, CategoryId>(options =>
 		{
 			options.TableName = "Categories";
 			options.HasKey(x => x.CategoryID);
 			options.HasIdentity(x => x.CategoryID);
 		});
-		_ = services.AddTableRepository<CompositeUser, CompositeUserId>(options =>
+		services.AddTableRepository<CompositeUser, CompositeUserId>(options =>
 		{
 			options.TableName = "CompositeUsers";
 			options.HasKey(x => x.Id);
 			options.HasDefault(x => x.DateCreated);
 		});
 
-		_ = services.AddViewRepository<ProductListView, int, IProductListViewRepository, ProductListViewRepository>(
+		services.AddViewRepository<ProductListView, int, IProductListViewRepository, ProductListViewRepository>(
 			options =>
 			{
 				options.ViewName = "[Current Product List]";
 				options.HasKey(x => x.ProductID);
 			});
-		_ = services.AddViewRepository<ProductListView>(options => { options.ViewName = "[Current Product List]"; });
+		services.AddViewRepository<ProductListView>(options => { options.ViewName = "[Current Product List]"; });
 
-		_ = services.AddTableRepository<Customer, Guid, ICustomerRepository, CustomerRepository>(options =>
+		services.AddTableRepository<Customer, Guid, ICustomerRepository, CustomerRepository>(options =>
 		{
 			options.TableName = "CustomersWithValueObject";
 			options.HasKey(x => x.Id);
@@ -66,6 +67,11 @@ public class Startup
 			options.TableName = "CustomersWithNestedValueObject";
 			options.HasKey(x => x.Id);
 		});
+		services.AddViewRepository<string, IInvalidQueryRepository, InvalidQueryRepository>(options =>
+		{
+			options.ViewName = "InvalidView";
+		});
+		services.AddViewRepository<DummyAggregate, int>(options => { options.ViewName = "DummyView"; });
 		Provider = services.BuildServiceProvider();
 	}
 

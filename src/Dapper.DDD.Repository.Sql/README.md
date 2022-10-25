@@ -63,8 +63,8 @@ other types:
 ```
 	using NetTopologySuite.Geometries;
 	using NetTopologySuite.IO;
-	...
-	_ = services.ConfigureDapperRepositoryDefaults(options =>
+	...~~~~
+	services.ConfigureDapperRepositoryDefaults(options =>
 	{
 		...
 		options.QueryGeneratorFactory = new SqlQueryGeneratorFactory().SerializeColumnType(type => type.Namespace == "NetTopologySuite.Geometries"); // This ensure any Geometry type from NetTopologySuite gets serialized in the queries
