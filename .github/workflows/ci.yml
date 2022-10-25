@@ -1,37 +1,37 @@
 name: "Continuous Integration"
 
 on:
-  push:
-    branches:
-      - '**'      # matches every branch
-      - '!main'   # excludes main
-    
+    push:
+        branches:
+            - "**" # matches every branch
+            - "!main" # excludes main
+
 env:
-  PROJECT_PATH: 'src/Dapper.DDD.Repository/Dapper.DDD.Repository.csproj'
-  SOLUTION_PATH: 'Dapper.DDD.Repository.sln'
-  PACKAGE_OUTPUT_DIRECTORY: ${{ github.workspace }}\output
-  NUGET_SOURCE_URL: 'https://api.nuget.org/v3/index.json'
+    PROJECT_PATH: "src/Dapper.DDD.Repository/Dapper.DDD.Repository.csproj"
+    SOLUTION_PATH: "Dapper.DDD.Repository.sln"
+    PACKAGE_OUTPUT_DIRECTORY: ${{ github.workspace }}\output
+    NUGET_SOURCE_URL: "https://api.nuget.org/v3/index.json"
 
 jobs:
-  test:
-    name: 'test'
-    runs-on: 'ubuntu-latest'
-        
-    steps:
-    - name: 'Checkout'
-      uses: actions/checkout@v2
-      
-    - name: 'Docker compose'
-      working-directory: 'Pods'
-      run: docker-compose up -d --build
+    test:
+        name: "test"
+        runs-on: "ubuntu-latest"
 
-    - name: 'Install dotnet'
-      uses: actions/setup-dotnet@v1
-      with:
-        dotnet-version: 6.0.x
+        steps:
+            - name: "Checkout"
+              uses: actions/checkout@v3
 
-    - name: 'Restore packages'
-      run: dotnet restore ${{ env.SOLUTION_PATH }}
+            - name: "Docker compose"
+              working-directory: "Pods"
+              run: docker-compose up -d --build
 
-    - name: Test
-      run: dotnet test ${{ env.SOLUTION_PATH }}
+            - name: "Install dotnet"
+              uses: actions/setup-dotnet@v2
+              with:
+                  dotnet-version: 6.0.x
+
+            - name: "Restore packages"
+              run: dotnet restore ${{ env.SOLUTION_PATH }}
+
+            - name: Test
+              run: dotnet test ${{ env.SOLUTION_PATH }}
