@@ -180,9 +180,23 @@ internal class ObjectFlattener
 
 	private object? ConvertTypeToUnflattenIfNecessary(object? sourceValue, Type destinationType)
 	{
-		return _typeConverters.TryGetValue(destinationType, out var typeConverter) && sourceValue is not null
-			? typeConverter.ConvertToComplex(sourceValue)
-			: sourceValue;
+		if (sourceValue is null)
+			return sourceValue;
+		if (_typeConverters.TryGetValue(destinationType, out var typeConverter))
+		{
+			return typeConverter.ConvertToComplex(sourceValue);
+		}
+		if (destinationType.IsGenericType)
+		{
+			var singleGenericArgumentType = destinationType.GetGenericArguments().SingleOrDefault();
+			if (singleGenericArgumentType is not null &&
+			    _typeConverters.TryGetValue(singleGenericArgumentType, out typeConverter))
+			{
+				return typeConverter.ConvertToComplex(sourceValue!);
+			}
+		}
+
+		return sourceValue;
 	}
 
 	public bool ShouldFlattenType<T>()
@@ -190,7 +204,7 @@ internal class ObjectFlattener
 		return ShouldFlattenType(typeof(T));
 	}
 
-	public bool ShouldFlattenType(Type type)
+	private bool ShouldFlattenType(Type type)
 	{
 		return _shouldFlattenTypeMap.GetOrAdd(type, t =>
 		{
@@ -227,13 +241,25 @@ internal class ObjectFlattener
 			if (_typeConverters.TryGetValue(prop.Type, out var typeConverter) && propValue is not null)
 			{
 				propValue = typeConverter.ConvertToSimple(propValue);
-				destinationPropType = typeConverter.SimpleType;
+				destinationPropType = typeConverter.SimpleTypeWithNullableSupport;
 			}
 			else if (prop.Type.IsGenericType &&
 			         prop.Type.GetGenericArguments().SingleOrDefault(type => _typeConverters.ContainsKey(type)) !=
 			         null)
 			{
-				propValue = ConvertCollectionToSimple(prop, propValue, ref typeConverter);
+				if (prop.Type.GetGenericTypeDefinition() == typeof(Nullable<>))
+				{
+					if (_typeConverters.TryGetValue(prop.Type.GetGenericArguments().Single(), out typeConverter))
+					{
+						if (propValue is not null) {
+							propValue = typeConverter.ConvertToSimple(propValue);
+						}
+						destinationPropType = typeConverter.SimpleTypeWithNullableSupport;
+					}
+				}
+				else {
+					propValue = ConvertCollectionToSimple(prop, propValue, ref typeConverter);
+				}
 			}
 
 			if (destinationPropType.IsSimpleOrBuiltIn())
@@ -253,29 +279,31 @@ internal class ObjectFlattener
 	private object? ConvertCollectionToSimple(ExtendedPropertyInfo prop, object? propValue,
 		ref ITypeConverter? typeConverter)
 	{
-		var enumerable = propValue as IEnumerable;
-		if (enumerable is not null &&
-		    _typeConverters.TryGetValue(prop.Type.GetGenericArguments()[0], out typeConverter))
+		if (propValue is not IEnumerable enumerable ||
+		    !_typeConverters.TryGetValue(prop.Type.GetGenericArguments()[0], out typeConverter))
 		{
-			var enumerator = enumerable.GetEnumerator();
-			var count = 0;
-			while (enumerator.MoveNext())
-			{
-				count++;
-			}
+			return propValue;
+		}
 
-			enumerator.Reset();
-			var destinationArray = Array.CreateInstance(typeConverter.SimpleType, count);
-			var i = 0;
-			while (enumerator.MoveNext())
+		var enumerator = enumerable.GetEnumerator();
+		var count = 0;
+		while (enumerator.MoveNext())
+		{
+			count++;
+		}
+
+		enumerator.Reset();
+		var destinationArray = Array.CreateInstance(typeConverter.SimpleTypeWithNullableSupport, count);
+		var i = 0;
+		while (enumerator.MoveNext())
+		{
+			if (enumerator.Current != null)
 			{
 				destinationArray.SetValue(typeConverter.ConvertToSimple(enumerator.Current), i++);
 			}
-
-			return destinationArray;
 		}
 
-		return propValue;
+		return destinationArray;
 	}
 
 	private object CreateFlattenedInstance(Type type)
@@ -286,7 +314,6 @@ internal class ObjectFlattener
 
 	private Type CreateFlattenedType(Type type)
 	{
-		var typeName = type.Name;
 		var tb = _moduleBuilder.DefineType($"{type.Name}Flattened{GenerateStrippedGuid()}", TypeAttributes.Public);
 		CreateProperties(type, tb);
 
@@ -301,17 +328,16 @@ internal class ObjectFlattener
 		{
 			if (_typeConverters.TryGetValue(prop.Type, out var typeConverter))
 			{
-				CreateProperty(typeBuilder, prefix, prop.Name, typeConverter.SimpleType);
+				CreateProperty(typeBuilder, prefix, prop.Name, typeConverter.SimpleTypeWithNullableSupport);
 			}
 			else if (prop.Type.IsGenericType &&
 			         prop.Type.GetGenericArguments().SingleOrDefault(genericParamType =>
 				         _typeConverters.ContainsKey(genericParamType)) is not null)
 			{
-				var genericParams = prop.Type.GetGenericArguments();
 				var convertedGenericParams = prop.Type
 					.GetGenericArguments()
-					.Select(type =>
-						_typeConverters.TryGetValue(type, out var typeConverter) ? typeConverter.SimpleType : type)
+					.Select(genericArgumentType =>
+						_typeConverters.TryGetValue(genericArgumentType, out var argumentTypeConverter) ? argumentTypeConverter.SimpleTypeRaw : genericArgumentType)
 					.ToArray();
 
 				var convertedGenericType =

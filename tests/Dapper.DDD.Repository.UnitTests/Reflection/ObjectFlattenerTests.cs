@@ -210,6 +210,98 @@ public class ObjectFlattenerTests
 		Assert.Equal(obj.Name, complex.Name);
 		Assert.Equal(obj.Factor, complex.Factor);
 	}
+	
+	[Fact]
+	public void Flatten_HasNullableWrappedPrimitiveWithValueWithTypeConverter_Works()
+	{
+		// Arrange
+		var objectFlattener = new ObjectFlattener();
+		var converter = new TypeConverter<WrappedPrimitive, int>(val => val, val => val);
+		objectFlattener.AddTypeConverter(typeof(WrappedPrimitive), converter);
+		var aggregate = new AggregateWithWrappedPrimitive()
+		{
+			Wrapped = 42,
+			NullableWrapped = 1337
+		};
+		
+		// Act
+		var flattened = objectFlattener.Flatten(aggregate);
+		var unflattened = objectFlattener.Unflatten<AggregateWithWrappedPrimitive>(flattened);
+		
+		// Assert
+		Assert.Equal(42, (int)unflattened.Wrapped);
+		Assert.Equal(1337, (int)unflattened.NullableWrapped!.Value);
+	}
+
+	[Fact]
+	public void Flatten_HasNullWrappedPrimitiveWithTypeConverter_Works()
+	{
+		// Arrange
+		var objectFlattener = new ObjectFlattener();
+		var converter = new TypeConverter<WrappedPrimitive, int>(val => val, val => val);
+		objectFlattener.AddTypeConverter(typeof(WrappedPrimitive), converter);
+		var aggregate = new AggregateWithWrappedPrimitive()
+		{
+			Wrapped = 42
+		};
+
+		// Act
+		var flattened = objectFlattener.Flatten(aggregate);
+		var unflattened = objectFlattener.Unflatten<AggregateWithWrappedPrimitive>(flattened);
+
+		// Assert
+		Assert.Equal(42, (int)unflattened.Wrapped);
+		Assert.Null(unflattened.NullableWrapped);
+	}
+
+	[Fact]
+	public void Flatten_HasNullableWrappedGenericPrimitiveWithValueWithTypeConverter_Works()
+	{
+		// Arrange
+		var objectFlattener = new ObjectFlattener();
+		objectFlattener.AddTypeConverter(typeof(WrappedGenericPrimitive<double>),
+			new TypeConverter<WrappedGenericPrimitive<double>, double>(val => val, val => val));
+		objectFlattener.AddTypeConverter(typeof(WrappedGenericPrimitive<Guid>),
+			new TypeConverter<WrappedGenericPrimitive<Guid>, Guid>(val => val, val => val));
+
+		var guid = Guid.NewGuid();
+		var aggregate = new AggregateWithWrappedGenericPrimitive()
+		{
+			Double=4.2,
+			Guid =guid
+		};
+
+		// Act
+		var flattened = objectFlattener.Flatten(aggregate);
+		var unflattened = objectFlattener.Unflatten<AggregateWithWrappedGenericPrimitive>(flattened);
+
+		// Assert
+		Assert.Equal(4.2, (double)unflattened.Double);
+		Assert.Equal(guid, (Guid)unflattened.Guid!.Value);
+	}
+
+	[Fact]
+	public void Flatten_HasNullWrappedGenericPrimitiveWithTypeConverter_Works()
+	{
+		// Arrange
+		var objectFlattener = new ObjectFlattener();
+		objectFlattener.AddTypeConverter(typeof(WrappedGenericPrimitive<double>),
+			new TypeConverter<WrappedGenericPrimitive<double>, double>(val => val, val => val));
+		objectFlattener.AddTypeConverter(typeof(WrappedGenericPrimitive<Guid>),
+			new TypeConverter<WrappedGenericPrimitive<Guid>, Guid>(val => val, val => val));
+		var aggregate = new AggregateWithWrappedGenericPrimitive()
+		{
+			Double = 4.2
+		};
+
+		// Act
+		var flattened = objectFlattener.Flatten(aggregate);
+		var unflattened = objectFlattener.Unflatten<AggregateWithWrappedGenericPrimitive>(flattened);
+
+		// Assert
+		Assert.Equal(4.2, (double)unflattened.Double);
+		Assert.Null(unflattened.Guid);
+	}
 
 	public class NoDefaultConstructorWithPrivateSetterProperty
 	{

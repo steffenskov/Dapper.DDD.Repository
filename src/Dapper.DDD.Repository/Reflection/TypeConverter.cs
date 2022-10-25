@@ -2,7 +2,8 @@
 
 internal interface ITypeConverter
 {
-	Type SimpleType { get; }
+	Type SimpleTypeWithNullableSupport { get; }
+	Type SimpleTypeRaw { get; }
 	object ConvertToSimple(object source);
 	object ConvertToComplex(object source);
 }
@@ -21,7 +22,7 @@ internal class TypeConverter<TComplexType, TSimpleType> : ITypeConverter
 		_convertToComplex = convertToComplex;
 	}
 
-	public Type SimpleType
+	public Type SimpleTypeWithNullableSupport
 	{
 		get
 		{
@@ -34,6 +35,8 @@ internal class TypeConverter<TComplexType, TSimpleType> : ITypeConverter
 			return simpleType;
 		}
 	}
+
+	public Type SimpleTypeRaw => typeof(TSimpleType);
 
 	public object ConvertToSimple(object source)
 	{
