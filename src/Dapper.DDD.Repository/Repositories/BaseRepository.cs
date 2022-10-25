@@ -204,7 +204,7 @@ public abstract class BaseRepository<TAggregate>
 		{
 			if (_objectFlattener.TryGetTypeConverter(typeof(TResult), out var converter))
 			{
-				var simpleType = converter!.SimpleType;
+				var simpleType = converter!.SimpleTypeWithNullableSupport;
 				var result = await _dapperInjection.QueryAsync(connection, simpleType, query,
 					_objectFlattener.Flatten(param), transaction, commandTimeout, commandType, cancellationToken);
 				return result.Select(simple => (TResult)converter.ConvertToComplex(simple));
@@ -237,7 +237,7 @@ public abstract class BaseRepository<TAggregate>
 		{
 			if (_objectFlattener.TryGetTypeConverter(typeof(TResult), out var converter))
 			{
-				var simpleType = converter!.SimpleType;
+				var simpleType = converter!.SimpleTypeWithNullableSupport;
 				var result = await _dapperInjection.QuerySingleOrDefaultAsync(connection, simpleType, query,
 					_objectFlattener.Flatten(param), transaction, commandTimeout, commandType, cancellationToken);
 				return result is not null ? (TResult)converter.ConvertToComplex(result) : default;
@@ -271,7 +271,7 @@ public abstract class BaseRepository<TAggregate>
 		{
 			if (_objectFlattener.TryGetTypeConverter(typeof(TResult), out var converter))
 			{
-				var simpleType = converter!.SimpleType;
+				var simpleType = converter!.SimpleTypeWithNullableSupport;
 				var result = await _dapperInjection.QuerySingleAsync(connection, simpleType, query,
 					_objectFlattener.Flatten(param), transaction, commandTimeout, commandType, cancellationToken);
 				return (TResult)converter.ConvertToComplex(result);
