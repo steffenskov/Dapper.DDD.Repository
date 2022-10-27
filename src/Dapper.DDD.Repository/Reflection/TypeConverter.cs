@@ -1,9 +1,8 @@
-﻿namespace Dapper.DDD.Repository.Reflection;
+namespace Dapper.DDD.Repository.Reflection;
 
 internal interface ITypeConverter
 {
-	Type SimpleTypeWithNullableSupport { get; }
-	Type SimpleTypeRaw { get; }
+	Type SimpleType { get; }
 	object ConvertToSimple(object source);
 	object ConvertToComplex(object source);
 }
@@ -22,7 +21,7 @@ internal class TypeConverter<TComplexType, TSimpleType> : ITypeConverter
 		_convertToComplex = convertToComplex;
 	}
 
-	public Type SimpleTypeWithNullableSupport
+	public Type SimpleType
 	{
 		get
 		{
@@ -35,8 +34,6 @@ internal class TypeConverter<TComplexType, TSimpleType> : ITypeConverter
 			return simpleType;
 		}
 	}
-
-	public Type SimpleTypeRaw => typeof(TSimpleType);
 
 	public object ConvertToSimple(object source)
 	{
