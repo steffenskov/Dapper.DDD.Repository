@@ -346,7 +346,7 @@ public class QueryGeneratorTests
 		// Arrange
 		var generator = CreateHasDefaultConstraintAggregateQueryGenerator();
 
-		// Actj
+		// Act
 		var query = generator.GenerateInsertQuery(new HasDefaultConstraintAggregate());
 
 		// Assert
@@ -530,6 +530,53 @@ public class QueryGeneratorTests
 
 	#endregion
 
+	#region Upsert
+
+	[Fact]
+	public void GenerateUpsertQuery_HasIdentity_ReturnsPureInsertQuery()
+	{
+		// Arrange
+		var generator = CreateSinglePrimaryKeyAggregateQueryGenerator();
+
+		// Act
+		var query = generator.GenerateUpsertQuery(new SinglePrimaryKeyAggregate());
+		var insertQuery = generator.GenerateInsertQuery(new SinglePrimaryKeyAggregate()); 
+
+		// Assert
+		Assert.Equal(insertQuery, query);
+	}
+
+	[Fact]
+	public void GenerateUpsertQuery_HasNoIdentity_Valid()
+	{
+		// Arrange
+		var generator = CreateAggregateWithValueObjectIdQueryGenerator();
+
+		// Act
+		var query = generator.GenerateUpsertQuery(new AggregateWithValueObjectId());
+
+		// Assert
+		Assert.Equal(
+			@"INSERT INTO Users (Age, Id_Password, Id_Username) VALUES (@Age, @Id_Password, @Id_Username) ON DUPLICATE KEY UPDATE Age = @Age;SELECT Users.Age, Users.Id_Password, Users.Id_Username FROM Users WHERE Users.Id_Password = @Id_Password AND Users.Id_Username = @Id_Username;",
+			query);
+	}
+
+	[Fact]
+	public void GenerateUpsertQuery_HasNoUpdatableColumns_Valid()
+	{
+		// Arrange
+		var generator = CreateHasDefaultConstraintAggregateQueryGenerator();
+
+		// Act
+		var query = generator.GenerateUpsertQuery(new HasDefaultConstraintAggregate());
+
+		// Assert
+		Assert.Equal(
+			@"INSERT INTO Users (Id) VALUES (@Id);SELECT Users.Id, Users.DateCreated FROM Users WHERE Users.Id = @Id;",
+			query);
+	}
+	#endregion
+	
 	#region Constructors
 
 	private static MySqlQueryGenerator<HasDefaultConstraintAggregate>

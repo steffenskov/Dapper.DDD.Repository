@@ -120,6 +120,25 @@ internal class MySqlQueryGenerator<TAggregate> : IQueryGenerator<TAggregate>
 		return $@"UPDATE {_entityName} SET {setClause} WHERE {GenerateWhereClause()};{selectStatement}";
 	}
 
+	public string GenerateUpsertQuery(TAggregate aggregate)
+	{
+		var insertQuery = GenerateInsertQuery(aggregate);
+
+		if (_identities.Any()) // Upsert makes no sense with identity, as a new Id is always generated
+		{
+			return insertQuery;
+		}
+		
+		var semicolonIndex = insertQuery.IndexOf(';');
+		var insertPart = insertQuery[..semicolonIndex];
+		var selectQuery = GenerateGetQuery();
+		var setClause = GenerateSetClause(aggregate);
+		var onDuplicateClause = string.IsNullOrWhiteSpace(setClause)
+			? ""
+			: $" ON DUPLICATE KEY UPDATE {setClause}";
+		return $"{insertPart}{onDuplicateClause};{selectQuery}";
+	}
+
 	#region Helpers
 
 	private string GenerateSetClause(TAggregate aggregate)

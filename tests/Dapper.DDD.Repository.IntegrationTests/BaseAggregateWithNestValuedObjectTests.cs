@@ -83,4 +83,40 @@ public abstract class BaseAggregateWithNestedValueObjectTests
 		Assert.NotSame(toUpdate, updated);
 		Assert.Equal(toUpdate, updated);
 	}
+
+	[Theory]
+	[AutoDomainData]
+	public async Task Upsert_DoesNotExist_Inserted(CustomerWithNestedAddresses aggregate)
+	{
+		// Arrange
+		var exists = await _repository.GetAsync(aggregate.Id);
+		Assert.Null(exists);
+
+		// Act
+		var inserted = await _repository.UpsertAsync(aggregate);
+
+		// Assert
+		Assert.NotSame(aggregate, inserted);
+		Assert.Equal(aggregate, inserted);
+	}
+
+	[Theory]
+	[AutoDomainData]
+	public async Task Upsert_Exists_Updated(CustomerWithNestedAddresses aggregate)
+	{
+		// Arrange
+		var inserted = await _repository.InsertAsync(aggregate);
+		
+		// Act
+		var toUpdate = aggregate with
+		{
+			Addresses = new Addresses(new Address("Other name", new Zipcode(Random.Shared.Next(int.MaxValue))),
+				new Address("Other name", Zipcode.New()))
+		};
+		var updated = await _repository.UpsertAsync(toUpdate);
+
+		// Assert
+		Assert.NotSame(toUpdate, updated);
+		Assert.Equal(toUpdate, updated);
+	}
 }
