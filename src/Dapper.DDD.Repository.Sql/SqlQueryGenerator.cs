@@ -109,6 +109,30 @@ internal class SqlQueryGenerator<TAggregate> : IQueryGenerator<TAggregate>
 			$"UPDATE {_schemaAndEntity} SET {setClause} OUTPUT {outputProperties} WHERE {GenerateWhereClause()};";
 	}
 
+	public string GenerateUpsertQuery(TAggregate aggregate)
+	{
+		var insertQuery = GenerateInsertQuery(aggregate);
+
+		if (_identities.Any()) // Upsert makes no sense with identity, as a new Id is always generated
+		{
+			return insertQuery;
+		}
+
+		var whereClause = GenerateWhereClause();
+		var setClause = GenerateSetClause(aggregate);
+		var updateQuery = string.IsNullOrEmpty(setClause)
+			? GenerateGetQuery() // Use select query instead of update, as nothing can be updated but we still expect the aggregate to be returned
+			: GenerateUpdateQuery(aggregate);
+
+		return $@"IF EXISTS (SELECT TOP 1 1 FROM {_schemaAndEntity} WHERE {whereClause})
+BEGIN
+{updateQuery}
+END
+ELSE
+BEGIN
+{insertQuery}
+END";
+	}
 
 	public string GeneratePropertyList(string tableName)
 	{

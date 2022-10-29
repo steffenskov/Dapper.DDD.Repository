@@ -193,4 +193,46 @@ public abstract class BaseSinglePrimaryKeyAsyncTests<TDbException>
 	}
 
 	#endregion
+	
+	#region Upsert
+
+
+	[Theory]
+	[AutoDomainData]
+	public async Task Upsert_DoesNotExist_Inserted(Category aggregate)
+	{
+		// Act
+		var insertedAggregate = await _repository.UpsertAsync(aggregate);
+		try
+		{
+			// Assert
+			Assert.NotEqual(default, insertedAggregate.CategoryID);
+			Assert.Equal(aggregate.Description, insertedAggregate.Description);
+			Assert.Equal(aggregate.CategoryName, insertedAggregate.CategoryName);
+			Assert.Equal(aggregate.Picture, insertedAggregate.Picture);
+		}
+		finally
+		{
+			await _repository.DeleteAsync(insertedAggregate.CategoryID);
+		}
+	}
+
+	[Theory]
+	[AutoDomainData]
+	public async Task Upsert_Exists_Updated(Category aggregate)
+	{
+		// Arrange
+		var insertedAggregate = await _repository.InsertAsync(aggregate);
+
+		var update = insertedAggregate with { Description = "Something else" };
+
+		// Act
+		var updatedAggregate = await _repository.UpsertAsync(update);
+
+		// Assert
+		Assert.Equal("Something else", updatedAggregate?.Description);
+
+		await _repository.DeleteAsync(insertedAggregate.CategoryID);
+	}
+	#endregion
 }

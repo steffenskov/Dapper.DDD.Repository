@@ -14,4 +14,5 @@ public interface IQueryGenerator<in TAggregate>
 	string GenerateUpdateQuery(TAggregate aggregate);
 
 	string GeneratePropertyList(string tableName);
+	string GenerateUpsertQuery(TAggregate aggregate);
 }

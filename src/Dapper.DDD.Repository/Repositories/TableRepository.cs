@@ -51,5 +51,11 @@ public class TableRepository<TAggregate, TAggregateId> : BaseRepository<TAggrega
 		return await QuerySingleOrDefaultAsync(query, aggregate, cancellationToken: cancellationToken);
 	}
 
+	public async Task<TAggregate> UpsertAsync(TAggregate aggregate, CancellationToken cancellationToken = default)
+	{
+		ArgumentNullException.ThrowIfNull(aggregate);
+		var query = _queryGenerator.GenerateUpsertQuery(aggregate);
+		return await QuerySingleAsync(query, aggregate, cancellationToken: cancellationToken);
+	}
 	#endregion
 }

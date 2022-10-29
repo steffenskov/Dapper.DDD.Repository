@@ -7,4 +7,5 @@ public interface ITableRepository<TAggregate, TAggregateId>
 	Task<IEnumerable<TAggregate>> GetAllAsync(CancellationToken cancellationToken = default);
 	Task<TAggregate> InsertAsync(TAggregate aggregate, CancellationToken cancellationToken = default);
 	Task<TAggregate?> UpdateAsync(TAggregate aggregate, CancellationToken cancellationToken = default);
+	Task<TAggregate> UpsertAsync(TAggregate aggregate, CancellationToken cancellationToken = default);
 }

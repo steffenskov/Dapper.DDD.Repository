@@ -702,6 +702,66 @@ public class QueryGeneratorTests
 
 	#endregion
 
+	#region Upsert
+	[Fact]
+	public void GenerateUpsertQuery_HasIdentity_ReturnsPureInsertQuery()
+	{
+		// Arrange
+		var generator = CreateSinglePrimaryKeyAggregateQueryGenerator();
+
+		// Act 
+		var query = generator.GenerateUpsertQuery(new SinglePrimaryKeyAggregate());
+		var insertQuery = generator.GenerateInsertQuery(new SinglePrimaryKeyAggregate());
+
+		// Assert
+		Assert.Equal(insertQuery, query);
+	}
+	
+	[Fact]
+	public void GenerateUpsertQuery_HasNoIdentity_Valid()
+	{
+		// Arrange
+		var generator = CreateCompositePrimaryKeyAggregateQueryGenerator();
+
+		// Act 
+		var query = generator.GenerateUpsertQuery(new CompositePrimaryKeyAggregate());
+
+		// Assert
+		Assert.Equal(
+			@"IF EXISTS (SELECT TOP 1 1 FROM [dbo].[Users] WHERE [dbo].[Users].[Username] = @Username AND [dbo].[Users].[Password] = @Password)
+BEGIN
+UPDATE [dbo].[Users] SET [dbo].[Users].[DateCreated] = @DateCreated OUTPUT [inserted].[Username], [inserted].[Password], [inserted].[DateCreated] WHERE [dbo].[Users].[Username] = @Username AND [dbo].[Users].[Password] = @Password;
+END
+ELSE
+BEGIN
+INSERT INTO [dbo].[Users] ([Username], [Password], [DateCreated]) OUTPUT [inserted].[Username], [inserted].[Password], [inserted].[DateCreated] VALUES (@Username, @Password, @DateCreated);
+END",
+			query);
+	}
+
+	[Fact]
+	public void GenerateUpsertQuery_HasNoUpdatableColumns_Valid()
+	{
+		// Arrange
+		var generator = CreateHasDefaultConstraintAggregateQueryGenerator();
+
+		// Act
+		var query = generator.GenerateUpsertQuery(new HasDefaultConstraintAggregate());
+
+		// Assert
+		Assert.Equal(
+			@"IF EXISTS (SELECT TOP 1 1 FROM [dbo].[Users] WHERE [dbo].[Users].[Id] = @Id)
+BEGIN
+SELECT [dbo].[Users].[Id], [dbo].[Users].[DateCreated] FROM [dbo].[Users] WHERE [dbo].[Users].[Id] = @Id;
+END
+ELSE
+BEGIN
+INSERT INTO [dbo].[Users] ([Id]) OUTPUT [inserted].[Id], [inserted].[DateCreated] VALUES (@Id);
+END",
+			query);
+	}
+	#endregion
+	
 	#region Constructors
 
 	private static SqlQueryGenerator<HasDefaultConstraintAggregate>
