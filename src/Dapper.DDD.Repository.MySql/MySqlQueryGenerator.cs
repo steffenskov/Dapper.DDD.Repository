@@ -124,9 +124,11 @@ internal class MySqlQueryGenerator<TAggregate> : IQueryGenerator<TAggregate>
 	{
 		var insertQuery = GenerateInsertQuery(aggregate);
 
-		if (_identities.Any()) // Upsert makes no sense with identity, as a new Id is always generated
+		if (_identities.Any())
 		{
-			return insertQuery;
+			return _identities.Any(prop => !prop.HasDefaultValue(aggregate))
+					? GenerateUpdateQuery(aggregate) // One or more identities have a specified value => do an update 
+					: insertQuery; // All identities are default => do an insert
 		}
 		
 		var semicolonIndex = insertQuery.IndexOf(';');
