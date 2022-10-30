@@ -716,6 +716,20 @@ public class QueryGeneratorTests
 		// Assert
 		Assert.Equal(insertQuery, query);
 	}
+
+	[Fact]
+	public void GenerateUpsertQuery_HasIdentityWithExistingValue_ReturnsPureUpdateQuery()
+	{
+		// Arrange
+		var generator = CreateSinglePrimaryKeyAggregateQueryGenerator();
+
+		// Act
+		var query = generator.GenerateUpsertQuery(new SinglePrimaryKeyAggregate { Id = 42 });
+		var updateQuery = generator.GenerateUpdateQuery(new SinglePrimaryKeyAggregate());
+
+		// Assert
+		Assert.Equal(updateQuery, query);
+	}
 	
 	[Fact]
 	public void GenerateUpsertQuery_HasNoIdentity_Valid()
