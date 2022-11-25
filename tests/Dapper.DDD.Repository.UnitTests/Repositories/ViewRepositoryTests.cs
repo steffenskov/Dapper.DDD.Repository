@@ -13,6 +13,19 @@ public class ViewRepositoryTests : IClassFixture<NoDefaultsStartup>
 	}
 
 	[Fact]
+	public void StatefulRepositories_HasState_StatesAreDifferent()
+	{
+		// Arrange
+		var repo1 = _provider.GetService<IStatefulViewRepository>()!;
+		var repo2 = _provider.GetService<IStatefulSimpleViewRepository>()!;
+		
+		// Assert
+		Assert.NotEqual(Guid.Empty, repo1.State);
+		Assert.NotEqual(Guid.Empty, repo2.State);
+		Assert.NotEqual(repo1.State, repo2.State);
+	}
+	
+	[Fact]
 	public void DependencyInjection_NoDefaultsConfiguration_StillWorks()
 	{
 		// Act

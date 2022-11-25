@@ -17,7 +17,7 @@ public abstract class BaseRepository<TAggregate, TAggregateId> : BaseRepository<
 		}
 	}
 
-	public async Task<TAggregate?> GetAsync(TAggregateId id, CancellationToken cancellationToken = default)
+	public virtual async Task<TAggregate?> GetAsync(TAggregateId id, CancellationToken cancellationToken = default)
 	{
 		var query = _queryGenerator.GenerateGetQuery();
 
@@ -115,7 +115,7 @@ public abstract class BaseRepository<TAggregate>
 				.ShouldFlattenType<TAggregate>(); // Call this last to ensure all type converters are in place first
 	}
 
-	public async Task<IEnumerable<TAggregate>> GetAllAsync(CancellationToken cancellationToken = default)
+	public virtual async Task<IEnumerable<TAggregate>> GetAllAsync(CancellationToken cancellationToken = default)
 	{
 		var query = _queryGenerator.GenerateGetAllQuery();
 		return await QueryAsync(query, cancellationToken: cancellationToken);
