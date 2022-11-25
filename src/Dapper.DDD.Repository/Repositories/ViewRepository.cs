@@ -6,7 +6,7 @@ public class ViewRepository<TAggregate, TAggregateId> : BaseRepository<TAggregat
 	where TAggregateId : notnull
 {
 	public ViewRepository(IOptions<ViewAggregateConfiguration<TAggregate>> options,
-		IOptions<DefaultConfiguration> defaultOptions) : base(options.Value, defaultOptions.Value)
+		IOptions<DefaultConfiguration>? defaultOptions) : base(options.Value, defaultOptions?.Value)
 	{
 		ArgumentNullException.ThrowIfNull(options.Value.ViewName);
 		ViewName = options.Value.ViewName;
@@ -22,7 +22,7 @@ public class ViewRepository<TAggregate> : BaseRepository<TAggregate>, IViewRepos
 	where TAggregate : notnull
 {
 	public ViewRepository(IOptions<ViewAggregateConfiguration<TAggregate>> options,
-		IOptions<DefaultConfiguration> defaultOptions) : base(options.Value, defaultOptions.Value)
+		IOptions<DefaultConfiguration>? defaultOptions) : base(options.Value, defaultOptions?.Value)
 	{
 		ArgumentNullException.ThrowIfNull(options.Value.ViewName);
 		ViewName = options.Value.ViewName;

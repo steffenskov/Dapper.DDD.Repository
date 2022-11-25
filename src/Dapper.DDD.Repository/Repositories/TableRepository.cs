@@ -6,7 +6,7 @@ public class TableRepository<TAggregate, TAggregateId> : BaseRepository<TAggrega
 	where TAggregateId : notnull
 {
 	public TableRepository(IOptions<TableAggregateConfiguration<TAggregate>> options,
-		IOptions<DefaultConfiguration> defaultOptions) : base(options.Value, defaultOptions.Value)
+		IOptions<DefaultConfiguration>? defaultOptions) : base(options.Value, defaultOptions?.Value)
 	{
 		ArgumentNullException.ThrowIfNull(options.Value.TableName);
 		TableName = options.Value.TableName;
@@ -19,14 +19,14 @@ public class TableRepository<TAggregate, TAggregateId> : BaseRepository<TAggrega
 
 	#region ITableRepository
 
-	public async Task<TAggregate?> DeleteAsync(TAggregateId id, CancellationToken cancellationToken = default)
+	public virtual async Task<TAggregate?> DeleteAsync(TAggregateId id, CancellationToken cancellationToken = default)
 	{
 		var query = _queryGenerator.GenerateDeleteQuery();
 
 		return await QuerySingleOrDefaultAsync(query, WrapId(id), cancellationToken: cancellationToken);
 	}
 
-	public async Task<TAggregate> InsertAsync(TAggregate aggregate, CancellationToken cancellationToken = default)
+	public virtual async Task<TAggregate> InsertAsync(TAggregate aggregate, CancellationToken cancellationToken = default)
 	{
 		ArgumentNullException.ThrowIfNull(aggregate);
 		var invalidIdentityProperties = _configuration.GetIdentityProperties()
@@ -44,14 +44,14 @@ public class TableRepository<TAggregate, TAggregateId> : BaseRepository<TAggrega
 		return await QuerySingleAsync(query, aggregate, cancellationToken: cancellationToken);
 	}
 
-	public async Task<TAggregate?> UpdateAsync(TAggregate aggregate, CancellationToken cancellationToken = default)
+	public virtual async Task<TAggregate?> UpdateAsync(TAggregate aggregate, CancellationToken cancellationToken = default)
 	{
 		ArgumentNullException.ThrowIfNull(aggregate);
 		var query = _queryGenerator.GenerateUpdateQuery(aggregate);
 		return await QuerySingleOrDefaultAsync(query, aggregate, cancellationToken: cancellationToken);
 	}
 
-	public async Task<TAggregate> UpsertAsync(TAggregate aggregate, CancellationToken cancellationToken = default)
+	public virtual async Task<TAggregate> UpsertAsync(TAggregate aggregate, CancellationToken cancellationToken = default)
 	{
 		ArgumentNullException.ThrowIfNull(aggregate);
 		var query = _queryGenerator.GenerateUpsertQuery(aggregate);

@@ -13,6 +13,16 @@ public class TableRepositoryTests : IClassFixture<NoDefaultsStartup>
 	}
 
 	[Fact]
+	public void StatefulRepository_HasState_CanBeSeen()
+	{
+		// Arrange
+		var repo = _provider.GetService<IStatefulTableRepository>()!;
+		
+		// Assert
+		Assert.NotEqual(Guid.Empty, repo.State);
+	}
+
+	[Fact]
 	public void DependencyInjection_NoDefaultsConfiguration_StillWorks()
 	{
 		// Act
