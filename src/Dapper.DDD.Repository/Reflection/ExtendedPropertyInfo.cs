@@ -58,7 +58,7 @@ public class ExtendedPropertyInfo
 		return new ExtendedPropertyInfoCollection(GetPropertiesOrdered(Type, Name));
 	}
 
-	private IOrderedEnumerable<ExtendedPropertyInfo> GetPropertiesOrdered(Type type, string prefix)
+	private static IOrderedEnumerable<ExtendedPropertyInfo> GetPropertiesOrdered(Type type, string prefix)
 	{
 		return TypePropertiesCache.GetProperties(type)
 			.Select(prop => new ExtendedPropertyInfo(prop, prefix))
@@ -66,13 +66,13 @@ public class ExtendedPropertyInfo
 	}
 
 	public IReadOnlyExtendedPropertyInfoCollection GetFlattenedPropertiesOrdered<TAggregate>(
-		BaseAggregateConfiguration<TAggregate> configuration) where TAggregate : notnull
+		IReadAggregateConfiguration<TAggregate> configuration) where TAggregate : notnull
 	{
 		return new ExtendedPropertyInfoCollection(GetFlattenedPropertiesOrdered(Type, Name, configuration));
 	}
 
-	private IEnumerable<ExtendedPropertyInfo> GetFlattenedPropertiesOrdered<TAggregate>(Type type, string prefix,
-		BaseAggregateConfiguration<TAggregate> configuration) where TAggregate : notnull
+	private static IEnumerable<ExtendedPropertyInfo> GetFlattenedPropertiesOrdered<TAggregate>(Type type, string prefix,
+		IReadAggregateConfiguration<TAggregate> configuration) where TAggregate : notnull
 	{
 		var properties = GetPropertiesOrdered(type, prefix);
 		foreach (var prop in properties)

@@ -1,4 +1,4 @@
-﻿namespace Dapper.DDD.Repository.Interfaces;
+﻿namespace Dapper.DDD.Repository.QueryGenerators;
 
 public interface IQueryGenerator<in TAggregate>
 

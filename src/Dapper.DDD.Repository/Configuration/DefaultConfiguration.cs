@@ -1,4 +1,5 @@
 ﻿using System.Collections.Concurrent;
+using Dapper.DDD.Repository.QueryGenerators;
 using Dapper.DDD.Repository.Reflection;
 
 namespace Dapper.DDD.Repository.Configuration;

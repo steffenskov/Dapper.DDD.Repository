@@ -1,4 +1,5 @@
 ﻿using Dapper.DDD.Repository.Exceptions;
+using Dapper.DDD.Repository.QueryGenerators;
 using Dapper.DDD.Repository.Reflection;
 
 namespace Dapper.DDD.Repository.Repositories;

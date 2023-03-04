@@ -1,4 +1,3 @@
-using AutoFixture.Xunit2;
 using Dapper.DDD.Repository.UnitTests.Aggregates;
 
 namespace Dapper.DDD.Repository.UnitTests.Configuration;

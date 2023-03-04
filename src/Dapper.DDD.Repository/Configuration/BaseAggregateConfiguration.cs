@@ -1,4 +1,6 @@
-﻿using System.Linq.Expressions;
+﻿using System.Collections.ObjectModel;
+using System.Linq.Expressions;
+using Dapper.DDD.Repository.QueryGenerators;
 using Dapper.DDD.Repository.Reflection;
 
 namespace Dapper.DDD.Repository.Configuration;
@@ -21,6 +23,11 @@ public abstract class BaseAggregateConfiguration<TAggregate> : IReadAggregateCon
 
 	string IReadAggregateConfiguration<TAggregate>.EntityName => EntityName;
 
+	IReadOnlyDictionary<string, string> IReadAggregateConfiguration<TAggregate>.GetColumnNameMap()
+	{
+		return new ReadOnlyDictionary<string, string>(_columnNameMap);
+	}
+	
 	IReadOnlyExtendedPropertyInfoCollection IReadAggregateConfiguration<TAggregate>.GetKeys()
 	{
 		return _keyProperties ?? new ExtendedPropertyInfoCollection();
@@ -64,6 +71,8 @@ public abstract class BaseAggregateConfiguration<TAggregate> : IReadAggregateCon
 		return _defaultConfiguration?.HasTypeConverter(type) == true;
 	}
 
+	
+
 	internal void SetDefaults(DefaultConfiguration? defaults)
 	{
 		if (defaults is null)
@@ -79,6 +88,10 @@ public abstract class BaseAggregateConfiguration<TAggregate> : IReadAggregateCon
 		DapperInjectionFactory ??= defaults.DapperInjectionFactory;
 	}
 
+	/// <summary>
+	/// Maps a column name to a property, when the two aren't the same.
+	/// Currently only works for simple properties, not ValueObjects!
+	/// </summary>
 	public void HasColumnName(Expression<Func<TAggregate, object?>> expression, string columnName)
 	{
 		var properties = new ExpressionParser<TAggregate>().GetExtendedPropertiesFromExpression(expression).ToList();
@@ -87,6 +100,12 @@ public abstract class BaseAggregateConfiguration<TAggregate> : IReadAggregateCon
 			throw new InvalidOperationException("The expression given to HasColumnName must return exactly one property.");
 		}
 		var property = properties[0];
+		if (!property.Type.IsSimpleOrBuiltIn() && !this.HasTypeConverter(property.Type))
+		{
+			// TODO: Unit test these 2 conditions
+			throw new InvalidOperationException("HasColumnName does currently not support ValueObjects. If this property is not a ValueObject but merely needs a TypeConverter, add that TypeConverter before calling HasColumnName.");
+		}
+			
 		if (_columnNameMap.ContainsKey(property.Name))
 		{
 			throw new InvalidOperationException($@"HasColumnName has already been called once for the property ""{property.Name}"".");

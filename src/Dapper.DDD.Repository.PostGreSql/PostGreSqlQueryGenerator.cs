@@ -1,8 +1,9 @@
+using Dapper.DDD.Repository.QueryGenerators;
 using Dapper.DDD.Repository.Reflection;
 
 namespace Dapper.DDD.Repository.PostGreSql;
 
-internal class PostGreSqlQueryGenerator<TAggregate> : IQueryGenerator<TAggregate>
+internal class PostGreSqlQueryGenerator<TAggregate> : BaseQueryGenerator<TAggregate>, IQueryGenerator<TAggregate>
 	where TAggregate : notnull
 {
 	private readonly IReadOnlyExtendedPropertyInfoCollection _defaultConstraints;
@@ -11,7 +12,7 @@ internal class PostGreSqlQueryGenerator<TAggregate> : IQueryGenerator<TAggregate
 	private readonly IReadOnlyExtendedPropertyInfoCollection _keys;
 	private readonly IReadOnlyExtendedPropertyInfoCollection _properties;
 
-	public PostGreSqlQueryGenerator(BaseAggregateConfiguration<TAggregate> configuration)
+	public PostGreSqlQueryGenerator(BaseAggregateConfiguration<TAggregate> configuration) : base(configuration)
 	{
 		var readConfiguration = (IReadAggregateConfiguration<TAggregate>)configuration;
 		if (configuration.Schema is not null)
@@ -95,7 +96,7 @@ internal class PostGreSqlQueryGenerator<TAggregate> : IQueryGenerator<TAggregate
 			var property = identityProperties.First();
 			var propertyList = GeneratePropertyList(_entityName);
 			selectStatement =
-				$"SELECT {propertyList} FROM {_entityName} WHERE {_entityName}.{property.Name} = LAST_INSERT_ID();";
+				$"SELECT {propertyList} FROM {_entityName} WHERE {_entityName}.{GetColumnName(property)} = LAST_INSERT_ID();";
 		}
 		else
 		{
@@ -103,7 +104,7 @@ internal class PostGreSqlQueryGenerator<TAggregate> : IQueryGenerator<TAggregate
 		}
 
 		return
-			$@"INSERT INTO {_entityName} ({string.Join(", ", propertiesToInsert.Select(property => property.Name))}) VALUES ({string.Join(", ", propertiesToInsert.Select(property => $"@{property.Name}"))});{selectStatement}";
+			$@"INSERT INTO {_entityName} ({string.Join(", ", propertiesToInsert.Select(property => GetColumnName(property)))}) VALUES ({string.Join(", ", propertiesToInsert.Select(property => $"@{GetColumnName(property)}"))});{selectStatement}";
 	}
 
 	public string GenerateUpdateQuery(TAggregate aggregate)
@@ -127,10 +128,10 @@ internal class PostGreSqlQueryGenerator<TAggregate> : IQueryGenerator<TAggregate
 		if (_identities.Any())
 		{
 			return _identities.Any(prop => !prop.HasDefaultValue(aggregate))
-					? GenerateUpdateQuery(aggregate) // One or more identities have a specified value => do an update 
-					: insertQuery; // All identities are default => do an insert
+				? GenerateUpdateQuery(aggregate) // One or more identities have a specified value => do an update 
+				: insertQuery; // All identities are default => do an insert
 		}
-		
+
 		var semicolonIndex = insertQuery.IndexOf(';');
 		var insertPart = insertQuery[..semicolonIndex];
 		var selectQuery = GenerateGetQuery();
@@ -142,7 +143,6 @@ internal class PostGreSqlQueryGenerator<TAggregate> : IQueryGenerator<TAggregate
 	}
 
 	#region Helpers
-
 	private string GenerateSetClause(TAggregate aggregate)
 	{
 		var primaryKeys = _keys;
@@ -150,7 +150,7 @@ internal class PostGreSqlQueryGenerator<TAggregate> : IQueryGenerator<TAggregate
 		var propertiesToSet = _properties.Where(property =>
 			!primaryKeys.Contains(property) && property.HasSetter &&
 			(!propertiesWithDefaultValues.Contains(property) || !property.HasDefaultValue(aggregate)));
-		return string.Join(", ", propertiesToSet.Select(property => $"{property.Name} = @{property.Name}"));
+		return string.Join(", ", propertiesToSet.Select(property => $"{GetColumnName(property)} = @{GetColumnName(property)}"));
 	}
 
 	private string GenerateWhereClause()
@@ -158,7 +158,7 @@ internal class PostGreSqlQueryGenerator<TAggregate> : IQueryGenerator<TAggregate
 		var primaryKeys = _keys;
 
 		return string.Join(" AND ",
-			primaryKeys.Select(property => $"{_entityName}.{property.Name} = @{property.Name}"));
+			primaryKeys.Select(property => $"{_entityName}.{GetColumnName(property)} = @{GetColumnName(property)}"));
 	}
 
 	public string GeneratePropertyList(string tableName)
@@ -166,10 +166,9 @@ internal class PostGreSqlQueryGenerator<TAggregate> : IQueryGenerator<TAggregate
 		return string.Join(", ", _properties.Select(property => GeneratePropertyClause(tableName, property)));
 	}
 
-	private static string GeneratePropertyClause(string tableName, ExtendedPropertyInfo property)
+	private string GeneratePropertyClause(string tableName, ExtendedPropertyInfo property)
 	{
-		return $"{tableName}.{property.Name}";
+		return $"{tableName}.{GetColumnName(property)}";
 	}
-
 	#endregion
 }
