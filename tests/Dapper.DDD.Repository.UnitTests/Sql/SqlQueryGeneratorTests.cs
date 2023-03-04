@@ -185,7 +185,6 @@ public class QueryGeneratorTests
 	#endregion
 
 	#region GetAll
-
 	[Fact]
 	public void GenerateGetAllQuery_HasNestedValueObject_Valid()
 	{

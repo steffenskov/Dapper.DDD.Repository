@@ -48,7 +48,7 @@ public class ExtendedPropertyInfoCollectionTests
 
 		// Act && Assert
 		var ex = Assert.Throws<ArgumentException>(() => collection.AddRange(collection));
-		Assert.Contains("An item with the same key has already been added.", ex.Message);
+		Assert.Contains("One or more items with the same key has already been added.", ex.Message);
 	}
 
 	[Fact]

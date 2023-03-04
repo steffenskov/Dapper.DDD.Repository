@@ -8,6 +8,7 @@ public abstract class BaseAggregateConfiguration<TAggregate> : IReadAggregateCon
 	private readonly ExtendedPropertyInfoCollection _defaults = new();
 	private readonly ExtendedPropertyInfoCollection _identities = new();
 	private readonly ExtendedPropertyInfoCollection _ignores = new();
+	private readonly IDictionary<string, string> _columnNameMap = new Dictionary<string, string>();
 	private DefaultConfiguration? _defaultConfiguration;
 	private ExtendedPropertyInfoCollection? _keyProperties;
 
@@ -78,6 +79,36 @@ public abstract class BaseAggregateConfiguration<TAggregate> : IReadAggregateCon
 		DapperInjectionFactory ??= defaults.DapperInjectionFactory;
 	}
 
+	public void HasColumnName(Expression<Func<TAggregate, object?>> expression, string columnName)
+	{
+		var properties = new ExpressionParser<TAggregate>().GetExtendedPropertiesFromExpression(expression).ToList();
+		if (properties.Count != 1)
+		{
+			throw new InvalidOperationException("The expression given to HasColumnName must return exactly one property.");
+		}
+		var property = properties[0];
+		if (_columnNameMap.ContainsKey(property.Name))
+		{
+			throw new InvalidOperationException($@"HasColumnName has already been called once for the property ""{property.Name}"".");
+		}
+
+		_columnNameMap[property.Name] = columnName;
+	}
+
+	public void HasDefault(Expression<Func<TAggregate, object?>> expression)
+	{
+		var properties = new ExpressionParser<TAggregate>().GetExtendedPropertiesFromExpression(expression);
+
+		_defaults.AddRange(properties);
+	}
+
+	public void HasIdentity(Expression<Func<TAggregate, object?>> expression)
+	{
+		var properties = new ExpressionParser<TAggregate>().GetExtendedPropertiesFromExpression(expression);
+
+		_identities.AddRange(properties);
+	}
+
 	public void HasKey(Expression<Func<TAggregate, object?>> expression)
 	{
 		if (_keyProperties is not null)
@@ -95,19 +126,5 @@ public abstract class BaseAggregateConfiguration<TAggregate> : IReadAggregateCon
 		var properties = new ExpressionParser<TAggregate>().GetExtendedPropertiesFromExpression(expression);
 
 		_ignores.AddRange(properties);
-	}
-
-	public void HasDefault(Expression<Func<TAggregate, object?>> expression)
-	{
-		var properties = new ExpressionParser<TAggregate>().GetExtendedPropertiesFromExpression(expression);
-
-		_defaults.AddRange(properties);
-	}
-
-	public void HasIdentity(Expression<Func<TAggregate, object?>> expression)
-	{
-		var properties = new ExpressionParser<TAggregate>().GetExtendedPropertiesFromExpression(expression);
-
-		_identities.AddRange(properties);
 	}
 }
