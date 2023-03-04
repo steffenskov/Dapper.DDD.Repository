@@ -3,19 +3,11 @@
 	<PropertyGroup>
 		<TargetFramework>net7.0</TargetFramework>
 		<Nullable>enable</Nullable>
-		<ImplictUsing>enable</ImplictUsing>
-		<TreatWarningsAsErrors>true</TreatWarningsAsErrors>
 		<IsPackable>false</IsPackable>
 	</PropertyGroup>
-
 	<ItemGroup>
-		<PackageReference Include="Dapper" Version="2.0.78" />
-		<PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.7.1" />
-		<PackageReference Include="MoQ" Version="4.18.1" />
-		<PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="6.0.0" />
-		<PackageReference Include="NetTopologySuite" Version="2.5.0" />
-		<PackageReference Include="NetTopologySuite.IO.SqlServerBytes" Version="2.1.0" />
-		<PackageReference Include="StrongTypedId" Version="1.1.2" />
+		<PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.11.0" />
+		<PackageReference Include="Npgsql" Version="7.0.2" />
 		<PackageReference Include="xunit" Version="2.4.1" />
 		<PackageReference Include="xunit.runner.visualstudio" Version="2.4.3">
 			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
@@ -26,11 +18,9 @@
 			<PrivateAssets>all</PrivateAssets>
 		</PackageReference>
 	</ItemGroup>
-
 	<ItemGroup>
-		<ProjectReference Include="..\..\src\Dapper.DDD.Repository\Dapper.DDD.Repository.csproj" />
-		<ProjectReference Include="..\..\src\Dapper.DDD.Repository.Sql\Dapper.DDD.Repository.Sql.csproj" />
-		<ProjectReference Include="..\..\src\Dapper.DDD.Repository.MySql\Dapper.DDD.Repository.MySql.csproj" />
+		<ProjectReference Include="..\..\src\Dapper.DDD.Repository.PostGreSql\Dapper.DDD.Repository.PostGreSql.csproj" />
+		<ProjectReference Include="..\Dapper.DDD.Repository.IntegrationTests\Dapper.DDD.Repository.IntegrationTests.csproj" />
 		<ProjectReference Include="..\..\src\Dapper.DDD.Repository.DependencyInjection\Dapper.DDD.Repository.DependencyInjection.csproj" />
 	</ItemGroup>
 
