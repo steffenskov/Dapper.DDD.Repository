@@ -3,30 +3,36 @@ using Dapper.DDD.Repository.Reflection;
 
 namespace Dapper.DDD.Repository.PostGreSql;
 
-internal class PostGreSqlQueryGenerator<TAggregate> : BaseQueryGenerator<TAggregate>, IQueryGenerator<TAggregate>
+internal class PostGreSqlQueryGenerator<TAggregate> : IQueryGenerator<TAggregate>
 	where TAggregate : notnull
 {
 	private readonly IReadOnlyExtendedPropertyInfoCollection _defaultConstraints;
-	private readonly string _entityName;
 	private readonly IReadOnlyExtendedPropertyInfoCollection _identities;
 	private readonly IReadOnlyExtendedPropertyInfoCollection _keys;
 	private readonly IReadOnlyExtendedPropertyInfoCollection _properties;
+	private readonly string _schemaAndEntity;
+	private readonly IList<Predicate<Type>> _serializeColumnTypePredicates;
 
-	public PostGreSqlQueryGenerator(BaseAggregateConfiguration<TAggregate> configuration) : base(configuration)
+	public PostGreSqlQueryGenerator(BaseAggregateConfiguration<TAggregate> configuration,
+		IList<Predicate<Type>>? serializeColumnTypePredicates = null)
 	{
+		_serializeColumnTypePredicates = serializeColumnTypePredicates ?? Array.Empty<Predicate<Type>>();
 		var readConfiguration = (IReadAggregateConfiguration<TAggregate>)configuration;
-		if (configuration.Schema is not null)
+		ArgumentNullException.ThrowIfNull(configuration.Schema);
+		ArgumentNullException.ThrowIfNull(readConfiguration.EntityName);
+
+		if (string.IsNullOrWhiteSpace(configuration.Schema))
 		{
-			throw new ArgumentException("PostGreSql doesn't support Schema.", nameof(configuration));
+			throw new ArgumentException("Schema cannot be null or whitespace.", nameof(configuration));
 		}
 
-		ArgumentNullException.ThrowIfNull(readConfiguration.EntityName);
 		if (string.IsNullOrWhiteSpace(readConfiguration.EntityName))
 		{
-			throw new ArgumentException("Table name cannot be null or whitespace.", nameof(configuration));
+			throw new ArgumentException("Entity name cannot be null or whitespace.", nameof(configuration));
 		}
 
-		_entityName = readConfiguration.EntityName;
+		_schemaAndEntity =
+			$"{EnsureSquareBrackets(configuration.Schema)}.{EnsureSquareBrackets(readConfiguration.EntityName)}";
 
 		var properties = readConfiguration.GetProperties();
 		var keys = new ExtendedPropertyInfoCollection(readConfiguration.GetKeys());
@@ -53,24 +59,8 @@ internal class PostGreSqlQueryGenerator<TAggregate> : BaseQueryGenerator<TAggreg
 	{
 		var whereClause = GenerateWhereClause();
 
-		var outputProperties = GeneratePropertyList(_entityName);
-		return
-			$@"SELECT {outputProperties} FROM {_entityName} WHERE {whereClause};DELETE FROM {_entityName} WHERE {whereClause};";
-	}
-
-	public string GenerateGetAllQuery()
-	{
-		var propertyList = GeneratePropertyList(_entityName);
-		return $"SELECT {propertyList} FROM {_entityName};";
-	}
-
-	public string GenerateGetQuery()
-	{
-		var whereClause = GenerateWhereClause();
-
-		var propertyList = GeneratePropertyList(_entityName);
-
-		return $"SELECT {propertyList} FROM {_entityName} WHERE {whereClause};";
+		var outputProperties = GeneratePropertyList("deleted");
+		return $"DELETE FROM {_schemaAndEntity} OUTPUT {outputProperties} WHERE {whereClause};";
 	}
 
 	public string GenerateInsertQuery(TAggregate aggregate)
@@ -84,27 +74,24 @@ internal class PostGreSqlQueryGenerator<TAggregate> : BaseQueryGenerator<TAggreg
 			                    !property.HasDefaultValue(aggregate)))
 			.ToList();
 
-		var selectStatement = "";
-		if (identityProperties.Any())
-		{
-			if (identityProperties.Count > 1)
-			{
-				throw new InvalidOperationException(
-					"Cannot generate INSERT query for table with multiple identity properties");
-			}
-
-			var property = identityProperties.First();
-			var propertyList = GeneratePropertyList(_entityName);
-			selectStatement =
-				$"SELECT {propertyList} FROM {_entityName} WHERE {_entityName}.{GetColumnName(property)} = LAST_INSERT_ID();";
-		}
-		else
-		{
-			selectStatement = GenerateGetQuery();
-		}
-
+		var outputProperties = GeneratePropertyList("inserted");
 		return
-			$@"INSERT INTO {_entityName} ({string.Join(", ", propertiesToInsert.Select(property => GetColumnName(property)))}) VALUES ({string.Join(", ", propertiesToInsert.Select(property => $"@{GetColumnName(property)}"))});{selectStatement}";
+			$"INSERT INTO {_schemaAndEntity} ({string.Join(", ", propertiesToInsert.Select(property => AddSquareBrackets(property.Name)))}) OUTPUT {outputProperties} VALUES ({string.Join(", ", propertiesToInsert.Select(property => $"@{property.Name}"))});";
+	}
+
+	public string GenerateGetAllQuery()
+	{
+		var propertyList = GeneratePropertyList(_schemaAndEntity);
+		return $"SELECT {propertyList} FROM {_schemaAndEntity};";
+	}
+
+	public string GenerateGetQuery()
+	{
+		var whereClause = GenerateWhereClause();
+
+		var propertyList = GeneratePropertyList(_schemaAndEntity);
+
+		return $"SELECT {propertyList} FROM {_schemaAndEntity} WHERE {whereClause};";
 	}
 
 	public string GenerateUpdateQuery(TAggregate aggregate)
@@ -114,11 +101,13 @@ internal class PostGreSqlQueryGenerator<TAggregate> : BaseQueryGenerator<TAggreg
 		if (string.IsNullOrEmpty(setClause))
 		{
 			throw new InvalidOperationException(
-				$"GenerateGetQuery for aggregate of type {typeof(TAggregate).FullName} failed as the type has no properties with a setter.");
+				$"GenerateUpdateQuery for aggregate of type {typeof(TAggregate).FullName} failed as the type has no properties with a setter.");
 		}
 
-		var selectStatement = GenerateGetQuery();
-		return $@"UPDATE {_entityName} SET {setClause} WHERE {GenerateWhereClause()};{selectStatement}";
+		var outputProperties = GeneratePropertyList("inserted");
+
+		return
+			$"UPDATE {_schemaAndEntity} SET {setClause} OUTPUT {outputProperties} WHERE {GenerateWhereClause()};";
 	}
 
 	public string GenerateUpsertQuery(TAggregate aggregate)
@@ -132,17 +121,29 @@ internal class PostGreSqlQueryGenerator<TAggregate> : BaseQueryGenerator<TAggreg
 				: insertQuery; // All identities are default => do an insert
 		}
 
-		var semicolonIndex = insertQuery.IndexOf(';');
-		var insertPart = insertQuery[..semicolonIndex];
-		var selectQuery = GenerateGetQuery();
+		var whereClause = GenerateWhereClause();
 		var setClause = GenerateSetClause(aggregate);
-		var onDuplicateClause = string.IsNullOrWhiteSpace(setClause)
-			? ""
-			: $" ON DUPLICATE KEY UPDATE {setClause}";
-		return $"{insertPart}{onDuplicateClause};{selectQuery}";
+		var updateQuery = string.IsNullOrEmpty(setClause)
+			? GenerateGetQuery() // Use select query instead of update, as nothing can be updated but we still expect the aggregate to be returned
+			: GenerateUpdateQuery(aggregate);
+
+		return $@"IF EXISTS (SELECT TOP 1 1 FROM {_schemaAndEntity} WHERE {whereClause})
+BEGIN
+{updateQuery}
+END
+ELSE
+BEGIN
+{insertQuery}
+END";
 	}
 
-	#region Helpers
+	public string GeneratePropertyList(string tableName)
+	{
+		tableName = EnsureSquareBrackets(tableName);
+
+		return string.Join(", ", _properties.Select(property => GeneratePropertyClause(tableName, property)));
+	}
+
 	private string GenerateSetClause(TAggregate aggregate)
 	{
 		var primaryKeys = _keys;
@@ -150,25 +151,20 @@ internal class PostGreSqlQueryGenerator<TAggregate> : BaseQueryGenerator<TAggreg
 		var propertiesToSet = _properties.Where(property =>
 			!primaryKeys.Contains(property) && property.HasSetter &&
 			(!propertiesWithDefaultValues.Contains(property) || !property.HasDefaultValue(aggregate)));
-		return string.Join(", ", propertiesToSet.Select(property => $"{GetColumnName(property)} = @{GetColumnName(property)}"));
+		var result = string.Join(", ",
+			propertiesToSet.Select(property =>
+				$"{_schemaAndEntity}.{AddSquareBrackets(property.Name)} = @{property.Name}"));
+		return result;
 	}
 
 	private string GenerateWhereClause()
 	{
-		var primaryKeys = _keys;
-
 		return string.Join(" AND ",
-			primaryKeys.Select(property => $"{_entityName}.{GetColumnName(property)} = @{GetColumnName(property)}"));
+			_keys.Select(property => $"{_schemaAndEntity}.{property.Name} = @{property.Name}"));
 	}
 
-	public string GeneratePropertyList(string tableName)
+	private static string GeneratePropertyClause(string tableName, ExtendedPropertyInfo property)
 	{
-		return string.Join(", ", _properties.Select(property => GeneratePropertyClause(tableName, property)));
+		return $"{tableName}.{property.Name}";
 	}
-
-	private string GeneratePropertyClause(string tableName, ExtendedPropertyInfo property)
-	{
-		return $"{tableName}.{GetColumnName(property)}";
-	}
-	#endregion
 }

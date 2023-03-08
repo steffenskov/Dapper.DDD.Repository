@@ -10,55 +10,6 @@ public class BaseAggregateConfigurationTests
 	}
 	
 	[Fact]
-	public void HasColumnName_CalledTwiceOnSameProperty_Throws()
-	{
-		// Arrange
-		var config = new DummyAggregateConfiguration();
-		
-		// Act
-		config.HasColumnName(e => e.Id, "user_id");
-
-		// Assert
-		var ex = Assert.Throws<InvalidOperationException>(() => config.HasColumnName(e => e.Id, "user_id"));
-		Assert.Equal(@"HasColumnName has already been called once for the property ""Id"".", ex.Message);
-	}
-
-	[Fact]
-	public void HasColumnName_ReturnsAnonymousTypeContainingMultipleProperties_Throws()
-	{
-		// Arrange
-		var config = new DummyAggregateConfiguration();
-		
-		// Act && Assert
-		var ex = Assert.Throws<InvalidOperationException>(() => config.HasColumnName(e => new { e.Id, e.DeliveryAddress }, "user_id"));
-		Assert.Equal("The expression given to HasColumnName must return exactly one property.", ex.Message);
-	}
-
-	[Fact]
-	public void HasColumnName_ReturnsAnonymousTypeContainingNonProperty_Throws()
-	{
-		// Arrange
-		var config = new DummyAggregateConfiguration();
-		
-		// Act && Assert
-		var ex = Assert.Throws<InvalidOperationException>(() => config.HasColumnName(e => new { NonProperty = e.Id }, "user_id"));
-		Assert.Equal("UserAggregate doesn't contain a property named NonProperty.", ex.Message);
-	}
-
-	[Fact]
-	public void HasColumnName_ReturnsAnonymousTypeContainingSingleProperty_Valid()
-	{
-		// Arrange
-		var config = new DummyAggregateConfiguration();
-		
-		// Act
-		config.HasColumnName(e => new { e.Id }, "user_id");
-
-		// Assert
-		Assert.True(true); // Just checking for exceptions here
-	}
-	
-	[Fact]
 	public void HasDefault_ReturnsAnonymousTypeContainingMultipleProperties_Valid()
 	{
 		// Arrange

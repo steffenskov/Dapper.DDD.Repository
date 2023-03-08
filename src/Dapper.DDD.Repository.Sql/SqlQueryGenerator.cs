@@ -3,7 +3,7 @@ using Dapper.DDD.Repository.Reflection;
 
 namespace Dapper.DDD.Repository.Sql;
 
-internal class SqlQueryGenerator<TAggregate> : BaseQueryGenerator<TAggregate>, IQueryGenerator<TAggregate>
+internal class SqlQueryGenerator<TAggregate> : IQueryGenerator<TAggregate>
 	where TAggregate : notnull
 {
 	private readonly IReadOnlyExtendedPropertyInfoCollection _defaultConstraints;
@@ -14,7 +14,7 @@ internal class SqlQueryGenerator<TAggregate> : BaseQueryGenerator<TAggregate>, I
 	private readonly IList<Predicate<Type>> _serializeColumnTypePredicates;
 
 	public SqlQueryGenerator(BaseAggregateConfiguration<TAggregate> configuration,
-		IList<Predicate<Type>>? serializeColumnTypePredicates = null) : base(configuration)
+		IList<Predicate<Type>>? serializeColumnTypePredicates = null)
 	{
 		_serializeColumnTypePredicates = serializeColumnTypePredicates ?? Array.Empty<Predicate<Type>>();
 		var readConfiguration = (IReadAggregateConfiguration<TAggregate>)configuration;
@@ -76,7 +76,7 @@ internal class SqlQueryGenerator<TAggregate> : BaseQueryGenerator<TAggregate>, I
 
 		var outputProperties = GeneratePropertyList("inserted");
 		return
-			$"INSERT INTO {_schemaAndEntity} ({string.Join(", ", propertiesToInsert.Select(property => AddSquareBrackets(GetColumnName(property, false))))}) OUTPUT {outputProperties} VALUES ({string.Join(", ", propertiesToInsert.Select(property => $"@{property.Name}"))});";
+			$"INSERT INTO {_schemaAndEntity} ({string.Join(", ", propertiesToInsert.Select(property => AddSquareBrackets(property.Name)))}) OUTPUT {outputProperties} VALUES ({string.Join(", ", propertiesToInsert.Select(property => $"@{property.Name}"))});";
 	}
 
 	public string GenerateGetAllQuery()
@@ -153,20 +153,20 @@ END";
 			(!propertiesWithDefaultValues.Contains(property) || !property.HasDefaultValue(aggregate)));
 		var result = string.Join(", ",
 			propertiesToSet.Select(property =>
-				$"{_schemaAndEntity}.{AddSquareBrackets(GetColumnName(property, false))} = @{property.Name}"));
+				$"{_schemaAndEntity}.{AddSquareBrackets(property.Name)} = @{property.Name}"));
 		return result;
 	}
 
 	private string GenerateWhereClause()
 	{
 		return string.Join(" AND ",
-			_keys.Select(property => $"{_schemaAndEntity}.{AddSquareBrackets(GetColumnName(property, false))} = @{property.Name}"));
+			_keys.Select(property => $"{_schemaAndEntity}.{AddSquareBrackets(property.Name)} = @{property.Name}"));
 	}
 
 	private string GeneratePropertyClause(string tableName, ExtendedPropertyInfo property)
 	{
 		var shouldSerialize = ShouldSerializeColumnType(property.Type);
-		var result = $"{tableName}.{AddSquareBrackets(GetColumnName(property, false))}";
+		var result = $"{tableName}.{AddSquareBrackets(property.Name)}";
 		return shouldSerialize
 			? $"({result}).Serialize() AS [{property.Name}]"
 			: result;
@@ -187,18 +187,5 @@ END";
 	private static string AddSquareBrackets(string name)
 	{
 		return $"[{name}]";
-	}
-
-	protected override string GetColumnName(ExtendedPropertyInfo property, bool includeAsAlias)
-	{
-		var result = base.GetColumnName(property, includeAsAlias);
-		return result.Contains(' ')
-			? result
-			: AddSquareBrackets(result);
-	}
-
-	protected override string GetColumnNameWithAlias(string columnName, string aliasName)
-	{
-		return $"{AddSquareBrackets(columnName)} AS {AddSquareBrackets(aliasName)}";
 	}
 }

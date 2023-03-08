@@ -11,5 +11,4 @@ public interface IReadAggregateConfiguration<TAggregate>
 	IReadOnlyExtendedPropertyInfoCollection GetPropertiesWithDefaultConstraints();
 	IEnumerable<ExtendedPropertyInfo> GetValueObjects();
 	bool HasTypeConverter(Type type);
-	IReadOnlyDictionary<string,string> GetColumnNameMap();
 }

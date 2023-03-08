@@ -28,6 +28,7 @@
 	</ItemGroup>
 
 	<ItemGroup>
+		<ProjectReference Include="..\..\src\Dapper.DDD.Repository.PostGreSql\Dapper.DDD.Repository.PostGreSql.csproj" />
 		<ProjectReference Include="..\..\src\Dapper.DDD.Repository\Dapper.DDD.Repository.csproj" />
 		<ProjectReference Include="..\..\src\Dapper.DDD.Repository.Sql\Dapper.DDD.Repository.Sql.csproj" />
 		<ProjectReference Include="..\..\src\Dapper.DDD.Repository.MySql\Dapper.DDD.Repository.MySql.csproj" />

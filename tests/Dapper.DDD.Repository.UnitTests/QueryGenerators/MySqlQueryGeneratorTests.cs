@@ -121,22 +121,6 @@ public class MySqlQueryGeneratorTests
 			@"SELECT Users.Username, Users.Password, Users.DateCreated FROM Users WHERE Users.Username = @Username AND Users.Password = @Password;DELETE FROM Users WHERE Users.Username = @Username AND Users.Password = @Password;",
 			deleteQuery);
 	}
-
-	[Fact]
-	public void GenerateDeleteQuery_HasColumnNameMappings_Valid()
-	{
-		// Arrange
-		var generator = CreateSinglePrimaryKeyAggregateQueryGeneratorWithColumnNameMappings();
-
-		// Act
-		var deleteQuery = generator.GenerateDeleteQuery();
-
-		// Assert
-		Assert.Equal(
-			@"SELECT Users.user_id AS Id, Users.user_name AS Username, Users.Password FROM Users WHERE Users.user_id = @Id;DELETE FROM Users WHERE Users.user_id = @Id;",
-			deleteQuery);
-	}
-
 	#endregion
 
 	#region GetAll
@@ -193,20 +177,6 @@ public class MySqlQueryGeneratorTests
 		// Assert
 		Assert.Equal("SELECT Users.Id, Users.Username, Users.Password FROM Users;", selectQuery);
 	}
-
-	[Fact]
-	public void GenerateGetAllQuery_HasColumnNameMappings_Valid()
-	{
-		// Arrange
-		var generator = CreateSinglePrimaryKeyAggregateQueryGeneratorWithColumnNameMappings();
-
-		// Act
-		var selectQuery = generator.GenerateGetAllQuery();
-
-		// Assert
-		Assert.Equal("SELECT Users.user_id AS Id, Users.user_name AS Username, Users.Password FROM Users;", selectQuery);
-	}
-
 	#endregion
 
 	#region Get
@@ -281,21 +251,6 @@ public class MySqlQueryGeneratorTests
 			"SELECT Users.Username, Users.Password, Users.DateCreated FROM Users WHERE Users.Username = @Username AND Users.Password = @Password;",
 			selectQuery);
 	}
-
-	[Fact]
-	public void GenerateGetQuery_HasColumnNameMappings_Valid()
-	{
-		// Arrange
-		var generator = CreateSinglePrimaryKeyAggregateQueryGeneratorWithColumnNameMappings();
-
-		// Act
-		var selectQuery = generator.GenerateGetQuery();
-
-		// Assert
-		Assert.Equal("SELECT Users.user_id AS Id, Users.user_name AS Username, Users.Password FROM Users WHERE Users.user_id = @Id;",
-			selectQuery);
-	}
-
 	#endregion
 
 	#region Insert
@@ -457,22 +412,6 @@ public class MySqlQueryGeneratorTests
 			@"INSERT INTO Users (Username, Password, DateCreated) VALUES (@Username, @Password, @DateCreated);SELECT Users.Username, Users.Password, Users.DateCreated FROM Users WHERE Users.Username = @Username AND Users.Password = @Password;",
 			insertQuery);
 	}
-
-	[Fact]
-	public void GenerateInsertQuery_HasColumnNameMappings_Valid()
-	{
-		// Arrange
-		var generator = CreateSinglePrimaryKeyAggregateQueryGeneratorWithColumnNameMappings();
-
-		// Act
-		var insertQuery = generator.GenerateInsertQuery(new SinglePrimaryKeyAggregate());
-
-		// Assert
-		Assert.Equal(
-			@"INSERT INTO Users (user_name, Password) VALUES (@Username, @Password);SELECT Users.user_id AS Id, Users.user_name AS Username, Users.Password FROM Users WHERE Users.user_id = LAST_INSERT_ID();",
-			insertQuery);
-	}
-
 	#endregion
 
 	#region Update
@@ -584,22 +523,6 @@ public class MySqlQueryGeneratorTests
 			@"UPDATE Users SET Age = @Age WHERE Users.Id = @Id;SELECT Users.Id, Users.Age, Users.DateCreated FROM Users WHERE Users.Id = @Id;",
 			query);
 	}
-
-	[Fact]
-	public void GenerateUpdateQuery_HasColumnNameMappings_Valid()
-	{
-		// Arrange
-		var generator = CreateSinglePrimaryKeyAggregateQueryGenerator();
-
-		// Act 
-		var updateQuery = generator.GenerateUpdateQuery(new SinglePrimaryKeyAggregate());
-
-		// Assert
-		Assert.Equal(
-			@"UPDATE Users SET user_name = @Username, Password = @Password WHERE Users.user_id = @Id;SELECT Users.user_id AS Id, Users.user_name AS Username, Users.Password FROM Users WHERE Users.user_id = @Id;",
-			updateQuery);
-	}
-
 	#endregion
 
 	#region Upsert
@@ -661,21 +584,6 @@ public class MySqlQueryGeneratorTests
 			@"INSERT INTO Users (Id) VALUES (@Id);SELECT Users.Id, Users.DateCreated FROM Users WHERE Users.Id = @Id;",
 			query);
 	}
-
-	[Fact]
-	public void GenerateUpsertQuery_HasColumnNameMappings_Valid()
-	{
-		// Arrange
-		var generator = CreateAggregateWithValueObjectIdQueryGeneratorWithColumnNameMappings();
-
-		// Act
-		var query = generator.GenerateUpsertQuery(new AggregateWithValueObjectId());
-
-		// Assert
-		Assert.Equal(
-			@"INSERT INTO Users (user_age, Id_Password, Id_Username) VALUES (@Age, @Id_Password, @Id_Username) ON DUPLICATE KEY UPDATE user_age = @Age;SELECT Users.user_age AS Age, Users.Id_Password, Users.Id_Username FROM Users WHERE Users.Id_Password = @Id_Password AND Users.Id_Username = @Id_Username;",
-			query);
-	}
 	#endregion
 	
 	#region Constructors
@@ -695,17 +603,6 @@ public class MySqlQueryGeneratorTests
 		var configuration = new TableAggregateConfiguration<SinglePrimaryKeyAggregate> { TableName = "Users" };
 		configuration.HasKey(aggregate => aggregate.Id);
 		configuration.HasIdentity(aggregate => aggregate.Id);
-		var generator = new MySqlQueryGenerator<SinglePrimaryKeyAggregate>(configuration);
-		return generator;
-	}
-
-	private static MySqlQueryGenerator<SinglePrimaryKeyAggregate> CreateSinglePrimaryKeyAggregateQueryGeneratorWithColumnNameMappings()
-	{
-		var configuration = new TableAggregateConfiguration<SinglePrimaryKeyAggregate> { TableName = "Users" };
-		configuration.HasKey(aggregate => aggregate.Id);
-		configuration.HasIdentity(aggregate => aggregate.Id);
-		configuration.HasColumnName(aggregate => aggregate.Id, "user_id");
-		configuration.HasColumnName(aggregate => aggregate.Username, "user_name");
 		var generator = new MySqlQueryGenerator<SinglePrimaryKeyAggregate>(configuration);
 		return generator;
 	}
@@ -731,15 +628,6 @@ public class MySqlQueryGeneratorTests
 	{
 		var config = new TableAggregateConfiguration<AggregateWithValueObjectId> { TableName = "Users" };
 		config.HasKey(x => x.Id);
-		var generator = new MySqlQueryGenerator<AggregateWithValueObjectId>(config);
-		return generator;
-	}
-	
-	private static MySqlQueryGenerator<AggregateWithValueObjectId> CreateAggregateWithValueObjectIdQueryGeneratorWithColumnNameMappings()
-	{
-		var config = new TableAggregateConfiguration<AggregateWithValueObjectId> { TableName = "Users" };
-		config.HasKey(x => x.Id);
-		config.HasColumnName(aggregate => aggregate.Age, "user_age");
 		var generator = new MySqlQueryGenerator<AggregateWithValueObjectId>(config);
 		return generator;
 	}

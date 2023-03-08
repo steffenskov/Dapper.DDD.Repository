@@ -21,7 +21,6 @@ public class Startup
 		services.AddTableRepository<Category, CategoryId>(options =>
 		{
 			options.TableName = "categories";
-			options.HasColumnName(x => x.CategoryID, "category_id");
 			options.HasKey(x => x.CategoryID);
 			options.HasIdentity(x => x.CategoryID);
 		});

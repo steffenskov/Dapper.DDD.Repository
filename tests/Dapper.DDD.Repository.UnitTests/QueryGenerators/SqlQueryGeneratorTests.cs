@@ -178,21 +178,6 @@ public class SqlQueryGeneratorTests
 			"DELETE FROM [dbo].[Users] OUTPUT [deleted].[Username], [deleted].[Password], [deleted].[DateCreated] WHERE [dbo].[Users].[Username] = @Username AND [dbo].[Users].[Password] = @Password;",
 			deleteQuery);
 	}
-
-	[Fact]
-	public void GenerateDeleteQuery_HasColumnNameMappings_Valid()
-	{
-		// Arrange
-		var generator = CreateSinglePrimaryKeyAggregateQueryGeneratorWithColumnNameMapping();
-
-		// Act
-		var deleteQuery = generator.GenerateDeleteQuery();
-
-		// Assert
-		Assert.Equal(
-			"DELETE FROM [dbo].[Users] OUTPUT [deleted].[user_id] AS [Id], [deleted].[user_name] AS [Username], [deleted].[Password] WHERE [dbo].[Users].[user_id] = @Id;",
-			deleteQuery);
-	}
 	#endregion
 
 	#region GetAll
@@ -281,21 +266,6 @@ public class SqlQueryGeneratorTests
 		// Assert
 		Assert.Equal(
 			"SELECT [dbo].[Users].[Id], [dbo].[Users].[Username], [dbo].[Users].[Password] FROM [dbo].[Users];",
-			selectQuery);
-	}
-
-	[Fact]
-	public void GenerateGetAllQuery_HasColumnNameMappings_Valid()
-	{
-		// Arrange
-		var generator = CreateSinglePrimaryKeyAggregateQueryGeneratorWithColumnNameMapping();
-
-		// Act
-		var selectQuery = generator.GenerateGetAllQuery();
-
-		// Assert
-		Assert.Equal(
-			"SELECT [dbo].[Users].[user_id] AS [Id], [dbo].[Users].[user_name] AS [Username], [dbo].[Users].[Password] FROM [dbo].[Users];",
 			selectQuery);
 	}
 	#endregion
@@ -403,21 +373,6 @@ public class SqlQueryGeneratorTests
 		// Assert
 		Assert.Equal(
 			"SELECT [dbo].[Users].[Username], [dbo].[Users].[Password], [dbo].[Users].[DateCreated] FROM [dbo].[Users] WHERE [dbo].[Users].[Username] = @Username AND [dbo].[Users].[Password] = @Password;",
-			selectQuery);
-	}
-
-	[Fact]
-	public void GenerateGetQuery_HasColumnNameMappings_Valid()
-	{
-		// Arrange
-		var generator = CreateSinglePrimaryKeyAggregateQueryGeneratorWithColumnNameMapping();
-
-		// Act
-		var selectQuery = generator.GenerateGetQuery();
-
-		// Assert
-		Assert.Equal(
-			"SELECT [dbo].[Users].[user_id] AS [Id], [dbo].[Users].[user_name] AS [Username], [dbo].[Users].[Password] FROM [dbo].[Users] WHERE [dbo].[Users].[user_id] = @Id;",
 			selectQuery);
 	}
 	#endregion
@@ -589,21 +544,6 @@ public class SqlQueryGeneratorTests
 			"INSERT INTO [dbo].[Users] ([Username], [Password], [DateCreated]) OUTPUT [inserted].[Username], [inserted].[Password], [inserted].[DateCreated] VALUES (@Username, @Password, @DateCreated);",
 			insertQuery);
 	}
-
-	[Fact]
-	public void GenerateInsertQuery_HasColumnNameMappings_Valid()
-	{
-		// Arrange
-		var generator = CreateSinglePrimaryKeyAggregateQueryGeneratorWithColumnNameMapping();
-
-		// Act
-		var insertQuery = generator.GenerateInsertQuery(new SinglePrimaryKeyAggregate());
-
-		// Assert
-		Assert.Equal(
-			"INSERT INTO [dbo].[Users] ([user_name], [Password]) OUTPUT [inserted].[user_id] AS [Id], [inserted].[user_name] AS [Username], [inserted].[Password] VALUES (@Username, @Password);",
-			insertQuery);
-	}
 	#endregion
 
 	#region Update
@@ -748,21 +688,6 @@ public class SqlQueryGeneratorTests
 			"UPDATE [dbo].[Users] SET [dbo].[Users].[Age] = @Age OUTPUT [inserted].[Id], [inserted].[Age], [inserted].[DateCreated] WHERE [dbo].[Users].[Id] = @Id;",
 			query);
 	}
-
-	[Fact]
-	public void GenerateUpdateQuery_HasColumnNameMappings_Valid()
-	{
-		// Arrange
-		var generator = CreateSinglePrimaryKeyAggregateQueryGeneratorWithColumnNameMapping();
-
-		// Act 
-		var updateQuery = generator.GenerateUpdateQuery(new SinglePrimaryKeyAggregate());
-
-		// Assert
-		Assert.Equal(
-			"UPDATE [dbo].[Users] SET [dbo].[Users].[user_name] = @Username, [dbo].[Users].[Password] = @Password OUTPUT [inserted].[user_id] AS [Id], [inserted].[user_name] AS [Username], [inserted].[Password] WHERE [dbo].[Users].[user_id] = @Id;",
-			updateQuery);
-	}
 	#endregion
 
 	#region Upsert
@@ -837,28 +762,6 @@ INSERT INTO [dbo].[Users] ([Id]) OUTPUT [inserted].[Id], [inserted].[DateCreated
 END",
 			query);
 	}
-
-	[Fact]
-	public void GenerateUpsertQuery_HasColumnNameMappings_Valid()
-	{
-		// Arrange
-		var generator = CreateCompositePrimaryKeyAggregateQueryGeneratorWithColumnNameMappings();
-
-		// Act 
-		var query = generator.GenerateUpsertQuery(new CompositePrimaryKeyAggregate());
-
-		// Assert
-		Assert.Equal(
-			@"IF EXISTS (SELECT TOP 1 1 FROM [dbo].[Users] WHERE [dbo].[Users].[user_name] = @Username AND [dbo].[Users].[Password] = @Password)
-BEGIN
-UPDATE [dbo].[Users] SET [dbo].[Users].[DateCreated] = @DateCreated OUTPUT [inserted].[user_name] AS [Username], [inserted].[Password], [inserted].[DateCreated] WHERE [dbo].[Users].[user_name] = @Username AND [dbo].[Users].[Password] = @Password;
-END
-ELSE
-BEGIN
-INSERT INTO [dbo].[Users] ([user_name], [Password], [DateCreated]) OUTPUT [inserted].[user_name] AS [Username], [inserted].[Password], [inserted].[DateCreated] VALUES (@Username, @Password, @DateCreated);
-END",
-			query);
-	}
 	#endregion
 
 	#region Constructors
@@ -887,20 +790,6 @@ END",
 		return generator;
 	}
 
-	private static SqlQueryGenerator<SinglePrimaryKeyAggregate> CreateSinglePrimaryKeyAggregateQueryGeneratorWithColumnNameMapping()
-	{
-		var configuration = new TableAggregateConfiguration<SinglePrimaryKeyAggregate>
-		{
-			Schema = "dbo", TableName = "Users"
-		};
-		configuration.HasColumnName(aggregate => aggregate.Username, "user_name");
-		configuration.HasColumnName(aggregate => aggregate.Id, "user_id");
-		configuration.HasKey(aggregate => aggregate.Id);
-		configuration.HasIdentity(aggregate => aggregate.Id);
-		var generator = new SqlQueryGenerator<SinglePrimaryKeyAggregate>(configuration);
-		return generator;
-	}
-
 	private static SqlQueryGenerator<SinglePrimaryKeyAggregate>
 		CreateSinglePrimaryKeyAggregateWithCustomSchemaQueryGenerator()
 	{
@@ -921,19 +810,6 @@ END",
 		{
 			Schema = "dbo", TableName = "Users"
 		};
-		configuration.HasKey(aggregate => new { aggregate.Username, aggregate.Password });
-		var generator = new SqlQueryGenerator<CompositePrimaryKeyAggregate>(configuration);
-		return generator;
-	}
-
-	private static SqlQueryGenerator<CompositePrimaryKeyAggregate>
-		CreateCompositePrimaryKeyAggregateQueryGeneratorWithColumnNameMappings()
-	{
-		var configuration = new TableAggregateConfiguration<CompositePrimaryKeyAggregate>
-		{
-			Schema = "dbo", TableName = "Users"
-		};
-		configuration.HasColumnName(aggregate => aggregate.Username, "user_name");
 		configuration.HasKey(aggregate => new { aggregate.Username, aggregate.Password });
 		var generator = new SqlQueryGenerator<CompositePrimaryKeyAggregate>(configuration);
 		return generator;

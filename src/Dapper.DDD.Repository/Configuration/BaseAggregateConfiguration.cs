@@ -11,7 +11,6 @@ where TAggregate: notnull
 	private readonly ExtendedPropertyInfoCollection _defaults = new();
 	private readonly ExtendedPropertyInfoCollection _identities = new();
 	private readonly ExtendedPropertyInfoCollection _ignores = new();
-	private readonly IDictionary<string, string> _columnNameMap = new Dictionary<string, string>();
 	private DefaultConfiguration? _defaultConfiguration;
 	private ExtendedPropertyInfoCollection? _keyProperties;
 
@@ -23,11 +22,6 @@ where TAggregate: notnull
 	protected abstract string EntityName { get; }
 
 	string IReadAggregateConfiguration<TAggregate>.EntityName => EntityName;
-
-	IReadOnlyDictionary<string, string> IReadAggregateConfiguration<TAggregate>.GetColumnNameMap()
-	{
-		return new ReadOnlyDictionary<string, string>(_columnNameMap);
-	}
 	
 	IReadOnlyExtendedPropertyInfoCollection IReadAggregateConfiguration<TAggregate>.GetKeys()
 	{
@@ -87,34 +81,6 @@ where TAggregate: notnull
 		QueryGeneratorFactory ??= defaults.QueryGeneratorFactory;
 		ConnectionFactory ??= defaults.ConnectionFactory;
 		DapperInjectionFactory ??= defaults.DapperInjectionFactory;
-	}
-
-	/// <summary>
-	/// Maps a column name to a property, when the two aren't the same.
-	/// Currently only works for simple properties, not ValueObjects!
-	/// </summary>
-	public void HasColumnName(Expression<Func<TAggregate, object?>> expression, string columnName)
-	{
-		var properties = new ExpressionParser<TAggregate>().GetExtendedPropertiesFromExpression(expression).ToList();
-		if (properties.Count != 1)
-		{
-			throw new InvalidOperationException("The expression given to HasColumnName must return exactly one property.");
-		}
-		var property = properties[0];
-			
-		if (_columnNameMap.ContainsKey(property.Name))
-		{
-			throw new InvalidOperationException($@"HasColumnName has already been called once for the property ""{property.Name}"".");
-		}
-		
-		_columnNameMap[property.Name] = columnName;
-		if (!property.Type.IsSimpleOrBuiltIn() && !this.HasTypeConverter(property.Type))
-		{
-			foreach (var child in property.GetFlattenedPropertiesOrdered(this))
-			{
-				_columnNameMap[child.Name] = child.Name.Replace(property.Name, columnName);
-			}
-		}
 	}
 
 	public void HasDefault(Expression<Func<TAggregate, object?>> expression)

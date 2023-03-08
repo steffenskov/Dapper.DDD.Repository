@@ -3,7 +3,7 @@ using Dapper.DDD.Repository.Reflection;
 
 namespace Dapper.DDD.Repository.MySql;
 
-internal class MySqlQueryGenerator<TAggregate> : BaseQueryGenerator<TAggregate>, IQueryGenerator<TAggregate>
+internal class MySqlQueryGenerator<TAggregate> : IQueryGenerator<TAggregate>
 	where TAggregate : notnull
 {
 	private readonly IReadOnlyExtendedPropertyInfoCollection _defaultConstraints;
@@ -12,7 +12,7 @@ internal class MySqlQueryGenerator<TAggregate> : BaseQueryGenerator<TAggregate>,
 	private readonly IReadOnlyExtendedPropertyInfoCollection _keys;
 	private readonly IReadOnlyExtendedPropertyInfoCollection _properties;
 
-	public MySqlQueryGenerator(BaseAggregateConfiguration<TAggregate> configuration) : base(configuration)
+	public MySqlQueryGenerator(BaseAggregateConfiguration<TAggregate> configuration)
 	{
 		var readConfiguration = (IReadAggregateConfiguration<TAggregate>)configuration;
 		if (configuration.Schema is not null)
@@ -23,7 +23,7 @@ internal class MySqlQueryGenerator<TAggregate> : BaseQueryGenerator<TAggregate>,
 		ArgumentNullException.ThrowIfNull(readConfiguration.EntityName);
 		if (string.IsNullOrWhiteSpace(readConfiguration.EntityName))
 		{
-			throw new ArgumentException("Table name cannot be null or whitespace.", nameof(configuration));
+			throw new ArgumentException("Entity name cannot be null or whitespace.", nameof(configuration));
 		}
 
 		_entityName = readConfiguration.EntityName;
@@ -96,7 +96,7 @@ internal class MySqlQueryGenerator<TAggregate> : BaseQueryGenerator<TAggregate>,
 			var property = identityProperties.First();
 			var propertyList = GeneratePropertyList(_entityName);
 			selectStatement =
-				$"SELECT {propertyList} FROM {_entityName} WHERE {_entityName}.{GetColumnName(property)} = LAST_INSERT_ID();";
+				$"SELECT {propertyList} FROM {_entityName} WHERE {_entityName}.{property.Name} = LAST_INSERT_ID();";
 		}
 		else
 		{
@@ -104,7 +104,7 @@ internal class MySqlQueryGenerator<TAggregate> : BaseQueryGenerator<TAggregate>,
 		}
 
 		return
-			$@"INSERT INTO {_entityName} ({string.Join(", ", propertiesToInsert.Select(property => GetColumnName(property)))}) VALUES ({string.Join(", ", propertiesToInsert.Select(property => $"@{GetColumnName(property)}"))});{selectStatement}";
+			$@"INSERT INTO {_entityName} ({string.Join(", ", propertiesToInsert.Select(property => property.Name))}) VALUES ({string.Join(", ", propertiesToInsert.Select(property => $"@{property.Name}"))});{selectStatement}";
 	}
 
 	public string GenerateUpdateQuery(TAggregate aggregate)
@@ -128,10 +128,10 @@ internal class MySqlQueryGenerator<TAggregate> : BaseQueryGenerator<TAggregate>,
 		if (_identities.Any())
 		{
 			return _identities.Any(prop => !prop.HasDefaultValue(aggregate))
-					? GenerateUpdateQuery(aggregate) // One or more identities have a specified value => do an update 
-					: insertQuery; // All identities are default => do an insert
+				? GenerateUpdateQuery(aggregate) // One or more identities have a specified value => do an update 
+				: insertQuery; // All identities are default => do an insert
 		}
-		
+
 		var semicolonIndex = insertQuery.IndexOf(';');
 		var insertPart = insertQuery[..semicolonIndex];
 		var selectQuery = GenerateGetQuery();
@@ -143,7 +143,6 @@ internal class MySqlQueryGenerator<TAggregate> : BaseQueryGenerator<TAggregate>,
 	}
 
 	#region Helpers
-
 	private string GenerateSetClause(TAggregate aggregate)
 	{
 		var primaryKeys = _keys;
@@ -151,15 +150,13 @@ internal class MySqlQueryGenerator<TAggregate> : BaseQueryGenerator<TAggregate>,
 		var propertiesToSet = _properties.Where(property =>
 			!primaryKeys.Contains(property) && property.HasSetter &&
 			(!propertiesWithDefaultValues.Contains(property) || !property.HasDefaultValue(aggregate)));
-		return string.Join(", ", propertiesToSet.Select(property => $"{GetColumnName(property)} = @{GetColumnName(property)}"));
+		return string.Join(", ", propertiesToSet.Select(property => $"{property.Name} = @{property.Name}"));
 	}
 
 	private string GenerateWhereClause()
 	{
-		var primaryKeys = _keys;
-
 		return string.Join(" AND ",
-			primaryKeys.Select(property => $"{_entityName}.{GetColumnName(property)} = @{GetColumnName(property)}"));
+			_keys.Select(property => $"{_entityName}.{property.Name} = @{property.Name}"));
 	}
 
 	public string GeneratePropertyList(string tableName)
@@ -167,10 +164,9 @@ internal class MySqlQueryGenerator<TAggregate> : BaseQueryGenerator<TAggregate>,
 		return string.Join(", ", _properties.Select(property => GeneratePropertyClause(tableName, property)));
 	}
 
-	private string GeneratePropertyClause(string tableName, ExtendedPropertyInfo property)
+	private static string GeneratePropertyClause(string tableName, ExtendedPropertyInfo property)
 	{
-		return $"{tableName}.{GetColumnName(property)}";
+		return $"{tableName}.{property.Name}";
 	}
-
 	#endregion
 }
