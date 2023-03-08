@@ -2,7 +2,7 @@ using Dapper.DDD.Repository.Reflection;
 
 namespace Dapper.DDD.Repository.QueryGenerators;
 
-public abstract class BaseQueryGenerator<TAggregate> 
+public abstract class BaseQueryGenerator<TAggregate>
 	where TAggregate : notnull
 {
 	private readonly IReadOnlyDictionary<string, string> _columnNameMap;
@@ -13,10 +13,15 @@ public abstract class BaseQueryGenerator<TAggregate>
 		_columnNameMap = readConfiguration.GetColumnNameMap();
 	}
 
-	protected  string GetColumnName(ExtendedPropertyInfo property)
+	protected virtual string GetColumnName(ExtendedPropertyInfo property, bool includeAsAlias)
 	{
 		return _columnNameMap.TryGetValue(property.Name, out var columnName)
-			? columnName
+			?  includeAsAlias ? GetColumnNameWithAlias(columnName, property.Name) : columnName
 			: property.Name;
+	}
+
+	protected virtual string GetColumnNameWithAlias(string columnName, string aliasName)
+	{
+		return $"{columnName} AS {aliasName}";
 	}
 }

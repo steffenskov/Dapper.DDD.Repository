@@ -6,6 +6,7 @@ using Dapper.DDD.Repository.Reflection;
 namespace Dapper.DDD.Repository.Configuration;
 
 public abstract class BaseAggregateConfiguration<TAggregate> : IReadAggregateConfiguration<TAggregate>
+where TAggregate: notnull
 {
 	private readonly ExtendedPropertyInfoCollection _defaults = new();
 	private readonly ExtendedPropertyInfoCollection _identities = new();
@@ -100,18 +101,20 @@ public abstract class BaseAggregateConfiguration<TAggregate> : IReadAggregateCon
 			throw new InvalidOperationException("The expression given to HasColumnName must return exactly one property.");
 		}
 		var property = properties[0];
-		if (!property.Type.IsSimpleOrBuiltIn() && !this.HasTypeConverter(property.Type))
-		{
-			// TODO: Unit test these 2 conditions
-			throw new InvalidOperationException("HasColumnName does currently not support ValueObjects. If this property is not a ValueObject but merely needs a TypeConverter, add that TypeConverter before calling HasColumnName.");
-		}
 			
 		if (_columnNameMap.ContainsKey(property.Name))
 		{
 			throw new InvalidOperationException($@"HasColumnName has already been called once for the property ""{property.Name}"".");
 		}
-
+		
 		_columnNameMap[property.Name] = columnName;
+		if (!property.Type.IsSimpleOrBuiltIn() && !this.HasTypeConverter(property.Type))
+		{
+			foreach (var child in property.GetFlattenedPropertiesOrdered(this))
+			{
+				_columnNameMap[child.Name] = child.Name.Replace(property.Name, columnName);
+			}
+		}
 	}
 
 	public void HasDefault(Expression<Func<TAggregate, object?>> expression)

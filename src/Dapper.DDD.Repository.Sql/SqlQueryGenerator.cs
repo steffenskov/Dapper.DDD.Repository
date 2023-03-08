@@ -76,7 +76,7 @@ internal class SqlQueryGenerator<TAggregate> : BaseQueryGenerator<TAggregate>, I
 
 		var outputProperties = GeneratePropertyList("inserted");
 		return
-			$"INSERT INTO {_schemaAndEntity} ({string.Join(", ", propertiesToInsert.Select(property => AddSquareBrackets(GetColumnName(property))))}) OUTPUT {outputProperties} VALUES ({string.Join(", ", propertiesToInsert.Select(property => $"@{property.Name}"))});";
+			$"INSERT INTO {_schemaAndEntity} ({string.Join(", ", propertiesToInsert.Select(property => AddSquareBrackets(GetColumnName(property, false))))}) OUTPUT {outputProperties} VALUES ({string.Join(", ", propertiesToInsert.Select(property => $"@{property.Name}"))});";
 	}
 
 	public string GenerateGetAllQuery()
@@ -116,9 +116,9 @@ internal class SqlQueryGenerator<TAggregate> : BaseQueryGenerator<TAggregate>, I
 
 		if (_identities.Any())
 		{
-			return _identities.Any(prop => !prop.HasDefaultValue(aggregate)) 
-					? GenerateUpdateQuery(aggregate) // One or more identities have a specified value => do an update 
-					: insertQuery; // All identities are default => do an insert
+			return _identities.Any(prop => !prop.HasDefaultValue(aggregate))
+				? GenerateUpdateQuery(aggregate) // One or more identities have a specified value => do an update 
+				: insertQuery; // All identities are default => do an insert
 		}
 
 		var whereClause = GenerateWhereClause();
@@ -153,22 +153,22 @@ END";
 			(!propertiesWithDefaultValues.Contains(property) || !property.HasDefaultValue(aggregate)));
 		var result = string.Join(", ",
 			propertiesToSet.Select(property =>
-				$"{_schemaAndEntity}.{AddSquareBrackets(GetColumnName(property))} = @{property.Name}"));
+				$"{_schemaAndEntity}.{AddSquareBrackets(GetColumnName(property, false))} = @{property.Name}"));
 		return result;
 	}
 
 	private string GenerateWhereClause()
 	{
 		return string.Join(" AND ",
-			_keys.Select(property => $"{_schemaAndEntity}.{AddSquareBrackets(GetColumnName(property))} = @{property.Name}"));
+			_keys.Select(property => $"{_schemaAndEntity}.{AddSquareBrackets(GetColumnName(property, false))} = @{property.Name}"));
 	}
 
 	private string GeneratePropertyClause(string tableName, ExtendedPropertyInfo property)
 	{
 		var shouldSerialize = ShouldSerializeColumnType(property.Type);
-		var result = $"{tableName}.{AddSquareBrackets(GetColumnName(property))}";
+		var result = $"{tableName}.{AddSquareBrackets(GetColumnName(property, false))}";
 		return shouldSerialize
-			? $"({result}).Serialize() AS [{GetColumnName(property)}]"
+			? $"({result}).Serialize() AS [{property.Name}]"
 			: result;
 	}
 
@@ -179,11 +179,26 @@ END";
 
 	private static string EnsureSquareBrackets(string name)
 	{
-		return !name.StartsWith('[') ? AddSquareBrackets(name) : name;
+		return !name.StartsWith('[')
+			? AddSquareBrackets(name)
+			: name;
 	}
 
 	private static string AddSquareBrackets(string name)
 	{
 		return $"[{name}]";
+	}
+
+	protected override string GetColumnName(ExtendedPropertyInfo property, bool includeAsAlias)
+	{
+		var result = base.GetColumnName(property, includeAsAlias);
+		return result.Contains(' ')
+			? result
+			: AddSquareBrackets(result);
+	}
+
+	protected override string GetColumnNameWithAlias(string columnName, string aliasName)
+	{
+		return $"{AddSquareBrackets(columnName)} AS {AddSquareBrackets(aliasName)}";
 	}
 }

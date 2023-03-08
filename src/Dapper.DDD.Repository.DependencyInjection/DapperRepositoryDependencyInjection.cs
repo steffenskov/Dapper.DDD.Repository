@@ -7,11 +7,13 @@ using Microsoft.Extensions.Options;
 namespace Dapper.DDD.Repository.DependencyInjection;
 
 public delegate TRepository TableRepositoryConstructorDelegate<TAggregate, out TRepository>(
-	IOptions<TableAggregateConfiguration<TAggregate>> options, IOptions<DefaultConfiguration>? defaultOptions, IServiceProvider provider);
+	IOptions<TableAggregateConfiguration<TAggregate>> options, IOptions<DefaultConfiguration>? defaultOptions, IServiceProvider provider)
+	where TAggregate: notnull;
 
 public delegate TRepository ViewRepositoryConstructorDelegate<TAggregate, out TRepository>(
 	IOptions<ViewAggregateConfiguration<TAggregate>> options, IOptions<DefaultConfiguration>? defaultOptions,
-	IServiceProvider provider);
+	IServiceProvider provider)
+	where TAggregate: notnull;
 
 public static class DapperRepositoryDependencyInjection
 {
