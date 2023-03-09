@@ -58,7 +58,7 @@ where TAggregate: notnull
 		var ignoredNames = _ignores.Select(prop => prop.Name).ToHashSet();
 		return TypePropertiesCache.GetProperties<TAggregate>()
 			.Where(prop => !ignoredNames.Contains(prop.Name))
-			.Where(prop => !prop.Type.IsSimpleOrBuiltIn() && !HasTypeConverter(prop.Type));
+			.Where(prop => !prop.Type.IsSimpleOrBuiltIn(_defaultConfiguration?._treatAsSimpleType ?? EmptyCollections.TypeSet) && !HasTypeConverter(prop.Type));
 	}
 
 	public bool HasTypeConverter(Type type)
@@ -66,7 +66,10 @@ where TAggregate: notnull
 		return _defaultConfiguration?.HasTypeConverter(type) == true;
 	}
 
-	
+	public bool TreatAsSimpleType(Type type)
+	{
+		return _defaultConfiguration?._treatAsSimpleType.Contains(type) == true;
+	}
 
 	internal void SetDefaults(DefaultConfiguration? defaults)
 	{

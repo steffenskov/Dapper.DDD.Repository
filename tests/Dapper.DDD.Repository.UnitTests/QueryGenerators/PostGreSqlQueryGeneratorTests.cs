@@ -76,21 +76,6 @@ public class PostGrePostGreSqlQueryGeneratorTests
 	}
 
 	[Fact]
-	public void GenerateDeleteQuery_HasSerializedType_Valid()
-	{
-		// Arrange
-		var generator = CreateAggregateWithGeometryQueryGenerator();
-
-		// Act
-		var query = generator.GenerateDeleteQuery();
-
-		// Assert
-		Assert.Equal(
-			"DELETE FROM public.Users RETURNING public.Id, (public.Area).Serialize() AS Area WHERE public.Users.Id = @Id;",
-			query);
-	}
-
-	[Fact]
 	public void GenerateDeleteQuery_HasValueObjectAsId_Valid()
 	{
 		// Arrange
@@ -211,20 +196,6 @@ public class PostGrePostGreSqlQueryGeneratorTests
 	}
 
 	[Fact]
-	public void GenerateGetAllQuery_HasSerializedType_Valid()
-	{
-		// Arrange
-		var generator = CreateAggregateWithGeometryQueryGenerator();
-
-		// Act
-		var query = generator.GenerateGetAllQuery();
-
-		// Assert
-		Assert.Equal("SELECT public.Users.Id, (public.Users.Area).Serialize() AS Area FROM public.Users;",
-			query);
-	}
-
-	[Fact]
 	public void GenerateGetAllQuery_HasValueObject_Valid()
 	{
 		// Arrange
@@ -298,21 +269,6 @@ public class PostGrePostGreSqlQueryGeneratorTests
 		// Assert
 		Assert.Equal(
 			"SELECT public.Users.Age, public.Users.Id_Password, public.Users.Id_Username FROM public.Users WHERE public.Users.Id_Password = @Id_Password AND public.Users.Id_Username = @Id_Username;",
-			query);
-	}
-
-	[Fact]
-	public void GenerateGetQuery_HasSerializedType_Valid()
-	{
-		// Arrange
-		var generator = CreateAggregateWithGeometryQueryGenerator();
-
-		// Act
-		var query = generator.GenerateGetQuery();
-
-		// Assert
-		Assert.Equal(
-			"SELECT public.Users.Id, (public.Users.Area).Serialize() AS Area FROM public.Users WHERE public.Users.Id = @Id;",
 			query);
 	}
 
@@ -406,21 +362,6 @@ public class PostGrePostGreSqlQueryGeneratorTests
 		// Assert
 		Assert.Equal(
 			"INSERT INTO public.Users (Age, Id_Password, Id_Username) VALUES (@Age, @Id_Password, @Id_Username) RETURNING public.Users.Age, public.Users.Id_Password, public.Users.Id_Username;",
-			query);
-	}
-
-	[Fact]
-	public void GenerateInsertQuery_HasSerializedType_Valid()
-	{
-		// Arrange
-		var generator = CreateAggregateWithGeometryQueryGenerator();
-
-		// Act
-		var query = generator.GenerateInsertQuery(new AggregateWithGeometry());
-
-		// Assert
-		Assert.Equal(
-			"INSERT INTO public.Users (Id, Area) RETURNING public.Users.Id, (public.Users.Area).Serialize() AS Area VALUES (@Id, @Area);",
 			query);
 	}
 
@@ -575,21 +516,6 @@ public class PostGrePostGreSqlQueryGeneratorTests
 		// Assert
 		Assert.Equal(
 			"UPDATE public.Users SET Age = @Age WHERE public.Users.Id_Password = @Id_Password AND public.Users.Id_Username = @Id_Username RETURNING public.Users.Age, public.Users.Id_Password, public.Users.Id_Username;",
-			query);
-	}
-
-	[Fact]
-	public void GenerateUpdateQuery_HasSerializedType_Valid()
-	{
-		// Arrange
-		var generator = CreateAggregateWithGeometryQueryGenerator();
-
-		// Act
-		var query = generator.GenerateUpdateQuery(new AggregateWithGeometry());
-
-		// Assert
-		Assert.Equal(
-			"UPDATE public.Users SET public.Users.Area = @Area RETURNING public.Users.Id, (public.Users.Area).Serialize() AS Area WHERE public.Users.Id = @Id;",
 			query);
 	}
 
@@ -821,19 +747,6 @@ public class PostGrePostGreSqlQueryGeneratorTests
 		};
 		config.HasKey(x => x.Id);
 		var generator = new PostGreSqlQueryGenerator<AggregateWithValueObjectId>(config);
-		return generator;
-	}
-
-	private static PostGreSqlQueryGenerator<AggregateWithGeometry> CreateAggregateWithGeometryQueryGenerator()
-	{
-		var defaultConfig = new DefaultConfiguration();
-		defaultConfig.AddTypeConverter<Polygon, byte[]>(
-			geo => new SqlServerBytesWriter { IsGeography = false }.Write(geo),
-			bytes => (Polygon)new SqlServerBytesReader { IsGeography = false }.Read(bytes));
-		var config = new TableAggregateConfiguration<AggregateWithGeometry> { Schema = "public", TableName = "Users" };
-		config.HasKey(x => x.Id);
-		config.SetDefaults(defaultConfig);
-		var generator = new PostGreSqlQueryGenerator<AggregateWithGeometry>(config);
 		return generator;
 	}
 

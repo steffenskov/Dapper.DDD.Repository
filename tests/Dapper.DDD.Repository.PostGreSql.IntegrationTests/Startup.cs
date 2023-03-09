@@ -1,6 +1,7 @@
 ﻿using Dapper.DDD.Repository.DependencyInjection;
 using Dapper.DDD.Repository.IntegrationTests.Repositories;
 using NetTopologySuite.Geometries;
+using Npgsql.PostgresTypes;
 
 namespace Dapper.DDD.Repository.PostGreSql.IntegrationTests;
 
@@ -10,8 +11,16 @@ public class Startup
 	{
 		var services = new ServiceCollection();
 		services.AddOptions();
-		SqlMapper.AddTypeHandler(new PolygonTypeMapper());
-		SqlMapper.AddTypeHandler(new PointTypeMapper());
+		var mapper = new NpgsqlTypeMapper(new[] {
+			new NtsPointHandler( PostgresType.),
+			new NtsPolygonHandler(),
+		});
+
+		SqlMapper.AddTypeHandler<Point>(new NtsPointHandler());
+		SqlMapper.AddTypeHandler<Polygon>(new NtsPolygonHandler());
+
+		NpgsqlConnection.GlobalTypeMapper = mapper;
+
 		services.ConfigureDapperRepositoryDefaults(options =>
 		{
 			options.ConnectionFactory = new PostGreSqlConnectionFactory(
@@ -20,8 +29,8 @@ public class Startup
 			options.QueryGeneratorFactory = new PostGreSqlQueryGeneratorFactory();
 			options.AddTypeConverter<CategoryId, int>(categoryId => categoryId.PrimitiveId, CategoryId.Create);
 			options.AddTypeConverter<Zipcode, int>(zipcode => zipcode.PrimitiveId, Zipcode.Create);
-			options.AddTypeConverter<Polygon, Polygon>(val => val, val => val);
-			options.AddTypeConverter<Point, Point>(val => val, val => val);
+			options.TreatAsSimpleType<Polygon>();
+			options.TreatAsSimpleType<Point>();
 		});
 		services.AddTableRepository<Category, CategoryId>(options =>
 		{

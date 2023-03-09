@@ -7,6 +7,7 @@ namespace Dapper.DDD.Repository.Configuration;
 public class DefaultConfiguration
 {
 	internal readonly ConcurrentDictionary<Type, ITypeConverter> _typeConverters = new();
+	internal readonly ISet<Type> _treatAsSimpleType = new HashSet<Type>();
 	public string? Schema { get; set; }
 	public IQueryGeneratorFactory? QueryGeneratorFactory { get; set; }
 	public IConnectionFactory? ConnectionFactory { get; set; }
@@ -25,7 +26,6 @@ public class DefaultConfiguration
 		}
 	}
 
-
 	public void AddTypeConverter<TComplex, TSimple>(
 		(Func<TComplex, TSimple> convertToSimple, Func<TSimple, TComplex> convertToComplex) converters)
 		where TComplex : notnull
@@ -37,6 +37,11 @@ public class DefaultConfiguration
 			throw new InvalidOperationException(
 				$"A TypeConverter has already been added of this type: <{typeof(TComplex)},{typeof(TSimple)}>");
 		}
+	}
+
+	public void TreatAsSimpleType<T>()
+	{
+		_treatAsSimpleType.Add(typeof(T));
 	}
 
 	public bool HasTypeConverter(Type type)

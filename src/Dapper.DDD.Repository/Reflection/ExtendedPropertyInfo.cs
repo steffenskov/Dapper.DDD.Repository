@@ -7,7 +7,6 @@ public class ExtendedPropertyInfo
 	private readonly MemberAccessor _accessor;
 
 	private readonly object? _defaultValue;
-
 	public ExtendedPropertyInfo(PropertyInfo property)
 	{
 		Type = property.PropertyType;
@@ -77,7 +76,7 @@ public class ExtendedPropertyInfo
 		var properties = GetPropertiesOrdered(type, prefix);
 		foreach (var prop in properties)
 		{
-			if (prop.Type.IsSimpleOrBuiltIn() || configuration.HasTypeConverter(prop.Type))
+			if (prop.Type.IsSimpleOrBuiltIn(EmptyCollections.TypeSet) || configuration.HasTypeConverter(prop.Type) || configuration.TreatAsSimpleType(prop.Type))
 			{
 				yield return prop;
 			}

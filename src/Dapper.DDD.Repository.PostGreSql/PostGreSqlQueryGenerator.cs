@@ -11,12 +11,9 @@ internal class PostGreSqlQueryGenerator<TAggregate> : IQueryGenerator<TAggregate
 	private readonly IReadOnlyExtendedPropertyInfoCollection _keys;
 	private readonly IReadOnlyExtendedPropertyInfoCollection _properties;
 	private readonly string _schemaAndEntity;
-	private readonly IList<Predicate<Type>> _serializeColumnTypePredicates; // TODO: Remove this or?
 
-	public PostGreSqlQueryGenerator(BaseAggregateConfiguration<TAggregate> configuration,
-		IList<Predicate<Type>>? serializeColumnTypePredicates = null)
+	public PostGreSqlQueryGenerator(BaseAggregateConfiguration<TAggregate> configuration)
 	{
-		_serializeColumnTypePredicates = serializeColumnTypePredicates ?? Array.Empty<Predicate<Type>>();
 		var readConfiguration = (IReadAggregateConfiguration<TAggregate>)configuration;
 		ArgumentNullException.ThrowIfNull(configuration.Schema);
 		ArgumentNullException.ThrowIfNull(readConfiguration.EntityName);
