@@ -30,7 +30,7 @@ public class MySqlQueryGeneratorTests
 		// Act && Assert
 		var ex = Assert.Throws<ArgumentException>(() => new MySqlQueryGenerator<SinglePrimaryKeyAggregate>(configuration));
 
-		Assert.Equal("Table name cannot be null or whitespace. (Parameter 'configuration')", ex.Message);
+		Assert.Equal("Entity name cannot be null or whitespace. (Parameter 'configuration')", ex.Message);
 	}
 
 	[Fact]

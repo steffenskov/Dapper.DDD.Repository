@@ -71,7 +71,7 @@ public class PostGrePostGreSqlQueryGeneratorTests
 
 		// Assert
 		Assert.Equal(
-			"DELETE FROM [public].[Users] OUTPUT [deleted].[Id], [deleted].[FirstLevel_SecondLevel_Name] WHERE [public].[Users].[Id] = @Id;",
+			"DELETE FROM public.Users WHERE public.Users.Id = @Id RETURNING public.Users.Id, public.Users.FirstLevel_SecondLevel_Name;",
 			query);
 	}
 
@@ -86,7 +86,7 @@ public class PostGrePostGreSqlQueryGeneratorTests
 
 		// Assert
 		Assert.Equal(
-			"DELETE FROM [public].[Users] OUTPUT [deleted].[Id], ([deleted].[Area]).Serialize() AS [Area] WHERE [public].[Users].[Id] = @Id;",
+			"DELETE FROM public.Users RETURNING public.Id, (public.Area).Serialize() AS Area WHERE public.Users.Id = @Id;",
 			query);
 	}
 
@@ -101,7 +101,7 @@ public class PostGrePostGreSqlQueryGeneratorTests
 
 		// Assert
 		Assert.Equal(
-			"DELETE FROM [public].[Users] OUTPUT [deleted].[Age], [deleted].[Id_Password], [deleted].[Id_Username] WHERE [public].[Users].[Id_Password] = @Id_Password AND [public].[Users].[Id_Username] = @Id_Username;",
+			"DELETE FROM public.Users WHERE public.Users.Id_Password = @Id_Password AND public.Users.Id_Username = @Id_Username RETURNING public.Users.Age, public.Users.Id_Password, public.Users.Id_Username;",
 			query);
 	}
 
@@ -115,7 +115,7 @@ public class PostGrePostGreSqlQueryGeneratorTests
 
 		// Assert
 		Assert.Equal(
-			"DELETE FROM [public].[Users] OUTPUT [deleted].[Id], [deleted].[DeliveryAddress_City], [deleted].[DeliveryAddress_Street], [deleted].[InvoiceAddress_City], [deleted].[InvoiceAddress_Street] WHERE [public].[Users].[Id] = @Id;",
+			"DELETE FROM public.Users WHERE public.Users.Id = @Id RETURNING public.Users.Id, public.Users.DeliveryAddress_City, public.Users.DeliveryAddress_Street, public.Users.InvoiceAddress_City, public.Users.InvoiceAddress_Street;",
 			query);
 	}
 
@@ -130,7 +130,7 @@ public class PostGrePostGreSqlQueryGeneratorTests
 
 		// Assert
 		Assert.Equal(
-			"DELETE FROM [public].[Users] OUTPUT [deleted].[Id], [deleted].[InvoiceAddress_City], [deleted].[InvoiceAddress_Street] WHERE [public].[Users].[Id] = @Id;",
+			"DELETE FROM public.Users WHERE public.Users.Id = @Id RETURNING public.Users.Id, public.Users.InvoiceAddress_City, public.Users.InvoiceAddress_Street;",
 			query);
 	}
 
@@ -145,7 +145,7 @@ public class PostGrePostGreSqlQueryGeneratorTests
 
 		// Assert
 		Assert.Equal(
-			"DELETE FROM [account].[Users] OUTPUT [deleted].[Id], [deleted].[Username], [deleted].[Password] WHERE [account].[Users].[Id] = @Id;",
+			"DELETE FROM account.Users WHERE account.Users.Id = @Id RETURNING account.Users.Id, account.Users.Username, account.Users.Password;",
 			query);
 	}
 
@@ -160,7 +160,7 @@ public class PostGrePostGreSqlQueryGeneratorTests
 
 		// Assert
 		Assert.Equal(
-			"DELETE FROM [public].[Users] OUTPUT [deleted].[Id], [deleted].[Username], [deleted].[Password] WHERE [public].[Users].[Id] = @Id;",
+			"DELETE FROM public.Users WHERE public.Users.Id = @Id RETURNING public.Users.Id, public.Users.Username, public.Users.Password;",
 			deleteQuery);
 	}
 
@@ -175,7 +175,7 @@ public class PostGrePostGreSqlQueryGeneratorTests
 
 		// Assert
 		Assert.Equal(
-			"DELETE FROM [public].[Users] OUTPUT [deleted].[Username], [deleted].[Password], [deleted].[DateCreated] WHERE [public].[Users].[Username] = @Username AND [public].[Users].[Password] = @Password;",
+			"DELETE FROM public.Users WHERE public.Users.Username = @Username AND public.Users.Password = @Password RETURNING public.Users.Username, public.Users.Password, public.Users.DateCreated;",
 			deleteQuery);
 	}
 	#endregion
@@ -191,7 +191,7 @@ public class PostGrePostGreSqlQueryGeneratorTests
 		var query = generator.GenerateGetAllQuery();
 
 		// Assert
-		Assert.Equal("SELECT [public].[Users].[Id], [public].[Users].[FirstLevel_SecondLevel_Name] FROM [public].[Users];",
+		Assert.Equal("SELECT public.Users.Id, public.Users.FirstLevel_SecondLevel_Name FROM public.Users;",
 			query);
 	}
 
@@ -206,7 +206,7 @@ public class PostGrePostGreSqlQueryGeneratorTests
 
 		// Assert
 		Assert.Equal(
-			"SELECT [public].[Users].[Age], [public].[Users].[Id_Password], [public].[Users].[Id_Username] FROM [public].[Users];",
+			"SELECT public.Users.Age, public.Users.Id_Password, public.Users.Id_Username FROM public.Users;",
 			query);
 	}
 
@@ -220,7 +220,7 @@ public class PostGrePostGreSqlQueryGeneratorTests
 		var query = generator.GenerateGetAllQuery();
 
 		// Assert
-		Assert.Equal("SELECT [public].[Users].[Id], ([public].[Users].[Area]).Serialize() AS [Area] FROM [public].[Users];",
+		Assert.Equal("SELECT public.Users.Id, (public.Users.Area).Serialize() AS Area FROM public.Users;",
 			query);
 	}
 
@@ -235,7 +235,7 @@ public class PostGrePostGreSqlQueryGeneratorTests
 
 		// Assert
 		Assert.Equal(
-			"SELECT [public].[Users].[Id], [public].[Users].[DeliveryAddress_City], [public].[Users].[DeliveryAddress_Street], [public].[Users].[InvoiceAddress_City], [public].[Users].[InvoiceAddress_Street] FROM [public].[Users];",
+			"SELECT public.Users.Id, public.Users.DeliveryAddress_City, public.Users.DeliveryAddress_Street, public.Users.InvoiceAddress_City, public.Users.InvoiceAddress_Street FROM public.Users;",
 			query);
 	}
 
@@ -250,7 +250,7 @@ public class PostGrePostGreSqlQueryGeneratorTests
 
 		// Assert
 		Assert.Equal(
-			"SELECT [public].[Users].[Id], [public].[Users].[InvoiceAddress_City], [public].[Users].[InvoiceAddress_Street] FROM [public].[Users];",
+			"SELECT public.Users.Id, public.Users.InvoiceAddress_City, public.Users.InvoiceAddress_Street FROM public.Users;",
 			query);
 	}
 
@@ -265,7 +265,7 @@ public class PostGrePostGreSqlQueryGeneratorTests
 
 		// Assert
 		Assert.Equal(
-			"SELECT [public].[Users].[Id], [public].[Users].[Username], [public].[Users].[Password] FROM [public].[Users];",
+			"SELECT public.Users.Id, public.Users.Username, public.Users.Password FROM public.Users;",
 			selectQuery);
 	}
 	#endregion
@@ -282,7 +282,7 @@ public class PostGrePostGreSqlQueryGeneratorTests
 
 		// Assert
 		Assert.Equal(
-			"SELECT [public].[Users].[Id], [public].[Users].[FirstLevel_SecondLevel_Name] FROM [public].[Users] WHERE [public].[Users].[Id] = @Id;",
+			"SELECT public.Users.Id, public.Users.FirstLevel_SecondLevel_Name FROM public.Users WHERE public.Users.Id = @Id;",
 			query);
 	}
 
@@ -297,7 +297,7 @@ public class PostGrePostGreSqlQueryGeneratorTests
 
 		// Assert
 		Assert.Equal(
-			"SELECT [public].[Users].[Age], [public].[Users].[Id_Password], [public].[Users].[Id_Username] FROM [public].[Users] WHERE [public].[Users].[Id_Password] = @Id_Password AND [public].[Users].[Id_Username] = @Id_Username;",
+			"SELECT public.Users.Age, public.Users.Id_Password, public.Users.Id_Username FROM public.Users WHERE public.Users.Id_Password = @Id_Password AND public.Users.Id_Username = @Id_Username;",
 			query);
 	}
 
@@ -312,7 +312,7 @@ public class PostGrePostGreSqlQueryGeneratorTests
 
 		// Assert
 		Assert.Equal(
-			"SELECT [public].[Users].[Id], ([public].[Users].[Area]).Serialize() AS [Area] FROM [public].[Users] WHERE [public].[Users].[Id] = @Id;",
+			"SELECT public.Users.Id, (public.Users.Area).Serialize() AS Area FROM public.Users WHERE public.Users.Id = @Id;",
 			query);
 	}
 
@@ -327,7 +327,7 @@ public class PostGrePostGreSqlQueryGeneratorTests
 
 		// Assert
 		Assert.Equal(
-			"SELECT [public].[Users].[Id], [public].[Users].[DeliveryAddress_City], [public].[Users].[DeliveryAddress_Street], [public].[Users].[InvoiceAddress_City], [public].[Users].[InvoiceAddress_Street] FROM [public].[Users] WHERE [public].[Users].[Id] = @Id;",
+			"SELECT public.Users.Id, public.Users.DeliveryAddress_City, public.Users.DeliveryAddress_Street, public.Users.InvoiceAddress_City, public.Users.InvoiceAddress_Street FROM public.Users WHERE public.Users.Id = @Id;",
 			query);
 	}
 
@@ -342,7 +342,7 @@ public class PostGrePostGreSqlQueryGeneratorTests
 
 		// Assert
 		Assert.Equal(
-			"SELECT [public].[Users].[Id], [public].[Users].[InvoiceAddress_City], [public].[Users].[InvoiceAddress_Street] FROM [public].[Users] WHERE [public].[Users].[Id] = @Id;",
+			"SELECT public.Users.Id, public.Users.InvoiceAddress_City, public.Users.InvoiceAddress_Street FROM public.Users WHERE public.Users.Id = @Id;",
 			query);
 	}
 
@@ -357,7 +357,7 @@ public class PostGrePostGreSqlQueryGeneratorTests
 
 		// Assert
 		Assert.Equal(
-			"SELECT [public].[Users].[Id], [public].[Users].[Username], [public].[Users].[Password] FROM [public].[Users] WHERE [public].[Users].[Id] = @Id;",
+			"SELECT public.Users.Id, public.Users.Username, public.Users.Password FROM public.Users WHERE public.Users.Id = @Id;",
 			selectQuery);
 	}
 
@@ -372,7 +372,7 @@ public class PostGrePostGreSqlQueryGeneratorTests
 
 		// Assert
 		Assert.Equal(
-			"SELECT [public].[Users].[Username], [public].[Users].[Password], [public].[Users].[DateCreated] FROM [public].[Users] WHERE [public].[Users].[Username] = @Username AND [public].[Users].[Password] = @Password;",
+			"SELECT public.Users.Username, public.Users.Password, public.Users.DateCreated FROM public.Users WHERE public.Users.Username = @Username AND public.Users.Password = @Password;",
 			selectQuery);
 	}
 	#endregion
@@ -390,7 +390,7 @@ public class PostGrePostGreSqlQueryGeneratorTests
 
 		// Assert
 		Assert.Equal(
-			"INSERT INTO [public].[Users] ([Id], [FirstLevel_SecondLevel_Name]) OUTPUT [inserted].[Id], [inserted].[FirstLevel_SecondLevel_Name] VALUES (@Id, @FirstLevel_SecondLevel_Name);",
+			"INSERT INTO public.Users (Id, FirstLevel_SecondLevel_Name) VALUES (@Id, @FirstLevel_SecondLevel_Name) RETURNING public.Users.Id, public.Users.FirstLevel_SecondLevel_Name;",
 			query);
 	}
 
@@ -405,7 +405,7 @@ public class PostGrePostGreSqlQueryGeneratorTests
 
 		// Assert
 		Assert.Equal(
-			"INSERT INTO [public].[Users] ([Age], [Id_Password], [Id_Username]) OUTPUT [inserted].[Age], [inserted].[Id_Password], [inserted].[Id_Username] VALUES (@Age, @Id_Password, @Id_Username);",
+			"INSERT INTO public.Users (Age, Id_Password, Id_Username) VALUES (@Age, @Id_Password, @Id_Username) RETURNING public.Users.Age, public.Users.Id_Password, public.Users.Id_Username;",
 			query);
 	}
 
@@ -420,7 +420,7 @@ public class PostGrePostGreSqlQueryGeneratorTests
 
 		// Assert
 		Assert.Equal(
-			"INSERT INTO [public].[Users] ([Id], [Area]) OUTPUT [inserted].[Id], ([inserted].[Area]).Serialize() AS [Area] VALUES (@Id, @Area);",
+			"INSERT INTO public.Users (Id, Area) RETURNING public.Users.Id, (public.Users.Area).Serialize() AS Area VALUES (@Id, @Area);",
 			query);
 	}
 
@@ -435,7 +435,7 @@ public class PostGrePostGreSqlQueryGeneratorTests
 
 		// Assert
 		Assert.Equal(
-			"INSERT INTO [public].[Users] ([Id], [DeliveryAddress_City], [DeliveryAddress_Street], [InvoiceAddress_City], [InvoiceAddress_Street]) OUTPUT [inserted].[Id], [inserted].[DeliveryAddress_City], [inserted].[DeliveryAddress_Street], [inserted].[InvoiceAddress_City], [inserted].[InvoiceAddress_Street] VALUES (@Id, @DeliveryAddress_City, @DeliveryAddress_Street, @InvoiceAddress_City, @InvoiceAddress_Street);",
+			"INSERT INTO public.Users (Id, DeliveryAddress_City, DeliveryAddress_Street, InvoiceAddress_City, InvoiceAddress_Street) VALUES (@Id, @DeliveryAddress_City, @DeliveryAddress_Street, @InvoiceAddress_City, @InvoiceAddress_Street) RETURNING public.Users.Id, public.Users.DeliveryAddress_City, public.Users.DeliveryAddress_Street, public.Users.InvoiceAddress_City, public.Users.InvoiceAddress_Street;",
 			query);
 	}
 
@@ -450,7 +450,7 @@ public class PostGrePostGreSqlQueryGeneratorTests
 
 		// Assert
 		Assert.Equal(
-			"INSERT INTO [public].[Users] ([Id], [InvoiceAddress_City], [InvoiceAddress_Street]) OUTPUT [inserted].[Id], [inserted].[InvoiceAddress_City], [inserted].[InvoiceAddress_Street] VALUES (@Id, @InvoiceAddress_City, @InvoiceAddress_Street);",
+			"INSERT INTO public.Users (Id, InvoiceAddress_City, InvoiceAddress_Street) VALUES (@Id, @InvoiceAddress_City, @InvoiceAddress_Street) RETURNING public.Users.Id, public.Users.InvoiceAddress_City, public.Users.InvoiceAddress_Street;",
 			query);
 	}
 
@@ -465,7 +465,7 @@ public class PostGrePostGreSqlQueryGeneratorTests
 
 		// Assert
 		Assert.Equal(
-			"INSERT INTO [account].[Users] ([Username], [Password]) OUTPUT [inserted].[Id], [inserted].[Username], [inserted].[Password] VALUES (@Username, @Password);",
+			"INSERT INTO account.Users (Username, Password) VALUES (@Username, @Password) RETURNING account.Users.Id, account.Users.Username, account.Users.Password;",
 			query);
 	}
 
@@ -480,7 +480,7 @@ public class PostGrePostGreSqlQueryGeneratorTests
 
 		// Assert
 		Assert.Equal(
-			"INSERT INTO [public].[Users] ([Id]) OUTPUT [inserted].[Id], [inserted].[DateCreated] VALUES (@Id);",
+			"INSERT INTO public.Users (Id) VALUES (@Id) RETURNING public.Users.Id, public.Users.DateCreated;",
 			query);
 	}
 
@@ -496,7 +496,7 @@ public class PostGrePostGreSqlQueryGeneratorTests
 
 		// Assert
 		Assert.Equal(
-			"INSERT INTO [public].[Users] ([Id], [DateCreated]) OUTPUT [inserted].[Id], [inserted].[DateCreated] VALUES (@Id, @DateCreated);",
+			"INSERT INTO public.Users (Id, DateCreated) VALUES (@Id, @DateCreated) RETURNING public.Users.Id, public.Users.DateCreated;",
 			query);
 	}
 
@@ -511,7 +511,7 @@ public class PostGrePostGreSqlQueryGeneratorTests
 
 		// Assert
 		Assert.Equal(
-			"INSERT INTO [public].[Users] ([Username], [Password]) OUTPUT [inserted].[Id], [inserted].[Username], [inserted].[Password] VALUES (@Username, @Password);",
+			"INSERT INTO public.Users (Username, Password) VALUES (@Username, @Password) RETURNING public.Users.Id, public.Users.Username, public.Users.Password;",
 			insertQuery);
 	}
 
@@ -526,7 +526,7 @@ public class PostGrePostGreSqlQueryGeneratorTests
 
 		// Assert
 		Assert.Equal(
-			"INSERT INTO [public].[Users] ([Username], [Password], [DateCreated]) OUTPUT [inserted].[Username], [inserted].[Password], [inserted].[DateCreated] VALUES (@Username, @Password, @DateCreated);",
+			"INSERT INTO public.Users (Username, Password, DateCreated) VALUES (@Username, @Password, @DateCreated) RETURNING public.Users.Username, public.Users.Password, public.Users.DateCreated;",
 			insertQuery);
 	}
 
@@ -541,7 +541,7 @@ public class PostGrePostGreSqlQueryGeneratorTests
 
 		// Assert
 		Assert.Equal(
-			"INSERT INTO [public].[Users] ([Username], [Password], [DateCreated]) OUTPUT [inserted].[Username], [inserted].[Password], [inserted].[DateCreated] VALUES (@Username, @Password, @DateCreated);",
+			"INSERT INTO public.Users (Username, Password, DateCreated) VALUES (@Username, @Password, @DateCreated) RETURNING public.Users.Username, public.Users.Password, public.Users.DateCreated;",
 			insertQuery);
 	}
 	#endregion
@@ -559,7 +559,7 @@ public class PostGrePostGreSqlQueryGeneratorTests
 
 		// Assert
 		Assert.Equal(
-			"UPDATE [public].[Users] SET [public].[Users].[FirstLevel_SecondLevel_Name] = @FirstLevel_SecondLevel_Name OUTPUT [inserted].[Id], [inserted].[FirstLevel_SecondLevel_Name] WHERE [public].[Users].[Id] = @Id;",
+			"UPDATE public.Users SET FirstLevel_SecondLevel_Name = @FirstLevel_SecondLevel_Name WHERE public.Users.Id = @Id RETURNING public.Users.Id, public.Users.FirstLevel_SecondLevel_Name;",
 			query);
 	}
 
@@ -574,7 +574,7 @@ public class PostGrePostGreSqlQueryGeneratorTests
 
 		// Assert
 		Assert.Equal(
-			"UPDATE [public].[Users] SET [public].[Users].[Age] = @Age OUTPUT [inserted].[Age], [inserted].[Id_Password], [inserted].[Id_Username] WHERE [public].[Users].[Id_Password] = @Id_Password AND [public].[Users].[Id_Username] = @Id_Username;",
+			"UPDATE public.Users SET Age = @Age WHERE public.Users.Id_Password = @Id_Password AND public.Users.Id_Username = @Id_Username RETURNING public.Users.Age, public.Users.Id_Password, public.Users.Id_Username;",
 			query);
 	}
 
@@ -589,7 +589,7 @@ public class PostGrePostGreSqlQueryGeneratorTests
 
 		// Assert
 		Assert.Equal(
-			"UPDATE [public].[Users] SET [public].[Users].[Area] = @Area OUTPUT [inserted].[Id], ([inserted].[Area]).Serialize() AS [Area] WHERE [public].[Users].[Id] = @Id;",
+			"UPDATE public.Users SET public.Users.Area = @Area RETURNING public.Users.Id, (public.Users.Area).Serialize() AS Area WHERE public.Users.Id = @Id;",
 			query);
 	}
 
@@ -603,7 +603,7 @@ public class PostGrePostGreSqlQueryGeneratorTests
 
 		// Assert
 		Assert.Equal(
-			"UPDATE [public].[Users] SET [public].[Users].[DeliveryAddress_City] = @DeliveryAddress_City, [public].[Users].[DeliveryAddress_Street] = @DeliveryAddress_Street, [public].[Users].[InvoiceAddress_City] = @InvoiceAddress_City, [public].[Users].[InvoiceAddress_Street] = @InvoiceAddress_Street OUTPUT [inserted].[Id], [inserted].[DeliveryAddress_City], [inserted].[DeliveryAddress_Street], [inserted].[InvoiceAddress_City], [inserted].[InvoiceAddress_Street] WHERE [public].[Users].[Id] = @Id;",
+			"UPDATE public.Users SET DeliveryAddress_City = @DeliveryAddress_City, DeliveryAddress_Street = @DeliveryAddress_Street, InvoiceAddress_City = @InvoiceAddress_City, InvoiceAddress_Street = @InvoiceAddress_Street WHERE public.Users.Id = @Id RETURNING public.Users.Id, public.Users.DeliveryAddress_City, public.Users.DeliveryAddress_Street, public.Users.InvoiceAddress_City, public.Users.InvoiceAddress_Street;",
 			query);
 	}
 
@@ -617,7 +617,7 @@ public class PostGrePostGreSqlQueryGeneratorTests
 
 		// Assert
 		Assert.Equal(
-			"UPDATE [public].[Users] SET [public].[Users].[InvoiceAddress_City] = @InvoiceAddress_City, [public].[Users].[InvoiceAddress_Street] = @InvoiceAddress_Street OUTPUT [inserted].[Id], [inserted].[InvoiceAddress_City], [inserted].[InvoiceAddress_Street] WHERE [public].[Users].[Id] = @Id;",
+			"UPDATE public.Users SET InvoiceAddress_City = @InvoiceAddress_City, InvoiceAddress_Street = @InvoiceAddress_Street WHERE public.Users.Id = @Id RETURNING public.Users.Id, public.Users.InvoiceAddress_City, public.Users.InvoiceAddress_Street;",
 			query);
 	}
 
@@ -632,7 +632,7 @@ public class PostGrePostGreSqlQueryGeneratorTests
 
 		// Assert
 		Assert.Equal(
-			"UPDATE [public].[Users] SET [public].[Users].[Username] = @Username, [public].[Users].[Password] = @Password OUTPUT [inserted].[Id], [inserted].[Username], [inserted].[Password] WHERE [public].[Users].[Id] = @Id;",
+			"UPDATE public.Users SET Username = @Username, Password = @Password WHERE public.Users.Id = @Id RETURNING public.Users.Id, public.Users.Username, public.Users.Password;",
 			updateQuery);
 	}
 
@@ -647,7 +647,7 @@ public class PostGrePostGreSqlQueryGeneratorTests
 
 		// Assert
 		Assert.Equal(
-			"UPDATE [public].[Users] SET [public].[Users].[DateCreated] = @DateCreated OUTPUT [inserted].[Username], [inserted].[Password], [inserted].[DateCreated] WHERE [public].[Users].[Username] = @Username AND [public].[Users].[Password] = @Password;",
+			"UPDATE public.Users SET DateCreated = @DateCreated WHERE public.Users.Username = @Username AND public.Users.Password = @Password RETURNING public.Users.Username, public.Users.Password, public.Users.DateCreated;",
 			updateQuery);
 	}
 
@@ -685,14 +685,14 @@ public class PostGrePostGreSqlQueryGeneratorTests
 
 		// Assert
 		Assert.Equal(
-			"UPDATE [public].[Users] SET [public].[Users].[Age] = @Age OUTPUT [inserted].[Id], [inserted].[Age], [inserted].[DateCreated] WHERE [public].[Users].[Id] = @Id;",
+			"UPDATE public.Users SET Age = @Age WHERE public.Users.Id = @Id RETURNING public.Users.Id, public.Users.Age, public.Users.DateCreated;",
 			query);
 	}
 	#endregion
 
 	#region Upsert
 	[Fact]
-	public void GenerateUpsertQuery_HasIdentity_ReturnsPureInsertQuery()
+	public void GenerateUpsertQuery_HasIdentity_ReturnsInsertQuery()
 	{
 		// Arrange
 		var generator = CreateSinglePrimaryKeyAggregateQueryGenerator();
@@ -706,14 +706,14 @@ public class PostGrePostGreSqlQueryGeneratorTests
 	}
 
 	[Fact]
-	public void GenerateUpsertQuery_HasIdentityWithExistingValue_ReturnsPureUpdateQuery()
+	public void GenerateUpsertQuery_HasIdentityWithExistingValue_ReturnsUpdateQuery()
 	{
 		// Arrange
 		var generator = CreateSinglePrimaryKeyAggregateQueryGenerator();
 
 		// Act
 		var query = generator.GenerateUpsertQuery(new SinglePrimaryKeyAggregate { Id = 42 });
-		var updateQuery = generator.GenerateUpdateQuery(new SinglePrimaryKeyAggregate());
+		var updateQuery = generator.GenerateUpdateQuery(new SinglePrimaryKeyAggregate { Id = 42 });
 
 		// Assert
 		Assert.Equal(updateQuery, query);
@@ -729,38 +729,19 @@ public class PostGrePostGreSqlQueryGeneratorTests
 		var query = generator.GenerateUpsertQuery(new CompositePrimaryKeyAggregate());
 
 		// Assert
-		Assert.Equal(
-			@"IF EXISTS (SELECT TOP 1 1 FROM [public].[Users] WHERE [public].[Users].[Username] = @Username AND [public].[Users].[Password] = @Password)
-BEGIN
-UPDATE [public].[Users] SET [public].[Users].[DateCreated] = @DateCreated OUTPUT [inserted].[Username], [inserted].[Password], [inserted].[DateCreated] WHERE [public].[Users].[Username] = @Username AND [public].[Users].[Password] = @Password;
-END
-ELSE
-BEGIN
-INSERT INTO [public].[Users] ([Username], [Password], [DateCreated]) OUTPUT [inserted].[Username], [inserted].[Password], [inserted].[DateCreated] VALUES (@Username, @Password, @DateCreated);
-END",
+		Assert.Equal("INSERT INTO public.Users (Username, Password, DateCreated) VALUES (@Username, @Password, @DateCreated) ON CONFLICT (Username, Password) DO UPDATE SET DateCreated = @DateCreated WHERE public.Users.Username = @Username AND public.Users.Password = @Password RETURNING public.Users.Username, public.Users.Password, public.Users.DateCreated;",
 			query);
 	}
 
 	[Fact]
-	public void GenerateUpsertQuery_HasNoUpdatableColumns_Valid()
+	public void GenerateUpsertQuery_HasNoUpdatableColumns_Throws()
 	{
 		// Arrange
 		var generator = CreateHasDefaultConstraintAggregateQueryGenerator();
 
-		// Act
-		var query = generator.GenerateUpsertQuery(new HasDefaultConstraintAggregate());
-
-		// Assert
-		Assert.Equal(
-			@"IF EXISTS (SELECT TOP 1 1 FROM [public].[Users] WHERE [public].[Users].[Id] = @Id)
-BEGIN
-SELECT [public].[Users].[Id], [public].[Users].[DateCreated] FROM [public].[Users] WHERE [public].[Users].[Id] = @Id;
-END
-ELSE
-BEGIN
-INSERT INTO [public].[Users] ([Id]) OUTPUT [inserted].[Id], [inserted].[DateCreated] VALUES (@Id);
-END",
-			query);
+		// Act && Assert
+		var ex = Assert.Throws<InvalidOperationException>(() => generator.GenerateUpsertQuery(new HasDefaultConstraintAggregate()));
+		Assert.Equal("PostGreSql does not support Upsert on tables with no updatable columns.", ex.Message);
 	}
 	#endregion
 

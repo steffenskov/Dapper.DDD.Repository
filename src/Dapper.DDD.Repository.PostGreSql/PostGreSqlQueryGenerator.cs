@@ -11,7 +11,7 @@ internal class PostGreSqlQueryGenerator<TAggregate> : IQueryGenerator<TAggregate
 	private readonly IReadOnlyExtendedPropertyInfoCollection _keys;
 	private readonly IReadOnlyExtendedPropertyInfoCollection _properties;
 	private readonly string _schemaAndEntity;
-	private readonly IList<Predicate<Type>> _serializeColumnTypePredicates;
+	private readonly IList<Predicate<Type>> _serializeColumnTypePredicates; // TODO: Remove this or?
 
 	public PostGreSqlQueryGenerator(BaseAggregateConfiguration<TAggregate> configuration,
 		IList<Predicate<Type>>? serializeColumnTypePredicates = null)
@@ -31,8 +31,7 @@ internal class PostGreSqlQueryGenerator<TAggregate> : IQueryGenerator<TAggregate
 			throw new ArgumentException("Entity name cannot be null or whitespace.", nameof(configuration));
 		}
 
-		_schemaAndEntity =
-			$"{EnsureSquareBrackets(configuration.Schema)}.{EnsureSquareBrackets(readConfiguration.EntityName)}";
+		_schemaAndEntity = $"{configuration.Schema}.{readConfiguration.EntityName}";
 
 		var properties = readConfiguration.GetProperties();
 		var keys = new ExtendedPropertyInfoCollection(readConfiguration.GetKeys());
@@ -59,8 +58,8 @@ internal class PostGreSqlQueryGenerator<TAggregate> : IQueryGenerator<TAggregate
 	{
 		var whereClause = GenerateWhereClause();
 
-		var outputProperties = GeneratePropertyList("deleted");
-		return $"DELETE FROM {_schemaAndEntity} OUTPUT {outputProperties} WHERE {whereClause};";
+		var outputProperties = GeneratePropertyList(this._schemaAndEntity);
+		return $"DELETE FROM {_schemaAndEntity} WHERE {whereClause} RETURNING {outputProperties};";
 	}
 
 	public string GenerateInsertQuery(TAggregate aggregate)
@@ -74,14 +73,14 @@ internal class PostGreSqlQueryGenerator<TAggregate> : IQueryGenerator<TAggregate
 			                    !property.HasDefaultValue(aggregate)))
 			.ToList();
 
-		var outputProperties = GeneratePropertyList("inserted");
+		var outputProperties = GeneratePropertyList(this._schemaAndEntity);
 		return
-			$"INSERT INTO {_schemaAndEntity} ({string.Join(", ", propertiesToInsert.Select(property => AddSquareBrackets(property.Name)))}) OUTPUT {outputProperties} VALUES ({string.Join(", ", propertiesToInsert.Select(property => $"@{property.Name}"))});";
+			$"INSERT INTO {_schemaAndEntity} ({string.Join(", ", propertiesToInsert.Select(property => property.Name))}) VALUES ({string.Join(", ", propertiesToInsert.Select(property => $"@{property.Name}"))}) RETURNING {outputProperties};";
 	}
 
 	public string GenerateGetAllQuery()
 	{
-		var propertyList = GeneratePropertyList(_schemaAndEntity);
+		var propertyList = GeneratePropertyList(this._schemaAndEntity);
 		return $"SELECT {propertyList} FROM {_schemaAndEntity};";
 	}
 
@@ -89,7 +88,7 @@ internal class PostGreSqlQueryGenerator<TAggregate> : IQueryGenerator<TAggregate
 	{
 		var whereClause = GenerateWhereClause();
 
-		var propertyList = GeneratePropertyList(_schemaAndEntity);
+		var propertyList = GeneratePropertyList(this._schemaAndEntity);
 
 		return $"SELECT {propertyList} FROM {_schemaAndEntity} WHERE {whereClause};";
 	}
@@ -104,10 +103,10 @@ internal class PostGreSqlQueryGenerator<TAggregate> : IQueryGenerator<TAggregate
 				$"GenerateUpdateQuery for aggregate of type {typeof(TAggregate).FullName} failed as the type has no properties with a setter.");
 		}
 
-		var outputProperties = GeneratePropertyList("inserted");
+		var outputProperties = GeneratePropertyList(this._schemaAndEntity);
 
 		return
-			$"UPDATE {_schemaAndEntity} SET {setClause} OUTPUT {outputProperties} WHERE {GenerateWhereClause()};";
+			$"UPDATE {_schemaAndEntity} SET {setClause} WHERE {GenerateWhereClause()} RETURNING {outputProperties};";
 	}
 
 	public string GenerateUpsertQuery(TAggregate aggregate)
@@ -121,26 +120,24 @@ internal class PostGreSqlQueryGenerator<TAggregate> : IQueryGenerator<TAggregate
 				: insertQuery; // All identities are default => do an insert
 		}
 
-		var whereClause = GenerateWhereClause();
 		var setClause = GenerateSetClause(aggregate);
-		var updateQuery = string.IsNullOrEmpty(setClause)
-			? GenerateGetQuery() // Use select query instead of update, as nothing can be updated but we still expect the aggregate to be returned
-			: GenerateUpdateQuery(aggregate);
+		if (string.IsNullOrEmpty(setClause))
+			throw new InvalidOperationException("PostGreSql does not support Upsert on tables with no updatable columns.");
 
-		return $@"IF EXISTS (SELECT TOP 1 1 FROM {_schemaAndEntity} WHERE {whereClause})
-BEGIN
-{updateQuery}
-END
-ELSE
-BEGIN
-{insertQuery}
-END";
+
+		var returningIndex = insertQuery.IndexOf(" RETURNING ");
+		insertQuery = insertQuery.Remove(returningIndex);
+		var primaryKeys = string.Join(", ", _keys.Select(prop => prop.Name));
+
+		var conflictResolution = $"ON CONFLICT ({primaryKeys}) DO UPDATE";
+		var outputProperties = GeneratePropertyList(this._schemaAndEntity);
+		var updateQuery = $"SET {setClause} WHERE {GenerateWhereClause()} RETURNING {outputProperties};";
+
+		return $"{insertQuery} {conflictResolution} {updateQuery}";
 	}
 
 	public string GeneratePropertyList(string tableName)
 	{
-		tableName = EnsureSquareBrackets(tableName);
-
 		return string.Join(", ", _properties.Select(property => GeneratePropertyClause(tableName, property)));
 	}
 
@@ -153,7 +150,7 @@ END";
 			(!propertiesWithDefaultValues.Contains(property) || !property.HasDefaultValue(aggregate)));
 		var result = string.Join(", ",
 			propertiesToSet.Select(property =>
-				$"{_schemaAndEntity}.{AddSquareBrackets(property.Name)} = @{property.Name}"));
+				$"{property.Name} = @{property.Name}"));
 		return result;
 	}
 
