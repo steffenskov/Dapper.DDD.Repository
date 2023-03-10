@@ -12,7 +12,6 @@ public class NetTopologyColumnTests : IClassFixture<Startup>
 	public NetTopologyColumnTests(Startup startup)
 	{
 		_repository = startup.Provider.GetService<ITableRepository<City, Guid>>()!;
-		var foo = 42;
 	}
 
 	[Fact]
@@ -130,7 +129,7 @@ public class NetTopologyColumnTests : IClassFixture<Startup>
 		try
 		{
 			Assert.Equal(city, fetchedCity);
-			Assert.Equal(city.Area.SRID, fetchedCity.Area.SRID);
+			Assert.Equal(city.Area.SRID, fetchedCity!.Area.SRID);
 		}
 		finally
 		{
