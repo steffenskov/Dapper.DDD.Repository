@@ -1,0 +1,25 @@
+<Project Sdk="Microsoft.NET.Sdk">
+	<ItemGroup>
+		<ProjectReference Include="..\Dapper.DDD.Repository\Dapper.DDD.Repository.csproj" />
+	</ItemGroup>
+	
+	<PropertyGroup>
+		<TargetFramework>net6.0</TargetFramework>
+		<ImplicitUsings>enable</ImplicitUsings>
+		<Nullable>enable</Nullable>
+		<TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+		<Version>1.7.0</Version>
+		<Authors>Steffen Skov</Authors>
+		<Company>Steffen Skov</Company>
+		<Description>PostGreSql for the Dapper.DDD.Repository package.</Description>
+		<Copyright>Steffen Skov 2022</Copyright>
+		<PackageLicenseExpression>MIT</PackageLicenseExpression>
+		<PackageProjectUrl>https://github.com/steffenskov/Dapper.DDD.Repository</PackageProjectUrl>
+		<PackageTags>PostGreSql, Dapper, DDD, Repository, ValueObject</PackageTags>
+		<PackageReadmeFile>README.md</PackageReadmeFile>
+	</PropertyGroup>
+
+	<ItemGroup>
+		<None Include="README.md" Pack="true" PackagePath="\" />
+	</ItemGroup>
+</Project>

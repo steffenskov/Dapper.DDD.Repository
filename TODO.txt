@@ -1,0 +1,1 @@
+Flyt generisk QueryGenerator ctor stuff ind i base klasse

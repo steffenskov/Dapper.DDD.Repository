@@ -17,7 +17,7 @@ works. This makes it easier to replace the persistence, should you ever want to 
 - Fully supports ValueObjects, and you can even infinitely nest them.
 - Fully supports `record` types including the primary constructor syntax for very concise ValueObjects (or even
   Aggregates!)
-- Built-in support for MS SqlServer and MySql / MariaDB, easy to extend with support for other databases.
+- Built-in support for MS SqlServer, PostGreSql and MySql / MariaDB, easy to extend with support for other databases.
 - Built-in CRUD methods
 - Support for custom types via TypeConverters such as
   e.g. [StrongTypedId](https://github.com/steffenskov/StrongTypedId) (Which I also highly recommend using for
@@ -59,8 +59,22 @@ this library can too)
 
 Currently the library only supports tables with a primary key (no heap support), views are supported both with and
 without including primary keys.
+
 Also all the methods are kept `Async` and no synchronous versions are currently planned. This is because database
 calls (like all I/O) should ideally be kept async for improved performance and responsiveness.
+
+Finally if you want to utilize Dapper's SqlMapper functionality, you'll need to also instruct this instruction into treating the type as a built-in type. Otherwise both Dapper and this extension will attempt to deal with the type simultaneously.
+
+An example:
+```
+SqlMapper.AddTypeHandler(new PolygonTypeMapper());
+
+services.ConfigureDapperRepositoryDefaults(options =>
+{
+	options.TreatAsBuiltInType<Polygon>(); // Necessary to allow the SqlMapper to work its magic
+}
+```
+
 
 ## Usage:
 
@@ -144,7 +158,7 @@ internal class SqlConnectionFactory : IConnectionFactory
 	public SqlConnectionFactory(string connectionString)
 	{
 		if (string.IsNullOrWhiteSpace(connectionString))
-			throw new ArgumentException("Connectionstring cannot be null or whitespace.", nameof(connectionString));
+			throw new ArgumentException("connectionString cannot be null or whitespace.", nameof(connectionString));
 
 		_connectionString = connectionString;
 	}

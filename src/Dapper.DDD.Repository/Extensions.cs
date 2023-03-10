@@ -4,19 +4,20 @@ namespace Dapper.DDD.Repository;
 
 internal static class Extensions
 {
-	public static bool IsSimpleOrBuiltIn(this Type type)
+	public static bool IsSimpleOrBuiltIn(this Type type, ISet<Type> treatAsBuiltInTypes)
 	{
 		return type.IsPrimitive
 			   || type.IsEnum
 			   || type.Namespace?.StartsWith("System") == true
-			   || IsNullableSimple(type);
+			   || treatAsBuiltInTypes.Contains(type)
+			   || IsNullableSimple(type, treatAsBuiltInTypes);
 	}
 
-	private static bool IsNullableSimple(Type type)
+	private static bool IsNullableSimple(Type type, ISet<Type> treatAsBuiltInTypes)
 	{
 		return type.IsGenericType
 			   && type.IsNullable()
-			   && IsSimpleOrBuiltIn(type.GetGenericArguments()[0]);
+			   && IsSimpleOrBuiltIn(type.GetGenericArguments()[0], treatAsBuiltInTypes);
 	}
 
 	public static bool IsNullable(this Type type)

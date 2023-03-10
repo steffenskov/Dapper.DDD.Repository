@@ -1,4 +1,5 @@
-﻿using Dapper.DDD.Repository.Reflection;
+﻿using Dapper.DDD.Repository.QueryGenerators;
+using Dapper.DDD.Repository.Reflection;
 
 namespace Dapper.DDD.Repository.MySql;
 
@@ -22,7 +23,7 @@ internal class MySqlQueryGenerator<TAggregate> : IQueryGenerator<TAggregate>
 		ArgumentNullException.ThrowIfNull(readConfiguration.EntityName);
 		if (string.IsNullOrWhiteSpace(readConfiguration.EntityName))
 		{
-			throw new ArgumentException("Table name cannot be null or whitespace.", nameof(configuration));
+			throw new ArgumentException("Entity name cannot be null or whitespace.", nameof(configuration));
 		}
 
 		_entityName = readConfiguration.EntityName;
@@ -127,10 +128,10 @@ internal class MySqlQueryGenerator<TAggregate> : IQueryGenerator<TAggregate>
 		if (_identities.Any())
 		{
 			return _identities.Any(prop => !prop.HasDefaultValue(aggregate))
-					? GenerateUpdateQuery(aggregate) // One or more identities have a specified value => do an update 
-					: insertQuery; // All identities are default => do an insert
+				? GenerateUpdateQuery(aggregate) // One or more identities have a specified value => do an update 
+				: insertQuery; // All identities are default => do an insert
 		}
-		
+
 		var semicolonIndex = insertQuery.IndexOf(';');
 		var insertPart = insertQuery[..semicolonIndex];
 		var selectQuery = GenerateGetQuery();
@@ -142,7 +143,6 @@ internal class MySqlQueryGenerator<TAggregate> : IQueryGenerator<TAggregate>
 	}
 
 	#region Helpers
-
 	private string GenerateSetClause(TAggregate aggregate)
 	{
 		var primaryKeys = _keys;
@@ -155,10 +155,8 @@ internal class MySqlQueryGenerator<TAggregate> : IQueryGenerator<TAggregate>
 
 	private string GenerateWhereClause()
 	{
-		var primaryKeys = _keys;
-
 		return string.Join(" AND ",
-			primaryKeys.Select(property => $"{_entityName}.{property.Name} = @{property.Name}"));
+			_keys.Select(property => $"{_entityName}.{property.Name} = @{property.Name}"));
 	}
 
 	public string GeneratePropertyList(string tableName)
@@ -170,6 +168,5 @@ internal class MySqlQueryGenerator<TAggregate> : IQueryGenerator<TAggregate>
 	{
 		return $"{tableName}.{property.Name}";
 	}
-
 	#endregion
 }

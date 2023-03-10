@@ -46,12 +46,21 @@ public class ExtendedPropertyInfoCollection : IReadOnlyExtendedPropertyInfoColle
 
 	public void AddRange(IEnumerable<ExtendedPropertyInfo> properties)
 	{
-		foreach (var prop in properties)
+		if (properties is not ICollection<ExtendedPropertyInfo> collection)
+		{
+			collection = properties.ToList();
+		}
+		var existingKeys = collection.Where(prop => _dictionary.ContainsKey(prop.Name));
+		if (existingKeys.Any())
+		{
+			throw new ArgumentException("One or more items with the same key has already been added.");
+		}
+		foreach (var prop in collection)
 		{
 			_dictionary.Add(prop.Name, prop);
 		}
 
-		_list.AddRange(properties);
+		_list.AddRange(collection);
 	}
 
 	public void Add(ExtendedPropertyInfo property)
@@ -62,10 +71,11 @@ public class ExtendedPropertyInfoCollection : IReadOnlyExtendedPropertyInfoColle
 
 	public void Remove(ExtendedPropertyInfo property)
 	{
-		if (_dictionary.TryGetValue(property.Name, out var actualProperty))
+		if (!_dictionary.TryGetValue(property.Name, out var actualProperty))
 		{
-			_dictionary.Remove(property.Name);
-			_list.Remove(actualProperty);
+			return;
 		}
+		_dictionary.Remove(property.Name);
+		_list.Remove(actualProperty);
 	}
 }

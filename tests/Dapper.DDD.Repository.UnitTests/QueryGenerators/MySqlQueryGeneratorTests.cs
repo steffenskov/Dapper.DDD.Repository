@@ -2,9 +2,9 @@
 using Dapper.DDD.Repository.UnitTests.Aggregates;
 using Dapper.DDD.Repository.UnitTests.ValueObjects;
 
-namespace Dapper.DDD.Repository.UnitTests.MySql;
+namespace Dapper.DDD.Repository.UnitTests.QueryGenerators;
 
-public class QueryGeneratorTests
+public class MySqlQueryGeneratorTests
 {
 	#region Constructor
 
@@ -30,7 +30,7 @@ public class QueryGeneratorTests
 		// Act && Assert
 		var ex = Assert.Throws<ArgumentException>(() => new MySqlQueryGenerator<SinglePrimaryKeyAggregate>(configuration));
 
-		Assert.Equal("Table name cannot be null or whitespace. (Parameter 'configuration')", ex.Message);
+		Assert.Equal("Entity name cannot be null or whitespace. (Parameter 'configuration')", ex.Message);
 	}
 
 	[Fact]
@@ -121,7 +121,6 @@ public class QueryGeneratorTests
 			@"SELECT Users.Username, Users.Password, Users.DateCreated FROM Users WHERE Users.Username = @Username AND Users.Password = @Password;DELETE FROM Users WHERE Users.Username = @Username AND Users.Password = @Password;",
 			deleteQuery);
 	}
-
 	#endregion
 
 	#region GetAll
@@ -178,7 +177,6 @@ public class QueryGeneratorTests
 		// Assert
 		Assert.Equal("SELECT Users.Id, Users.Username, Users.Password FROM Users;", selectQuery);
 	}
-
 	#endregion
 
 	#region Get
@@ -253,7 +251,6 @@ public class QueryGeneratorTests
 			"SELECT Users.Username, Users.Password, Users.DateCreated FROM Users WHERE Users.Username = @Username AND Users.Password = @Password;",
 			selectQuery);
 	}
-
 	#endregion
 
 	#region Insert
@@ -372,7 +369,7 @@ public class QueryGeneratorTests
 	}
 
 	[Fact]
-	public void GenerateInsertQuery_identityValuePrimaryKey_Valid()
+	public void GenerateInsertQuery_IdentityValuePrimaryKey_Valid()
 	{
 		// Arrange
 		var generator = CreateSinglePrimaryKeyAggregateQueryGenerator();
@@ -415,7 +412,6 @@ public class QueryGeneratorTests
 			@"INSERT INTO Users (Username, Password, DateCreated) VALUES (@Username, @Password, @DateCreated);SELECT Users.Username, Users.Password, Users.DateCreated FROM Users WHERE Users.Username = @Username AND Users.Password = @Password;",
 			insertQuery);
 	}
-
 	#endregion
 
 	#region Update
@@ -527,7 +523,6 @@ public class QueryGeneratorTests
 			@"UPDATE Users SET Age = @Age WHERE Users.Id = @Id;SELECT Users.Id, Users.Age, Users.DateCreated FROM Users WHERE Users.Id = @Id;",
 			query);
 	}
-
 	#endregion
 
 	#region Upsert

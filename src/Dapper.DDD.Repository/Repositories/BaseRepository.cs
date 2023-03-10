@@ -1,4 +1,5 @@
 ﻿using Dapper.DDD.Repository.Exceptions;
+using Dapper.DDD.Repository.QueryGenerators;
 using Dapper.DDD.Repository.Reflection;
 
 namespace Dapper.DDD.Repository.Repositories;
@@ -53,7 +54,7 @@ public abstract class BaseRepository<TAggregate, TAggregateId> : BaseRepository<
 		{
 			dictionary[property.Name] = value;
 		}
-		else if (property.Type.IsSimpleOrBuiltIn())
+		else if (property.Type.IsSimpleOrBuiltIn(_objectFlattener.GetTreatAsBuiltInTypes()))
 		{
 			dictionary[property.Name] = value;
 		}
@@ -107,6 +108,11 @@ public abstract class BaseRepository<TAggregate>
 			foreach (var typeConverter in defaultConfiguration._typeConverters)
 			{
 				_objectFlattener.AddTypeConverter(typeConverter.Key, typeConverter.Value);
+			}
+
+			foreach (var type in defaultConfiguration._treatAsBuiltInType)
+			{
+				_objectFlattener.TreatAsBuiltInType(type);
 			}
 		}
 

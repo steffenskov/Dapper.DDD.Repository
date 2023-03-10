@@ -18,6 +18,11 @@ internal class ExpressionParser<TAggregate>
 		}
 	}
 
+	public ExtendedPropertyInfo GetExtendedPropertyFromExpression(Expression<Func<TAggregate, object?>> expression)
+	{
+		return null!;
+	}
+
 	private static IEnumerable<string> GetMemberName(Expression expression)
 	{
 		return expression.NodeType switch

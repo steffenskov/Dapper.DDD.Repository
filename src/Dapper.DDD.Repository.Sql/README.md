@@ -32,7 +32,7 @@ internal class SqlConnectionFactory : IConnectionFactory
 	public SqlConnectionFactory(string connectionString)
 	{
 		if (string.IsNullOrWhiteSpace(connectionString))
-			throw new ArgumentException("Connectionstring cannot be null or whitespace.", nameof(connectionString));
+			throw new ArgumentException("connectionString cannot be null or whitespace.", nameof(connectionString));
 
 		_connectionString = connectionString;
 	}
@@ -63,7 +63,7 @@ other types:
 ```
 	using NetTopologySuite.Geometries;
 	using NetTopologySuite.IO;
-	...~~~~
+	...
 	services.ConfigureDapperRepositoryDefaults(options =>
 	{
 		...

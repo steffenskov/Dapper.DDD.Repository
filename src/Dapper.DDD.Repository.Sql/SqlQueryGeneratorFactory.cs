@@ -1,3 +1,5 @@
+using Dapper.DDD.Repository.QueryGenerators;
+
 namespace Dapper.DDD.Repository.Sql;
 
 public class SqlQueryGeneratorFactory : IQueryGeneratorFactory

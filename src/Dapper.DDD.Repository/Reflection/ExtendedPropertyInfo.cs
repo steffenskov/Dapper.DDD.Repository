@@ -7,7 +7,6 @@ public class ExtendedPropertyInfo
 	private readonly MemberAccessor _accessor;
 
 	private readonly object? _defaultValue;
-
 	public ExtendedPropertyInfo(PropertyInfo property)
 	{
 		Type = property.PropertyType;
@@ -58,7 +57,7 @@ public class ExtendedPropertyInfo
 		return new ExtendedPropertyInfoCollection(GetPropertiesOrdered(Type, Name));
 	}
 
-	private IOrderedEnumerable<ExtendedPropertyInfo> GetPropertiesOrdered(Type type, string prefix)
+	private static IOrderedEnumerable<ExtendedPropertyInfo> GetPropertiesOrdered(Type type, string prefix)
 	{
 		return TypePropertiesCache.GetProperties(type)
 			.Select(prop => new ExtendedPropertyInfo(prop, prefix))
@@ -66,18 +65,18 @@ public class ExtendedPropertyInfo
 	}
 
 	public IReadOnlyExtendedPropertyInfoCollection GetFlattenedPropertiesOrdered<TAggregate>(
-		BaseAggregateConfiguration<TAggregate> configuration) where TAggregate : notnull
+		IReadAggregateConfiguration<TAggregate> configuration) where TAggregate : notnull
 	{
 		return new ExtendedPropertyInfoCollection(GetFlattenedPropertiesOrdered(Type, Name, configuration));
 	}
 
-	private IEnumerable<ExtendedPropertyInfo> GetFlattenedPropertiesOrdered<TAggregate>(Type type, string prefix,
-		BaseAggregateConfiguration<TAggregate> configuration) where TAggregate : notnull
+	private static IEnumerable<ExtendedPropertyInfo> GetFlattenedPropertiesOrdered<TAggregate>(Type type, string prefix,
+		IReadAggregateConfiguration<TAggregate> configuration) where TAggregate : notnull
 	{
 		var properties = GetPropertiesOrdered(type, prefix);
 		foreach (var prop in properties)
 		{
-			if (prop.Type.IsSimpleOrBuiltIn() || configuration.HasTypeConverter(prop.Type))
+			if (prop.Type.IsSimpleOrBuiltIn(EmptyCollections.TypeSet) || configuration.HasTypeConverter(prop.Type) || configuration.TreatAsBuiltInType(prop.Type))
 			{
 				yield return prop;
 			}

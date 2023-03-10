@@ -1,9 +1,12 @@
-﻿using System.Linq.Expressions;
+﻿using System.Collections.ObjectModel;
+using System.Linq.Expressions;
+using Dapper.DDD.Repository.QueryGenerators;
 using Dapper.DDD.Repository.Reflection;
 
 namespace Dapper.DDD.Repository.Configuration;
 
 public abstract class BaseAggregateConfiguration<TAggregate> : IReadAggregateConfiguration<TAggregate>
+where TAggregate: notnull
 {
 	private readonly ExtendedPropertyInfoCollection _defaults = new();
 	private readonly ExtendedPropertyInfoCollection _identities = new();
@@ -19,7 +22,7 @@ public abstract class BaseAggregateConfiguration<TAggregate> : IReadAggregateCon
 	protected abstract string EntityName { get; }
 
 	string IReadAggregateConfiguration<TAggregate>.EntityName => EntityName;
-
+	
 	IReadOnlyExtendedPropertyInfoCollection IReadAggregateConfiguration<TAggregate>.GetKeys()
 	{
 		return _keyProperties ?? new ExtendedPropertyInfoCollection();
@@ -55,12 +58,17 @@ public abstract class BaseAggregateConfiguration<TAggregate> : IReadAggregateCon
 		var ignoredNames = _ignores.Select(prop => prop.Name).ToHashSet();
 		return TypePropertiesCache.GetProperties<TAggregate>()
 			.Where(prop => !ignoredNames.Contains(prop.Name))
-			.Where(prop => !prop.Type.IsSimpleOrBuiltIn() && !HasTypeConverter(prop.Type));
+			.Where(prop => !prop.Type.IsSimpleOrBuiltIn(_defaultConfiguration?._treatAsBuiltInType ?? EmptyCollections.TypeSet) && !HasTypeConverter(prop.Type));
 	}
 
 	public bool HasTypeConverter(Type type)
 	{
 		return _defaultConfiguration?.HasTypeConverter(type) == true;
+	}
+
+	public bool TreatAsBuiltInType(Type type)
+	{
+		return _defaultConfiguration?._treatAsBuiltInType.Contains(type) == true;
 	}
 
 	internal void SetDefaults(DefaultConfiguration? defaults)
@@ -76,6 +84,20 @@ public abstract class BaseAggregateConfiguration<TAggregate> : IReadAggregateCon
 		QueryGeneratorFactory ??= defaults.QueryGeneratorFactory;
 		ConnectionFactory ??= defaults.ConnectionFactory;
 		DapperInjectionFactory ??= defaults.DapperInjectionFactory;
+	}
+
+	public void HasDefault(Expression<Func<TAggregate, object?>> expression)
+	{
+		var properties = new ExpressionParser<TAggregate>().GetExtendedPropertiesFromExpression(expression);
+
+		_defaults.AddRange(properties);
+	}
+
+	public void HasIdentity(Expression<Func<TAggregate, object?>> expression)
+	{
+		var properties = new ExpressionParser<TAggregate>().GetExtendedPropertiesFromExpression(expression);
+
+		_identities.AddRange(properties);
 	}
 
 	public void HasKey(Expression<Func<TAggregate, object?>> expression)
@@ -95,19 +117,5 @@ public abstract class BaseAggregateConfiguration<TAggregate> : IReadAggregateCon
 		var properties = new ExpressionParser<TAggregate>().GetExtendedPropertiesFromExpression(expression);
 
 		_ignores.AddRange(properties);
-	}
-
-	public void HasDefault(Expression<Func<TAggregate, object?>> expression)
-	{
-		var properties = new ExpressionParser<TAggregate>().GetExtendedPropertiesFromExpression(expression);
-
-		_defaults.AddRange(properties);
-	}
-
-	public void HasIdentity(Expression<Func<TAggregate, object?>> expression)
-	{
-		var properties = new ExpressionParser<TAggregate>().GetExtendedPropertiesFromExpression(expression);
-
-		_identities.AddRange(properties);
 	}
 }

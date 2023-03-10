@@ -1,4 +1,5 @@
-﻿using Dapper.DDD.Repository.Reflection;
+﻿using Dapper.DDD.Repository.QueryGenerators;
+using Dapper.DDD.Repository.Reflection;
 
 namespace Dapper.DDD.Repository.Sql;
 
@@ -115,9 +116,9 @@ internal class SqlQueryGenerator<TAggregate> : IQueryGenerator<TAggregate>
 
 		if (_identities.Any())
 		{
-			return _identities.Any(prop => !prop.HasDefaultValue(aggregate)) 
-					? GenerateUpdateQuery(aggregate) // One or more identities have a specified value => do an update 
-					: insertQuery; // All identities are default => do an insert
+			return _identities.Any(prop => !prop.HasDefaultValue(aggregate))
+				? GenerateUpdateQuery(aggregate) // One or more identities have a specified value => do an update 
+				: insertQuery; // All identities are default => do an insert
 		}
 
 		var whereClause = GenerateWhereClause();
@@ -176,12 +177,14 @@ END";
 		return _serializeColumnTypePredicates.Any(predicate => predicate(type));
 	}
 
-	private string EnsureSquareBrackets(string name)
+	private static string EnsureSquareBrackets(string name)
 	{
-		return !name.StartsWith('[') ? AddSquareBrackets(name) : name;
+		return !name.StartsWith('[')
+			? AddSquareBrackets(name)
+			: name;
 	}
 
-	private string AddSquareBrackets(string name)
+	private static string AddSquareBrackets(string name)
 	{
 		return $"[{name}]";
 	}
