@@ -51,6 +51,8 @@ Dapper doesn't inherently play that well with these column types, however this p
 In this example I'll use [NetTopologySuite](https://github.com/NetTopologySuite/NetTopologySuite) for my C# `Geometry`
 classes, but the principle is the same if you're using Microsoft's classes (or even some other third party).
 
+Apart from [NetTopologySuite](https://github.com/NetTopologySuite/NetTopologySuite) you'll want to install the [Npgsql.NetTopologySuite](https://www.nuget.org/packages/Npgsql.NetTopologySuite) package as well.
+
 This solution uses the PostGIS extension in your PostGreSql database and contains a few steps.
 
 Assume a table looking like this:
