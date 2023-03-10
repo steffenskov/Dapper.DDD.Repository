@@ -8,6 +8,7 @@ env:
     PROJECT_PATH: "src/Dapper.DDD.Repository/Dapper.DDD.Repository.csproj"
     DI_PROJECT_PATH: "src/Dapper.DDD.Repository.DependencyInjection/Dapper.DDD.Repository.DependencyInjection.csproj"
     MYSQL_PROJECT_PATH: "src/Dapper.DDD.Repository.MySql/Dapper.DDD.Repository.MySql.csproj"
+    POSTGRESQL_PROJECT_PATH: "src/Dapper.DDD.Repository.PostGreSql/Dapper.DDD.Repository.PostGreSql.csproj"
     SQL_PROJECT_PATH: "src/Dapper.DDD.Repository.Sql/Dapper.DDD.Repository.Sql.csproj"
     SOLUTION_PATH: "Dapper.DDD.Repository.sln"
     PACKAGE_OUTPUT_DIRECTORY: ${{ github.workspace }}/output
@@ -74,6 +75,12 @@ jobs:
               with:
                   project: ${{ env.MYSQL_PROJECT_PATH }}
 
+            - name: "Get PostGreSql version"
+              id: postgresql_version
+              uses: bbonkr/get-version-action@v1.0.5
+              with:
+                  project: ${{ env.POSTGRESQL_PROJECT_PATH }}
+
             - name: "Get Sql version"
               id: sql_version
               uses: bbonkr/get-version-action@v1.0.5
@@ -88,6 +95,9 @@ jobs:
 
             - name: "Pack MySql"
               run: dotnet pack ${{ env.MYSQL_PROJECT_PATH }} --no-restore --no-build --configuration Release --include-symbols -p:SymbolPackageFormat=snupkg -p:PackageVersion=${{ steps.mysql_version.outputs.version }} --output ${{ env.PACKAGE_OUTPUT_DIRECTORY }}
+              
+            - name: "Pack PostGreSql"
+              run: dotnet pack ${{ env.POSTGRESQL_PROJECT_PATH }} --no-restore --no-build --configuration Release --include-symbols -p:SymbolPackageFormat=snupkg -p:PackageVersion=${{ steps.postgresql_version.outputs.version }} --output ${{ env.PACKAGE_OUTPUT_DIRECTORY }}
 
             - name: "Pack Sql"
               run: dotnet pack ${{ env.SQL_PROJECT_PATH }} --no-restore --no-build --configuration Release --include-symbols -p:SymbolPackageFormat=snupkg -p:PackageVersion=${{ steps.sql_version.outputs.version }} --output ${{ env.PACKAGE_OUTPUT_DIRECTORY }}
