@@ -5,11 +5,11 @@ using NetTopologySuite.Geometries;
 
 namespace Dapper.DDD.Repository.PostGreSql.IntegrationTests;
 
-public class SerializedColumnTests : IClassFixture<Startup>
+public class NetTopologyColumnTests : IClassFixture<Startup>
 {
 	private readonly ITableRepository<City, Guid> _repository;
 
-	public SerializedColumnTests(Startup startup)
+	public NetTopologyColumnTests(Startup startup)
 	{
 		_repository = startup.Provider.GetService<ITableRepository<City, Guid>>()!;
 		var foo = 42;
@@ -98,6 +98,7 @@ public class SerializedColumnTests : IClassFixture<Startup>
 			Assert.Contains(result, item => item.Id == city.Id);
 			var fetchedCity = result.Single(item => item.Id == city.Id);
 			Assert.Equal(city, fetchedCity);
+			Assert.Equal(city.Area.SRID, fetchedCity.Area.SRID);
 		}
 		finally
 		{
@@ -129,6 +130,7 @@ public class SerializedColumnTests : IClassFixture<Startup>
 		try
 		{
 			Assert.Equal(city, fetchedCity);
+			Assert.Equal(city.Area.SRID, fetchedCity.Area.SRID);
 		}
 		finally
 		{

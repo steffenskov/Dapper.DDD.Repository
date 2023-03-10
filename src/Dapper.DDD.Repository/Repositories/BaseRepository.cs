@@ -54,7 +54,7 @@ public abstract class BaseRepository<TAggregate, TAggregateId> : BaseRepository<
 		{
 			dictionary[property.Name] = value;
 		}
-		else if (property.Type.IsSimpleOrBuiltIn(_objectFlattener.GetTreatAsSimpleTypes()))
+		else if (property.Type.IsSimpleOrBuiltIn(_objectFlattener.GetTreatAsBuiltInTypes()))
 		{
 			dictionary[property.Name] = value;
 		}
@@ -110,9 +110,9 @@ public abstract class BaseRepository<TAggregate>
 				_objectFlattener.AddTypeConverter(typeConverter.Key, typeConverter.Value);
 			}
 
-			foreach (var type in defaultConfiguration._treatAsSimpleType)
+			foreach (var type in defaultConfiguration._treatAsBuiltInType)
 			{
-				_objectFlattener.TreatAsSimpleType(type);
+				_objectFlattener.TreatAsBuiltInType(type);
 			}
 		}
 

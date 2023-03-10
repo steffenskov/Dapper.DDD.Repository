@@ -18,7 +18,7 @@ internal class ObjectFlattener
 
 	private static readonly ModuleBuilder _moduleBuilder;
 	private readonly ConcurrentDictionary<Type, ITypeConverter> _typeConverters = new();
-	private readonly ISet<Type> _treatAsSimpleType = new HashSet<Type>();
+	private readonly ISet<Type> _treatAsBuiltInType = new HashSet<Type>();
 
 	static ObjectFlattener()
 	{
@@ -42,14 +42,14 @@ internal class ObjectFlattener
 		}
 	}
 
-	public void TreatAsSimpleType(Type type)
+	public void TreatAsBuiltInType(Type type)
 	{
-		_treatAsSimpleType.Add(type);
+		_treatAsBuiltInType.Add(type);
 	}
 
-	public ISet<Type> GetTreatAsSimpleTypes()
+	public ISet<Type> GetTreatAsBuiltInTypes()
 	{
-		return _treatAsSimpleType;
+		return _treatAsBuiltInType;
 	}
 
 	/// <summary>
@@ -230,14 +230,14 @@ internal class ObjectFlattener
 				return true;
 			}
 
-			if (t.IsSimpleOrBuiltIn(_treatAsSimpleType))
+			if (t.IsSimpleOrBuiltIn(_treatAsBuiltInType))
 			{
 				return false;
 			}
 
 			foreach (var prop in GetProperties(t))
 			{
-				if (!prop.Type.IsSimpleOrBuiltIn(_treatAsSimpleType))
+				if (!prop.Type.IsSimpleOrBuiltIn(_treatAsBuiltInType))
 				{
 					return true;
 				}
@@ -281,7 +281,7 @@ internal class ObjectFlattener
 				}
 			}
 
-			if (destinationPropType.IsSimpleOrBuiltIn(_treatAsSimpleType))
+			if (destinationPropType.IsSimpleOrBuiltIn(_treatAsBuiltInType))
 			{
 				destinationProperties[$"{prefix}{prop.Name}"].SetValue(flatResult, propValue);
 			}
@@ -368,7 +368,7 @@ internal class ObjectFlattener
 					: prop.Type.GetGenericTypeDefinition().MakeGenericType(convertedGenericParams);
 				CreateProperty(typeBuilder, prefix, prop.Name, convertedGenericType);
 			}
-			else if (prop.Type.IsSimpleOrBuiltIn(_treatAsSimpleType))
+			else if (prop.Type.IsSimpleOrBuiltIn(_treatAsBuiltInType))
 			{
 				CreateProperty(typeBuilder, prefix, prop);
 			}

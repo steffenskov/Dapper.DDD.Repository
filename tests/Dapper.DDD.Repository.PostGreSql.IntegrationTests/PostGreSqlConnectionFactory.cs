@@ -5,20 +5,27 @@ namespace Dapper.DDD.Repository.PostGreSql.IntegrationTests;
 
 public class PostGreSqlConnectionFactory : IConnectionFactory
 {
-	private readonly string _connectionString;
+	private readonly NpgsqlDataSource _dataSource;
 
 	public PostGreSqlConnectionFactory(string connectionString)
 	{
 		if (string.IsNullOrWhiteSpace(connectionString))
 		{
-			throw new ArgumentException("Connectionstring cannot be null or whitespace.", nameof(connectionString));
+			throw new ArgumentException("connectionString cannot be null or whitespace.", nameof(connectionString));
 		}
 
-		_connectionString = connectionString;
+		var dataSourceBuilder = new NpgsqlDataSourceBuilder(connectionString);
+		dataSourceBuilder.UseNetTopologySuite();
+		_dataSource = dataSourceBuilder.Build();
+	}
+
+	~PostGreSqlConnectionFactory()
+	{
+		_dataSource.Dispose();
 	}
 
 	public IDbConnection CreateConnection()
 	{
-		return new NpgsqlConnection(_connectionString);
+		return _dataSource.CreateConnection();
 	}
 }

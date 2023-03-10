@@ -16,9 +16,6 @@ public class PolygonTypeMapper : SqlMapper.TypeHandler<Polygon>
 	{
 		if (value is null or DBNull)
 			return null!;
-
-		var bytes = (byte[])value;
-		var reader = new WKBReader();
-		return (Polygon)reader.Read(bytes);
+		return (Polygon)value;
 	}
 }

@@ -7,7 +7,7 @@ namespace Dapper.DDD.Repository.Configuration;
 public class DefaultConfiguration
 {
 	internal readonly ConcurrentDictionary<Type, ITypeConverter> _typeConverters = new();
-	internal readonly ISet<Type> _treatAsSimpleType = new HashSet<Type>();
+	internal readonly ISet<Type> _treatAsBuiltInType = new HashSet<Type>();
 	public string? Schema { get; set; }
 	public IQueryGeneratorFactory? QueryGeneratorFactory { get; set; }
 	public IConnectionFactory? ConnectionFactory { get; set; }
@@ -39,9 +39,9 @@ public class DefaultConfiguration
 		}
 	}
 
-	public void TreatAsSimpleType<T>()
+	public void TreatAsBuiltInType<T>()
 	{
-		_treatAsSimpleType.Add(typeof(T));
+		_treatAsBuiltInType.Add(typeof(T));
 	}
 
 	public bool HasTypeConverter(Type type)

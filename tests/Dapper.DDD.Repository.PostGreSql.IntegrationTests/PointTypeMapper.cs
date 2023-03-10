@@ -17,8 +17,6 @@ public class PointTypeMapper : SqlMapper.TypeHandler<Point>
 		if (value is null or DBNull)
 			return null!;
 
-		var bytes = (byte[])value;
-		var reader = new WKBReader();
-		return (Point)reader.Read(bytes);
+		return (Point)value;
 	}
 }

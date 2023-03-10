@@ -11,15 +11,9 @@ public class Startup
 	{
 		var services = new ServiceCollection();
 		services.AddOptions();
-		var mapper = new NpgsqlTypeMapper(new[] {
-			new NtsPointHandler( PostgresType.),
-			new NtsPolygonHandler(),
-		});
 
-		SqlMapper.AddTypeHandler<Point>(new NtsPointHandler());
-		SqlMapper.AddTypeHandler<Polygon>(new NtsPolygonHandler());
-
-		NpgsqlConnection.GlobalTypeMapper = mapper;
+		SqlMapper.AddTypeHandler(new PointTypeMapper());
+		SqlMapper.AddTypeHandler(new PolygonTypeMapper());
 
 		services.ConfigureDapperRepositoryDefaults(options =>
 		{
@@ -29,8 +23,8 @@ public class Startup
 			options.QueryGeneratorFactory = new PostGreSqlQueryGeneratorFactory();
 			options.AddTypeConverter<CategoryId, int>(categoryId => categoryId.PrimitiveId, CategoryId.Create);
 			options.AddTypeConverter<Zipcode, int>(zipcode => zipcode.PrimitiveId, Zipcode.Create);
-			options.TreatAsSimpleType<Polygon>();
-			options.TreatAsSimpleType<Point>();
+			options.TreatAsBuiltInType<Polygon>(); // Necessary to allow the SqlMapper to work its magic
+			options.TreatAsBuiltInType<Point>(); // Necessary to allow the SqlMapper to work its magic
 		});
 		services.AddTableRepository<Category, CategoryId>(options =>
 		{

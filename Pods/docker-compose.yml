@@ -18,12 +18,10 @@ services:
       context: ./SqlServer
     ports:
       - 1433:1433
-      
-      
-      
+ 
   postgre:
     container_name: db
-    image: docker.io/postgres
+    image: docker.io/postgis/postgis
     environment:
       POSTGRES_DB: northwind
       POSTGRES_USER: postgres

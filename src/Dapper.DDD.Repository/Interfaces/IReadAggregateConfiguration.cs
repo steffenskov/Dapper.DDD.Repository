@@ -11,5 +11,5 @@ public interface IReadAggregateConfiguration<TAggregate>
 	IReadOnlyExtendedPropertyInfoCollection GetPropertiesWithDefaultConstraints();
 	IEnumerable<ExtendedPropertyInfo> GetValueObjects();
 	bool HasTypeConverter(Type type);
-	bool TreatAsSimpleType(Type type);
+	bool TreatAsBuiltInType(Type type);
 }

@@ -76,7 +76,7 @@ public class ExtendedPropertyInfo
 		var properties = GetPropertiesOrdered(type, prefix);
 		foreach (var prop in properties)
 		{
-			if (prop.Type.IsSimpleOrBuiltIn(EmptyCollections.TypeSet) || configuration.HasTypeConverter(prop.Type) || configuration.TreatAsSimpleType(prop.Type))
+			if (prop.Type.IsSimpleOrBuiltIn(EmptyCollections.TypeSet) || configuration.HasTypeConverter(prop.Type) || configuration.TreatAsBuiltInType(prop.Type))
 			{
 				yield return prop;
 			}
