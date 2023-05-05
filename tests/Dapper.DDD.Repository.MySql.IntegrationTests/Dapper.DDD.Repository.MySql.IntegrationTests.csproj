@@ -15,7 +15,7 @@
 			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
 			<PrivateAssets>all</PrivateAssets>
 		</PackageReference>
-		<PackageReference Include="MySql.Data" Version="8.0.32.1" />
+		<PackageReference Include="MySql.Data" Version="8.0.33" />
 	</ItemGroup>
 	<ItemGroup>
 		<ProjectReference Include="..\..\src\Dapper.DDD.Repository.MySql\Dapper.DDD.Repository.MySql.csproj" />
