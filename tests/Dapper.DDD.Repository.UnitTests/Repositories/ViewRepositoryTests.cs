@@ -41,7 +41,7 @@ public class ViewRepositoryTests : IClassFixture<NoDefaultsStartup>
 		// Arrange 
 		var config = new ViewAggregateConfiguration<UserAggregate>
 		{
-			DapperInjectionFactory = Mock.Of<IDapperInjectionFactory>(),
+			DapperInjectionFactory = Substitute.For<IDapperInjectionFactory>(),
 			QueryGeneratorFactory = new MockQueryGeneratorFactory()
 		};
 		config.HasKey(x => x.Id);
@@ -61,8 +61,8 @@ public class ViewRepositoryTests : IClassFixture<NoDefaultsStartup>
 		// Arrange 
 		var config = new ViewAggregateConfiguration<UserAggregate>
 		{
-			DapperInjectionFactory = Mock.Of<IDapperInjectionFactory>(),
-			ConnectionFactory = Mock.Of<IConnectionFactory>()
+			DapperInjectionFactory = Substitute.For<IDapperInjectionFactory>(),
+			ConnectionFactory = Substitute.For<IConnectionFactory>()
 		};
 		config.HasKey(x => x.Id);
 
@@ -81,7 +81,7 @@ public class ViewRepositoryTests : IClassFixture<NoDefaultsStartup>
 		// Arrange
 		var config = new ViewAggregateConfiguration<UserAggregate>
 		{
-			ConnectionFactory = Mock.Of<IConnectionFactory>(),
+			ConnectionFactory = Substitute.For<IConnectionFactory>(),
 			QueryGeneratorFactory = new MockQueryGeneratorFactory()
 		};
 		config.HasKey(x => x.Id);
@@ -101,9 +101,9 @@ public class ViewRepositoryTests : IClassFixture<NoDefaultsStartup>
 		// Arrange
 		var config = new ViewAggregateConfiguration<UserAggregate>
 		{
-			ConnectionFactory = Mock.Of<IConnectionFactory>(),
+			ConnectionFactory = Substitute.For<IConnectionFactory>(),
 			QueryGeneratorFactory = new MockQueryGeneratorFactory(),
-			DapperInjectionFactory = Mock.Of<IDapperInjectionFactory>(),
+			DapperInjectionFactory = Substitute.For<IDapperInjectionFactory>(),
 			Schema = "dbo"
 		};
 		config.HasKey(x => x.Id);
@@ -123,9 +123,9 @@ public class ViewRepositoryTests : IClassFixture<NoDefaultsStartup>
 		// Arrange
 		var config = new ViewAggregateConfiguration<UserAggregate>
 		{
-			ConnectionFactory = Mock.Of<IConnectionFactory>(),
+			ConnectionFactory = Substitute.For<IConnectionFactory>(),
 			QueryGeneratorFactory = new MockQueryGeneratorFactory(),
-			DapperInjectionFactory = Mock.Of<IDapperInjectionFactory>(),
+			DapperInjectionFactory = Substitute.For<IDapperInjectionFactory>(),
 			ViewName = "Users"
 		};
 
@@ -144,9 +144,9 @@ public class ViewRepositoryTests : IClassFixture<NoDefaultsStartup>
 		// Arrange
 		var config = new ViewAggregateConfiguration<UserAggregate>
 		{
-			ConnectionFactory = Mock.Of<IConnectionFactory>(),
+			ConnectionFactory = Substitute.For<IConnectionFactory>(),
 			QueryGeneratorFactory = new MockQueryGeneratorFactory(),
-			DapperInjectionFactory = Mock.Of<IDapperInjectionFactory>(),
+			DapperInjectionFactory = Substitute.For<IDapperInjectionFactory>(),
 			ViewName = "Users"
 		};
 
@@ -165,9 +165,9 @@ public class ViewRepositoryTests : IClassFixture<NoDefaultsStartup>
 		// Arrange
 		var config = new ViewAggregateConfiguration<UserAggregate>
 		{
-			ConnectionFactory = Mock.Of<IConnectionFactory>(),
+			ConnectionFactory = Substitute.For<IConnectionFactory>(),
 			QueryGeneratorFactory = new MockQueryGeneratorFactory(),
-			DapperInjectionFactory = Mock.Of<IDapperInjectionFactory>(),
+			DapperInjectionFactory = Substitute.For<IDapperInjectionFactory>(),
 			ViewName = "Users"
 		};
 		config.HasKey(x => x.Id);
