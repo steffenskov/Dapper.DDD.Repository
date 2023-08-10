@@ -7,6 +7,6 @@ public class MockQueryGeneratorFactory : IQueryGeneratorFactory
 	public IQueryGenerator<TAggregate> Create<TAggregate>(BaseAggregateConfiguration<TAggregate> configuration)
 		where TAggregate : notnull
 	{
-		return Mock.Of<IQueryGenerator<TAggregate>>();
+		return Substitute.For<IQueryGenerator<TAggregate>>();
 	}
 }

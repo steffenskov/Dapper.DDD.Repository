@@ -40,7 +40,7 @@ public class TableRepositoryTests : IClassFixture<NoDefaultsStartup>
 			new TableRepository<UserAggregate, Guid>(Options.Create(
 				new TableAggregateConfiguration<UserAggregate>
 				{
-					DapperInjectionFactory = Mock.Of<IDapperInjectionFactory>(),
+					DapperInjectionFactory = Substitute.For<IDapperInjectionFactory>(),
 					QueryGeneratorFactory = new MockQueryGeneratorFactory()
 				}
 			), Options.Create(new DefaultConfiguration())));
@@ -56,8 +56,8 @@ public class TableRepositoryTests : IClassFixture<NoDefaultsStartup>
 			new TableRepository<UserAggregate, Guid>(Options.Create(
 				new TableAggregateConfiguration<UserAggregate>
 				{
-					DapperInjectionFactory = Mock.Of<IDapperInjectionFactory>(),
-					ConnectionFactory = Mock.Of<IConnectionFactory>()
+					DapperInjectionFactory = Substitute.For<IDapperInjectionFactory>(),
+					ConnectionFactory = Substitute.For<IConnectionFactory>()
 				}
 			), Options.Create(new DefaultConfiguration())));
 
@@ -72,7 +72,7 @@ public class TableRepositoryTests : IClassFixture<NoDefaultsStartup>
 			new TableRepository<UserAggregate, Guid>(Options.Create(
 				new TableAggregateConfiguration<UserAggregate>
 				{
-					ConnectionFactory = Mock.Of<IConnectionFactory>(),
+					ConnectionFactory = Substitute.For<IConnectionFactory>(),
 					QueryGeneratorFactory = new MockQueryGeneratorFactory()
 				}
 			), Options.Create(new DefaultConfiguration())));
@@ -86,9 +86,9 @@ public class TableRepositoryTests : IClassFixture<NoDefaultsStartup>
 		// Arrange
 		var config = new TableAggregateConfiguration<UserAggregate>
 		{
-			ConnectionFactory = Mock.Of<IConnectionFactory>(),
+			ConnectionFactory = Substitute.For<IConnectionFactory>(),
 			QueryGeneratorFactory = new MockQueryGeneratorFactory(),
-			DapperInjectionFactory = Mock.Of<IDapperInjectionFactory>(),
+			DapperInjectionFactory = Substitute.For<IDapperInjectionFactory>(),
 			Schema = "dbo"
 		};
 		config.HasKey(x => x.Id);
@@ -108,9 +108,9 @@ public class TableRepositoryTests : IClassFixture<NoDefaultsStartup>
 		// Arrange
 		var config = new TableAggregateConfiguration<UserAggregate>
 		{
-			ConnectionFactory = Mock.Of<IConnectionFactory>(),
+			ConnectionFactory = Substitute.For<IConnectionFactory>(),
 			QueryGeneratorFactory = new MockQueryGeneratorFactory(),
-			DapperInjectionFactory = Mock.Of<IDapperInjectionFactory>(),
+			DapperInjectionFactory = Substitute.For<IDapperInjectionFactory>(),
 			TableName = "Users"
 		};
 
@@ -129,9 +129,9 @@ public class TableRepositoryTests : IClassFixture<NoDefaultsStartup>
 		// Arrange
 		var config = new TableAggregateConfiguration<UserAggregate>
 		{
-			ConnectionFactory = Mock.Of<IConnectionFactory>(),
+			ConnectionFactory = Substitute.For<IConnectionFactory>(),
 			QueryGeneratorFactory = new MockQueryGeneratorFactory(),
-			DapperInjectionFactory = Mock.Of<IDapperInjectionFactory>(),
+			DapperInjectionFactory = Substitute.For<IDapperInjectionFactory>(),
 			TableName = "Users"
 		};
 		config.HasKey(x => x.Id);
