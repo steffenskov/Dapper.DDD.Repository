@@ -4,11 +4,11 @@
 	</ItemGroup>
 	
 	<PropertyGroup>
-		<TargetFramework>net6.0</TargetFramework>
+		<TargetFramework>net8.0</TargetFramework>
 		<ImplicitUsings>enable</ImplicitUsings>
 		<Nullable>enable</Nullable>
 		<TreatWarningsAsErrors>true</TreatWarningsAsErrors>
-		<Version>1.7.0</Version>
+		<Version>1.8.0</Version>
 		<Authors>Steffen Skov</Authors>
 		<Company>Steffen Skov</Company>
 		<Description>PostGreSql for the Dapper.DDD.Repository package.</Description>

@@ -1,11 +1,11 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
 	<PropertyGroup>
-		<TargetFramework>net6.0</TargetFramework>
+		<TargetFramework>net8.0</TargetFramework>
 		<ImplicitUsings>enable</ImplicitUsings>
 		<Nullable>enable</Nullable>
 		<TreatWarningsAsErrors>true</TreatWarningsAsErrors>
-		<Version>1.7.0</Version>
+		<Version>1.8.0</Version>
 		<Authors>Steffen Skov</Authors>
 		<Company>Steffen Skov</Company>
 		<Description>Domain-Driven-Design based repository pattern for Dapper.</Description>
@@ -21,7 +21,7 @@
 	</ItemGroup>
 
 	<ItemGroup>
-		<PackageReference Include="Microsoft.Extensions.Options" Version="6.0.0" />
+		<PackageReference Include="Microsoft.Extensions.Options" Version="8.0.1" />
 	</ItemGroup>
 
 </Project>

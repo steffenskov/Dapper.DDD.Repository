@@ -75,7 +75,7 @@ public abstract class BaseAggregateWithNestedValueObjectTests
 		var toUpdate = aggregate with
 		{
 			Addresses = new Addresses(new Address("Other name", new Zipcode(Random.Shared.Next(int.MaxValue))),
-				new Address("Other name", Zipcode.New()))
+				new Address("Other name", new Zipcode(42)))
 		};
 		var updated = await _repository.UpdateAsync(toUpdate);
 
@@ -111,7 +111,7 @@ public abstract class BaseAggregateWithNestedValueObjectTests
 		var toUpdate = aggregate with
 		{
 			Addresses = new Addresses(new Address("Other name", new Zipcode(Random.Shared.Next(int.MaxValue))),
-				new Address("Other name", Zipcode.New()))
+				new Address("Other name", new Zipcode(1337)))
 		};
 		var updated = await _repository.UpsertAsync(toUpdate);
 
