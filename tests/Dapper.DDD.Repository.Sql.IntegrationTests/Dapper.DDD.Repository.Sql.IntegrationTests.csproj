@@ -17,7 +17,7 @@
 			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
 			<PrivateAssets>all</PrivateAssets>
 		</PackageReference>
-		<PackageReference Include="Microsoft.Data.SqlClient" Version="5.1.1" />
+		<PackageReference Include="Microsoft.Data.SqlClient" Version="5.1.3" />
 	</ItemGroup>
 	<ItemGroup>
 		<ProjectReference Include="..\..\src\Dapper.DDD.Repository.Sql\Dapper.DDD.Repository.Sql.csproj" />
