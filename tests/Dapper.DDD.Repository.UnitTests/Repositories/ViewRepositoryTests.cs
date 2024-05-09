@@ -6,18 +6,18 @@ namespace Dapper.DDD.Repository.UnitTests.Repositories;
 public class ViewRepositoryTests : IClassFixture<NoDefaultsStartup>
 {
 	private readonly ServiceProvider _provider;
-
+	
 	public ViewRepositoryTests(NoDefaultsStartup startup)
 	{
 		_provider = startup.Provider;
 	}
-
+	
 	[Fact]
 	public void StatefulRepositories_HasState_StatesAreDifferent()
 	{
 		// Arrange
-		var repo1 = _provider.GetService<IStatefulViewRepository>()!;
-		var repo2 = _provider.GetService<IStatefulSimpleViewRepository>()!;
+		var repo1 = _provider.GetRequiredService<IStatefulViewRepository>();
+		var repo2 = _provider.GetRequiredService<IStatefulSimpleViewRepository>();
 		
 		// Assert
 		Assert.NotEqual(Guid.Empty, repo1.State);
@@ -30,11 +30,11 @@ public class ViewRepositoryTests : IClassFixture<NoDefaultsStartup>
 	{
 		// Act
 		var repo = _provider.GetService<IViewRepository<UserAggregate, Guid>>();
-
+		
 		// Assert
 		Assert.NotNull(repo);
 	}
-
+	
 	[Fact]
 	public void Constructor_NoConnectionFactory_Throws()
 	{
@@ -45,16 +45,16 @@ public class ViewRepositoryTests : IClassFixture<NoDefaultsStartup>
 			QueryGeneratorFactory = new MockQueryGeneratorFactory()
 		};
 		config.HasKey(x => x.Id);
-
+		
 		// Act && Assert
 		var ex = Assert.Throws<ArgumentNullException>(() =>
 			new ViewRepository<UserAggregate, Guid>(Options.Create(
 				config
 			), Options.Create(new DefaultConfiguration())));
-
+		
 		Assert.Contains("ConnectionFactory", ex.Message);
 	}
-
+	
 	[Fact]
 	public void Constructor_NoQueryGeneratorFactory_Throws()
 	{
@@ -65,16 +65,16 @@ public class ViewRepositoryTests : IClassFixture<NoDefaultsStartup>
 			ConnectionFactory = Substitute.For<IConnectionFactory>()
 		};
 		config.HasKey(x => x.Id);
-
+		
 		// Act && Assert
 		var ex = Assert.Throws<ArgumentNullException>(() =>
 			new ViewRepository<UserAggregate, Guid>(Options.Create(
 				config
 			), Options.Create(new DefaultConfiguration())));
-
+		
 		Assert.Contains("QueryGeneratorFactory", ex.Message);
 	}
-
+	
 	[Fact]
 	public void Constructor_NoDapperInjectionFactory_Throws()
 	{
@@ -85,16 +85,16 @@ public class ViewRepositoryTests : IClassFixture<NoDefaultsStartup>
 			QueryGeneratorFactory = new MockQueryGeneratorFactory()
 		};
 		config.HasKey(x => x.Id);
-
+		
 		// Act && Assert
 		var ex = Assert.Throws<ArgumentNullException>(() =>
 			new ViewRepository<UserAggregate, Guid>(Options.Create(
 				config
 			), Options.Create(new DefaultConfiguration())));
-
+		
 		Assert.Contains("DapperInjectionFactory", ex.Message);
 	}
-
+	
 	[Fact]
 	public void Constructor_NoViewName_Throws()
 	{
@@ -107,16 +107,16 @@ public class ViewRepositoryTests : IClassFixture<NoDefaultsStartup>
 			Schema = "dbo"
 		};
 		config.HasKey(x => x.Id);
-
+		
 		// Act && Assert
 		var ex = Assert.Throws<ArgumentNullException>(() =>
 			new ViewRepository<UserAggregate, Guid>(Options.Create(
 				config
 			), Options.Create(new DefaultConfiguration())));
-
+		
 		Assert.Contains("ViewName", ex.Message);
 	}
-
+	
 	[Fact]
 	public void Constructor_NoKey_Throws()
 	{
@@ -128,16 +128,16 @@ public class ViewRepositoryTests : IClassFixture<NoDefaultsStartup>
 			DapperInjectionFactory = Substitute.For<IDapperInjectionFactory>(),
 			ViewName = "Users"
 		};
-
+		
 		// Act && Assert
 		var ex = Assert.Throws<ArgumentException>(() =>
 			new ViewRepository<UserAggregate, Guid>(Options.Create(
 				config
 			), Options.Create(new DefaultConfiguration())));
-
+		
 		Assert.Contains("No key has been specified for this aggregate", ex.Message);
 	}
-
+	
 	[Fact]
 	public void ConstructorViewWithoutId_NoKey_Valid()
 	{
@@ -149,16 +149,16 @@ public class ViewRepositoryTests : IClassFixture<NoDefaultsStartup>
 			DapperInjectionFactory = Substitute.For<IDapperInjectionFactory>(),
 			ViewName = "Users"
 		};
-
+		
 		// Act
 		var repo = new ViewRepository<UserAggregate>(Options.Create(
 			config
 		), Options.Create(new DefaultConfiguration()));
-
+		
 		// Assert
 		Assert.NotNull(repo);
 	}
-
+	
 	[Fact]
 	public void Constructor_NoSchemaName_Valid()
 	{
@@ -171,11 +171,11 @@ public class ViewRepositoryTests : IClassFixture<NoDefaultsStartup>
 			ViewName = "Users"
 		};
 		config.HasKey(x => x.Id);
-
+		
 		var repo = new ViewRepository<UserAggregate, Guid>(Options.Create(
 			config
 		), Options.Create(new DefaultConfiguration()));
-
+		
 		// Assert
 		Assert.NotNull(repo);
 	}

@@ -1,8 +1,8 @@
 ﻿namespace Dapper.DDD.Repository.MySql.IntegrationTests;
 
-public class CustomRepositoryTests : BaseCustomRepositoryTests, IClassFixture<Startup>
+public class CustomRepositoryTests : BaseCustomRepositoryTests
 {
-	public CustomRepositoryTests(Startup startup) : base(startup.Provider)
+	public CustomRepositoryTests(ContainerFixture containerFixture) : base(containerFixture)
 	{
 	}
 }

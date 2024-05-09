@@ -1,6 +1,12 @@
 ﻿global using System;
+global using System.Reflection;
+global using Dapper.DDD.Repository.DependencyInjection;
 global using Dapper.DDD.Repository.IntegrationTests;
 global using Dapper.DDD.Repository.IntegrationTests.Aggregates;
+global using Dapper.DDD.Repository.IntegrationTests.Repositories;
+global using Dapper.DDD.Repository.PostGreSql.IntegrationTests.Configuration;
 global using Microsoft.Extensions.DependencyInjection;
+global using NetTopologySuite.Geometries;
 global using Xunit;
 global using Npgsql;
+global using Testcontainers.PostgreSql;

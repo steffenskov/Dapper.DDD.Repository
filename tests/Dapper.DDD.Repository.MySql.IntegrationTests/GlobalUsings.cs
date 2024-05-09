@@ -1,6 +1,10 @@
 ﻿global using System;
+global using Dapper.DDD.Repository.DependencyInjection;
 global using Dapper.DDD.Repository.IntegrationTests;
 global using Dapper.DDD.Repository.IntegrationTests.Aggregates;
+global using Dapper.DDD.Repository.IntegrationTests.Configuration;
+global using Dapper.DDD.Repository.IntegrationTests.Repositories;
+global using Dapper.DDD.Repository.MySql.IntegrationTests.Configuration;
 global using Microsoft.Extensions.DependencyInjection;
 global using MySql.Data.MySqlClient;
 global using Xunit;

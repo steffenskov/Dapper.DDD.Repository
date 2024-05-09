@@ -1,19 +1,18 @@
-﻿using System.Linq;
-using System.Threading.Tasks;
+﻿using Dapper.DDD.Repository.IntegrationTests.Configuration;
 using Dapper.DDD.Repository.Interfaces;
-using NetTopologySuite.Geometries;
 
 namespace Dapper.DDD.Repository.PostGreSql.IntegrationTests;
 
-public class NetTopologyColumnTests : IClassFixture<Startup>
+[Collection(Consts.DatabaseCollection)]
+public class NetTopologyColumnTests
 {
 	private readonly ITableRepository<City, Guid> _repository;
-
-	public NetTopologyColumnTests(Startup startup)
+	
+	public NetTopologyColumnTests(ContainerFixture containerFixture)
 	{
-		_repository = startup.Provider.GetService<ITableRepository<City, Guid>>()!;
+		_repository = containerFixture.Provider.GetRequiredService<ITableRepository<City, Guid>>();
 	}
-
+	
 	[Fact]
 	public async Task Delete_Valid_GeometryIsIncludedInReturnValue()
 	{
@@ -29,16 +28,16 @@ public class NetTopologyColumnTests : IClassFixture<Startup>
 		};
 		city.GeoLocation.SRID = 25832;
 		city.Area.SRID = 25832;
-
+		
 		await _repository.InsertAsync(city);
-
+		
 		// Act
 		var result = await _repository.DeleteAsync(city.Id);
-
+		
 		// Assert
 		Assert.Equal(city, result);
 	}
-
+	
 	[Fact]
 	public async Task Insert_Valid_GeometryIsIncludedInReturnValue()
 	{
@@ -54,10 +53,10 @@ public class NetTopologyColumnTests : IClassFixture<Startup>
 		};
 		city.GeoLocation.SRID = 25832;
 		city.Area.SRID = 25832;
-
+		
 		// Act
 		var result = await _repository.InsertAsync(city);
-
+		
 		// Assert
 		try
 		{
@@ -70,7 +69,7 @@ public class NetTopologyColumnTests : IClassFixture<Startup>
 			await _repository.DeleteAsync(city.Id);
 		}
 	}
-
+	
 	[Fact]
 	public async Task GetAll_Valid_GeometryIsIncludedInReturnValue()
 	{
@@ -87,10 +86,10 @@ public class NetTopologyColumnTests : IClassFixture<Startup>
 		city.GeoLocation.SRID = 25832;
 		city.Area.SRID = 25832;
 		await _repository.InsertAsync(city);
-
+		
 		// Act
 		var result = (await _repository.GetAllAsync()).ToList();
-
+		
 		// Assert
 		try
 		{
@@ -104,7 +103,7 @@ public class NetTopologyColumnTests : IClassFixture<Startup>
 			await _repository.DeleteAsync(city.Id);
 		}
 	}
-
+	
 	[Fact]
 	public async Task Get_Valid_GeometryIsIncludedInReturnValue()
 	{
@@ -121,10 +120,10 @@ public class NetTopologyColumnTests : IClassFixture<Startup>
 		city.GeoLocation.SRID = 25832;
 		city.Area.SRID = 25832;
 		await _repository.InsertAsync(city);
-
+		
 		// Act
 		var fetchedCity = await _repository.GetAsync(city.Id);
-
+		
 		// Assert
 		try
 		{
@@ -136,7 +135,7 @@ public class NetTopologyColumnTests : IClassFixture<Startup>
 			await _repository.DeleteAsync(city.Id);
 		}
 	}
-
+	
 	[Fact]
 	public async Task Update_Valid_GeometryIsIncludedInReturnValue()
 	{
@@ -153,7 +152,7 @@ public class NetTopologyColumnTests : IClassFixture<Startup>
 		city.GeoLocation.SRID = 25832;
 		city.Area.SRID = 25832;
 		await _repository.InsertAsync(city);
-
+		
 		// Act
 		var newArea = Geometry.DefaultFactory.CreatePolygon(new Coordinate[]
 		{
@@ -161,7 +160,7 @@ public class NetTopologyColumnTests : IClassFixture<Startup>
 		});
 		newArea.SRID = 1234;
 		var updatedCity = await _repository.UpdateAsync(city with { Area = newArea });
-
+		
 		// Assert
 		try
 		{
