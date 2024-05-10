@@ -21,10 +21,10 @@ jobs:
 
         steps:
             - name: "Checkout"
-              uses: actions/checkout@v3
+              uses: actions/checkout@v4
 
             - name: "Install dotnet"
-              uses: actions/setup-dotnet@v2
+              uses: actions/setup-dotnet@v4
               with:
                   dotnet-version: 8.0.x
 
@@ -40,10 +40,10 @@ jobs:
 
         steps:
             - name: "Checkout"
-              uses: actions/checkout@v3
+              uses: actions/checkout@v4
 
             - name: "Install dotnet"
-              uses: actions/setup-dotnet@v2
+              uses: actions/setup-dotnet@v4
               with:
                   dotnet-version: 8.0.x
 
@@ -91,7 +91,7 @@ jobs:
 
             - name: "Pack MySql"
               run: dotnet pack ${{ env.MYSQL_PROJECT_PATH }} --no-restore --no-build --configuration Release --include-symbols -p:SymbolPackageFormat=snupkg -p:PackageVersion=${{ steps.mysql_version.outputs.version }} --output ${{ env.PACKAGE_OUTPUT_DIRECTORY }}
-              
+
             - name: "Pack PostGreSql"
               run: dotnet pack ${{ env.POSTGRESQL_PROJECT_PATH }} --no-restore --no-build --configuration Release --include-symbols -p:SymbolPackageFormat=snupkg -p:PackageVersion=${{ steps.postgresql_version.outputs.version }} --output ${{ env.PACKAGE_OUTPUT_DIRECTORY }}
 
