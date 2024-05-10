@@ -23,10 +23,6 @@ jobs:
             - name: "Checkout"
               uses: actions/checkout@v3
 
-            - name: "Docker compose"
-              working-directory: "Pods"
-              run: docker-compose up -d --build
-
             - name: "Install dotnet"
               uses: actions/setup-dotnet@v2
               with:
