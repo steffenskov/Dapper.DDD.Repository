@@ -29,7 +29,6 @@
 		<None Remove="Resources\CreateTable.sql"/>
 		<EmbeddedResource Include="Resources\CreateTable.sql"/>
 		<None Remove="Resources\CreateUser.sql"/>
-		<EmbeddedResource Include="Resources\CreateUser.sql"/>
 		<None Remove="Resources\InsertData.sql"/>
 		<EmbeddedResource Include="Resources\InsertData.sql"/>
 	</ItemGroup>

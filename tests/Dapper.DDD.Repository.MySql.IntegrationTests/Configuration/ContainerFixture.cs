@@ -78,14 +78,13 @@ public class ContainerFixture : IAsyncLifetime, IContainerFixture
 		var startTask = _container.StartAsync();
 		
 		var createTableScript = await GetNorthwindScriptAsync("CreateTable");
-		var createUserScript = await GetNorthwindScriptAsync("CreateUser");
 		var insertDataScript = await GetNorthwindScriptAsync("InsertData");
 		await startTask;
-		var connectionFactory = new MySqlConnectionFactory(_container.GetConnectionString());
+		var connectionString = $"{_container.GetConnectionString()};Allow User Variables=True";
+		var connectionFactory = new MySqlConnectionFactory(connectionString);
 		
 		using var connection = connectionFactory.CreateConnection();
 		await connection.ExecuteAsync(createTableScript);
-		await connection.ExecuteAsync(createUserScript);
 		await connection.ExecuteAsync(insertDataScript);
 		return connectionFactory;
 	}

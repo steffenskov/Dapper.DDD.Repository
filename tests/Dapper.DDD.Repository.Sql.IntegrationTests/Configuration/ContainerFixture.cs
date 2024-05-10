@@ -1,5 +1,6 @@
-using System.Data;
 using System.Reflection;
+using Microsoft.SqlServer.Management.Common;
+using Microsoft.SqlServer.Management.Smo;
 using Testcontainers.MsSql;
 
 namespace Dapper.DDD.Repository.Sql.IntegrationTests.Configuration;
@@ -93,20 +94,14 @@ public class ContainerFixture : IAsyncLifetime, IContainerFixture
 		
 		var northwindScript = await GetNorthwindScriptAsync();
 		await startTask;
-		var connectionFactory = new SqlConnectionFactory(_container.GetConnectionString());
+		var connectionString = _container.GetConnectionString();
 		
-		using var connection = connectionFactory.CreateConnection();
-		try
-		{
-			await connection.ExecuteAsync(northwindScript, commandType: CommandType.Text);
-		}
-		catch (Exception ex)
-		{
-			Console.WriteLine("wtf?" + ex.Message);
-			throw;
-		}
+		await using var sqlConnection = new SqlConnection(connectionString);
+		var svrConnection = new ServerConnection(sqlConnection);
+		var server = new Server(svrConnection);
+		server.ConnectionContext.ExecuteNonQuery(northwindScript);
 		
-		return connectionFactory;
+		return new SqlConnectionFactory(connectionString);
 	}
 	
 	private static async Task<string> GetNorthwindScriptAsync()
