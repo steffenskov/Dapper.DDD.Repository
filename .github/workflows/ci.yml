@@ -6,6 +6,10 @@ on:
             - "**" # matches every branch
             - "!main" # excludes main
 
+concurrency:
+  group: nuget-${{ github.ref }}
+  cancel-in-progress: true
+
 env:
     PROJECT_PATH: "src/Dapper.DDD.Repository/Dapper.DDD.Repository.csproj"
     SOLUTION_PATH: "Dapper.DDD.Repository.sln"
@@ -19,10 +23,10 @@ jobs:
 
         steps:
             - name: "Checkout"
-              uses: actions/checkout@v3
+              uses: actions/checkout@v4
 
             - name: "Install dotnet"
-              uses: actions/setup-dotnet@v2
+              uses: actions/setup-dotnet@v4
               with:
                   dotnet-version: 8.0.x
 
