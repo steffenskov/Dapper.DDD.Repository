@@ -4,6 +4,10 @@ on:
     push:
         branches: [main]
 
+concurrency:
+  group: nuget-${{ github.ref }}
+  cancel-in-progress: true
+
 env:
     PROJECT_PATH: "src/Dapper.DDD.Repository/Dapper.DDD.Repository.csproj"
     DI_PROJECT_PATH: "src/Dapper.DDD.Repository.DependencyInjection/Dapper.DDD.Repository.DependencyInjection.csproj"
@@ -53,50 +57,20 @@ jobs:
             - name: "Build project"
               run: dotnet build ${{ env.SOLUTION_PATH }} --no-restore --configuration Release
 
-            - name: "Get repository version"
-              id: version
-              uses: bbonkr/get-version-action@v1.2.0
-              with:
-                  project: ${{ env.PROJECT_PATH }}
-
-            - name: "Get DI version"
-              id: di_version
-              uses: bbonkr/get-version-action@v1.2.0
-              with:
-                  project: ${{ env.DI_PROJECT_PATH }}
-
-            - name: "Get MySql version"
-              id: mysql_version
-              uses: bbonkr/get-version-action@v1.2.0
-              with:
-                  project: ${{ env.MYSQL_PROJECT_PATH }}
-
-            - name: "Get PostGreSql version"
-              id: postgresql_version
-              uses: bbonkr/get-version-action@v1.2.0
-              with:
-                  project: ${{ env.POSTGRESQL_PROJECT_PATH }}
-
-            - name: "Get Sql version"
-              id: sql_version
-              uses: bbonkr/get-version-action@v1.2.0
-              with:
-                  project: ${{ env.SQL_PROJECT_PATH }}
-
             - name: "Pack Repository"
-              run: dotnet pack ${{ env.PROJECT_PATH }} --no-restore --no-build --configuration Release --include-symbols -p:SymbolPackageFormat=snupkg -p:PackageVersion=${{ steps.version.outputs.version }} --output ${{ env.PACKAGE_OUTPUT_DIRECTORY }}
+              run: dotnet pack ${{ env.PROJECT_PATH }} --no-restore --no-build --configuration Release --include-symbols -p:SymbolPackageFormat=snupkg --output ${{ env.PACKAGE_OUTPUT_DIRECTORY }}
 
             - name: "Pack DependencyInjection"
-              run: dotnet pack ${{ env.DI_PROJECT_PATH }} --no-restore --no-build --configuration Release --include-symbols -p:SymbolPackageFormat=snupkg -p:PackageVersion=${{ steps.di_version.outputs.version }} --output ${{ env.PACKAGE_OUTPUT_DIRECTORY }}
+              run: dotnet pack ${{ env.DI_PROJECT_PATH }} --no-restore --no-build --configuration Release --include-symbols -p:SymbolPackageFormat=snupkg --output ${{ env.PACKAGE_OUTPUT_DIRECTORY }}
 
             - name: "Pack MySql"
-              run: dotnet pack ${{ env.MYSQL_PROJECT_PATH }} --no-restore --no-build --configuration Release --include-symbols -p:SymbolPackageFormat=snupkg -p:PackageVersion=${{ steps.mysql_version.outputs.version }} --output ${{ env.PACKAGE_OUTPUT_DIRECTORY }}
+              run: dotnet pack ${{ env.MYSQL_PROJECT_PATH }} --no-restore --no-build --configuration Release --include-symbols -p:SymbolPackageFormat=snupkg --output ${{ env.PACKAGE_OUTPUT_DIRECTORY }}
 
             - name: "Pack PostGreSql"
-              run: dotnet pack ${{ env.POSTGRESQL_PROJECT_PATH }} --no-restore --no-build --configuration Release --include-symbols -p:SymbolPackageFormat=snupkg -p:PackageVersion=${{ steps.postgresql_version.outputs.version }} --output ${{ env.PACKAGE_OUTPUT_DIRECTORY }}
+              run: dotnet pack ${{ env.POSTGRESQL_PROJECT_PATH }} --no-restore --no-build --configuration Release --include-symbols -p:SymbolPackageFormat=snupkg --output ${{ env.PACKAGE_OUTPUT_DIRECTORY }}
 
             - name: "Pack Sql"
-              run: dotnet pack ${{ env.SQL_PROJECT_PATH }} --no-restore --no-build --configuration Release --include-symbols -p:SymbolPackageFormat=snupkg -p:PackageVersion=${{ steps.sql_version.outputs.version }} --output ${{ env.PACKAGE_OUTPUT_DIRECTORY }}
+              run: dotnet pack ${{ env.SQL_PROJECT_PATH }} --no-restore --no-build --configuration Release --include-symbols -p:SymbolPackageFormat=snupkg --output ${{ env.PACKAGE_OUTPUT_DIRECTORY }}
 
             - name: "Push package"
               run: dotnet nuget push ${{ env.PACKAGE_OUTPUT_DIRECTORY }}/*.nupkg -k ${{ secrets.NUGET_API_KEY }} -s ${{ env.NUGET_SOURCE_URL }} --skip-duplicate
