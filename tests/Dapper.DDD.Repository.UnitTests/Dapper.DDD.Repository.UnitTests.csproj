@@ -10,7 +10,7 @@
 
 	<ItemGroup>
 		<PackageReference Include="Dapper" Version="2.1.28" />
-		<PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.8.0" />
+		<PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.9.0" />
 		<PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="8.0.0" />
 		<PackageReference Include="NetTopologySuite" Version="2.5.0" />
 		<PackageReference Include="NetTopologySuite.IO.SqlServerBytes" Version="2.1.0" />
