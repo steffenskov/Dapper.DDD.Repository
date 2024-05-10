@@ -1,8 +1,8 @@
 namespace Dapper.DDD.Repository.Sql.IntegrationTests;
 
-public class ProductListViewTests : BaseProductListViewTests, IClassFixture<Startup>
+public class ProductListViewTests : BaseProductListViewTests
 {
-	public ProductListViewTests(Startup startup) : base(startup.Provider)
+	public ProductListViewTests(ContainerFixture containerFixture) : base(containerFixture)
 	{
 	}
 }

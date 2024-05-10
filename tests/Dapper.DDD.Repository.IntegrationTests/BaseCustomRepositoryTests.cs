@@ -2,31 +2,32 @@
 
 namespace Dapper.DDD.Repository.IntegrationTests;
 
-public abstract class BaseCustomRepositoryTests
+public abstract class BaseCustomRepositoryTests : BaseTests
 {
 	private readonly IServiceProvider _serviceProvider;
-
-	public BaseCustomRepositoryTests(IServiceProvider serviceProvider)
+	
+	protected BaseCustomRepositoryTests(IContainerFixture fixture) : base(fixture)
 	{
-		_serviceProvider = serviceProvider;
+		_serviceProvider = fixture.Provider;
 	}
-
+	
+	
 	[Fact]
 	public void GetService_RepositoryConfigured_RepositoryIsRetrieved()
 	{
 		// Act
 		var repository = _serviceProvider.GetService<ICustomerRepository>();
-
+		
 		// Assert
 		Assert.NotNull(repository);
 		Assert.True(repository is ITableRepository<Customer, Guid>);
 	}
-
+	
 	[Fact]
 	public async Task GetByCustomtype_AggregateExist_IsRetrieved()
 	{
 		// Arrange
-		var repository = _serviceProvider.GetService<ICustomerRepository>()!;
+		var repository = _serviceProvider.GetRequiredService<ICustomerRepository>();
 		await repository.InsertAsync(new Customer
 		{
 			DeliveryAddress = new Address("Some road", new Zipcode(1234)),
@@ -34,19 +35,19 @@ public abstract class BaseCustomRepositoryTests
 			Id = Guid.NewGuid(),
 			Name = "My customer name"
 		});
-
+		
 		// Act
 		var fetched = await repository.GetByZipcodeAsync(new Zipcode(1234));
-
+		
 		// Assert
 		Assert.NotEmpty(fetched);
 	}
-
+	
 	[Fact]
 	public async Task CustomUpdateWithComplexType_IsValid_IsUpdated()
 	{
 		// Arrange
-		var repository = _serviceProvider.GetService<ICustomerRepository>()!;
+		var repository = _serviceProvider.GetRequiredService<ICustomerRepository>();
 		var inserted = await repository.InsertAsync(new Customer
 		{
 			DeliveryAddress = new Address("Some road", new Zipcode(1234)),
@@ -54,11 +55,11 @@ public abstract class BaseCustomRepositoryTests
 			Id = Guid.NewGuid(),
 			Name = "My customer name"
 		});
-
+		
 		// Act
 		await repository.UpdateDeliveryAddress(inserted.Id, new Address("A brand new road", new Zipcode(9999)));
 		var fetched = await repository.GetAsync(inserted.Id);
-
+		
 		// Assert
 		Assert.Equal("A brand new road", fetched!.DeliveryAddress.Street);
 		Assert.Equal(new Zipcode(9999), fetched.DeliveryAddress.Zipcode);

@@ -1,18 +1,17 @@
-﻿using System.Linq;
-using Dapper.DDD.Repository.Interfaces;
-using NetTopologySuite.Geometries;
+﻿using Dapper.DDD.Repository.Interfaces;
 
 namespace Dapper.DDD.Repository.Sql.IntegrationTests;
 
-public class SerializedColumnTests : IClassFixture<Startup>
+[Collection(Consts.DatabaseCollection)]
+public class SerializedColumnTests
 {
 	private readonly ITableRepository<City, Guid> _repository;
-
-	public SerializedColumnTests(Startup startup)
+	
+	public SerializedColumnTests(ContainerFixture containerFixture)
 	{
-		_repository = startup.Provider.GetService<ITableRepository<City, Guid>>()!;
+		_repository = containerFixture.Provider.GetRequiredService<ITableRepository<City, Guid>>();
 	}
-
+	
 	[Fact]
 	public async Task Delete_Valid_GeometryIsIncludedInReturnValue()
 	{
@@ -28,16 +27,16 @@ public class SerializedColumnTests : IClassFixture<Startup>
 		};
 		city.GeoLocation.SRID = 25832;
 		city.Area.SRID = 25832;
-
+		
 		await _repository.InsertAsync(city);
-
+		
 		// Act
 		var result = await _repository.DeleteAsync(city.Id);
-
+		
 		// Assert
 		Assert.Equal(city, result);
 	}
-
+	
 	[Fact]
 	public async Task Insert_Valid_GeometryIsIncludedInReturnValue()
 	{
@@ -53,10 +52,10 @@ public class SerializedColumnTests : IClassFixture<Startup>
 		};
 		city.GeoLocation.SRID = 25832;
 		city.Area.SRID = 25832;
-
+		
 		// Act
 		var result = await _repository.InsertAsync(city);
-
+		
 		// Assert
 		try
 		{
@@ -69,7 +68,7 @@ public class SerializedColumnTests : IClassFixture<Startup>
 			await _repository.DeleteAsync(city.Id);
 		}
 	}
-
+	
 	[Fact]
 	public async Task GetAll_Valid_GeometryIsIncludedInReturnValue()
 	{
@@ -86,10 +85,10 @@ public class SerializedColumnTests : IClassFixture<Startup>
 		city.GeoLocation.SRID = 25832;
 		city.Area.SRID = 25832;
 		await _repository.InsertAsync(city);
-
+		
 		// Act
 		var result = (await _repository.GetAllAsync()).ToList();
-
+		
 		// Assert
 		try
 		{
@@ -102,7 +101,7 @@ public class SerializedColumnTests : IClassFixture<Startup>
 			await _repository.DeleteAsync(city.Id);
 		}
 	}
-
+	
 	[Fact]
 	public async Task Get_Valid_GeometryIsIncludedInReturnValue()
 	{
@@ -119,10 +118,10 @@ public class SerializedColumnTests : IClassFixture<Startup>
 		city.GeoLocation.SRID = 25832;
 		city.Area.SRID = 25832;
 		await _repository.InsertAsync(city);
-
+		
 		// Act
 		var fetchedCity = await _repository.GetAsync(city.Id);
-
+		
 		// Assert
 		try
 		{
@@ -133,7 +132,7 @@ public class SerializedColumnTests : IClassFixture<Startup>
 			await _repository.DeleteAsync(city.Id);
 		}
 	}
-
+	
 	[Fact]
 	public async Task Update_Valid_GeometryIsIncludedInReturnValue()
 	{
@@ -150,7 +149,7 @@ public class SerializedColumnTests : IClassFixture<Startup>
 		city.GeoLocation.SRID = 25832;
 		city.Area.SRID = 25832;
 		await _repository.InsertAsync(city);
-
+		
 		// Act
 		var newArea = Geometry.DefaultFactory.CreatePolygon(new Coordinate[]
 		{
@@ -158,7 +157,7 @@ public class SerializedColumnTests : IClassFixture<Startup>
 		});
 		newArea.SRID = 1234;
 		var updatedCity = await _repository.UpdateAsync(city with { Area = newArea });
-
+		
 		// Assert
 		try
 		{

@@ -1,8 +1,8 @@
 namespace Dapper.DDD.Repository.Sql.IntegrationTests;
 
-public class InvalidQueryTests : BaseInvalidQueryTests, IClassFixture<Startup>
+public class InvalidQueryTests : BaseInvalidQueryTests
 {
-	public InvalidQueryTests(Startup startup) : base(startup.Provider)
+	public InvalidQueryTests(ContainerFixture containerFixture) : base(containerFixture)
 	{
 	}
 }

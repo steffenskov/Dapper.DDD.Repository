@@ -2,10 +2,9 @@
 
 namespace Dapper.DDD.Repository.PostGreSql.IntegrationTests;
 
-public class SinglePrimaryKeyAsyncTests : BaseSinglePrimaryKeyAsyncTests<DapperRepositoryQueryException>,
-	IClassFixture<Startup>
+public class SinglePrimaryKeyAsyncTests : BaseSinglePrimaryKeyAsyncTests<DapperRepositoryQueryException>
 {
-	public SinglePrimaryKeyAsyncTests(Startup startup) : base(startup.Provider)
+	public SinglePrimaryKeyAsyncTests(ContainerFixture containerFixture) : base(containerFixture)
 	{
 	}
 }

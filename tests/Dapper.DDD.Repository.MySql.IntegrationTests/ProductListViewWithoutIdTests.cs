@@ -1,8 +1,8 @@
 namespace Dapper.DDD.Repository.MySql.IntegrationTests;
 
-public class ProductListViewWithoutIdTests : BaseProductListViewWithoutIdTests, IClassFixture<Startup>
+public class ProductListViewWithoutIdTests : BaseProductListViewWithoutIdTests
 {
-	public ProductListViewWithoutIdTests(Startup startup) : base(startup.Provider)
+	public ProductListViewWithoutIdTests(ContainerFixture containerFixture) : base(containerFixture)
 	{
 	}
 }

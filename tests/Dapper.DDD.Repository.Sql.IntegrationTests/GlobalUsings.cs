@@ -1,7 +1,13 @@
 ﻿global using System;
 global using System.Threading.Tasks;
+global using Dapper.DDD.Repository.DependencyInjection;
 global using Dapper.DDD.Repository.IntegrationTests;
 global using Dapper.DDD.Repository.IntegrationTests.Aggregates;
+global using Dapper.DDD.Repository.IntegrationTests.Configuration;
+global using Dapper.DDD.Repository.IntegrationTests.Repositories;
+global using Dapper.DDD.Repository.Sql.IntegrationTests.Configuration;
 global using Microsoft.Data.SqlClient;
 global using Microsoft.Extensions.DependencyInjection;
+global using NetTopologySuite.Geometries;
+global using NetTopologySuite.IO;
 global using Xunit;

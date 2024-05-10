@@ -1,21 +1,23 @@
-﻿using Dapper.DDD.Repository.DependencyInjection;
-using Dapper.DDD.Repository.IntegrationTests.Repositories;
-using Microsoft.Extensions.Options;
-using NetTopologySuite.Geometries;
-using NetTopologySuite.IO;
+using System.Reflection;
+using Microsoft.SqlServer.Management.Common;
+using Microsoft.SqlServer.Management.Smo;
+using Testcontainers.MsSql;
 
-namespace Dapper.DDD.Repository.Sql.IntegrationTests;
+namespace Dapper.DDD.Repository.Sql.IntegrationTests.Configuration;
 
-public class Startup
+public class ContainerFixture : IAsyncLifetime, IContainerFixture
 {
-	public Startup()
+	private MsSqlContainer? _container;
+	
+	public async Task InitializeAsync()
 	{
+		var connectionFactory = await InitializeTestContainerAsync();
+		
 		var services = new ServiceCollection();
 		services.AddOptions();
 		services.ConfigureDapperRepositoryDefaults(options =>
 		{
-			options.ConnectionFactory = new SqlConnectionFactory(
-				"Server=127.0.0.1;Database=Northwind;User Id=sa;Password=SqlServerPassword#&%¤2019;Encrypt=False;");
+			options.ConnectionFactory = connectionFactory;
 			options.DapperInjectionFactory = new DapperInjectionFactory();
 			options.QueryGeneratorFactory =
 				new SqlQueryGeneratorFactory().SerializeColumnType(type =>
@@ -42,7 +44,7 @@ public class Startup
 			options.HasKey(x => x.Id);
 			options.HasDefault(x => x.DateCreated);
 		});
-
+		
 		services.AddViewRepository<ProductListView, int, IProductListViewRepository, ProductListViewRepository>(
 			options =>
 			{
@@ -50,7 +52,7 @@ public class Startup
 				options.HasKey(x => x.ProductID);
 			});
 		services.AddViewRepository<ProductListView>(options => { options.ViewName = "[Current Product List]"; });
-
+		
 		services.AddTableRepository<Customer, Guid, ICustomerRepository, CustomerRepository>(options =>
 		{
 			options.TableName = "CustomersWithValueObject";
@@ -67,13 +69,53 @@ public class Startup
 			options.TableName = "CustomersWithNestedValueObject";
 			options.HasKey(x => x.Id);
 		});
-		services.AddViewRepository<string, IInvalidQueryRepository, InvalidQueryRepository>(options =>
-		{
-			options.ViewName = "InvalidView";
-		});
+		services.AddViewRepository<string, IInvalidQueryRepository, InvalidQueryRepository>(options => { options.ViewName = "InvalidView"; });
 		services.AddViewRepository<DummyAggregate, int>(options => { options.ViewName = "DummyView"; });
 		Provider = services.BuildServiceProvider();
 	}
-
-	public ServiceProvider Provider { get; }
+	
+	public async Task DisposeAsync()
+	{
+		if (_container is not null)
+		{
+			await _container.DisposeAsync();
+		}
+	}
+	
+	public ServiceProvider Provider { get; private set; } = default!;
+	
+	private async Task<SqlConnectionFactory> InitializeTestContainerAsync()
+	{
+		_container = new MsSqlBuilder()
+			.WithImage("mcr.microsoft.com/mssql/server:2019-latest")
+			.Build();
+		
+		var startTask = _container.StartAsync();
+		
+		var northwindScript = await GetNorthwindScriptAsync();
+		await startTask;
+		var connectionString = _container.GetConnectionString();
+		
+		await using var sqlConnection = new SqlConnection(connectionString);
+		var svrConnection = new ServerConnection(sqlConnection);
+		var server = new Server(svrConnection);
+		server.ConnectionContext.ExecuteNonQuery(northwindScript);
+		
+		return new SqlConnectionFactory(connectionString);
+	}
+	
+	private static async Task<string> GetNorthwindScriptAsync()
+	{
+		var assembly = Assembly.GetExecutingAssembly();
+		var resourceName = @"Dapper.DDD.Repository.Sql.IntegrationTests.Resources.northwind.sql";
+		
+		await using var stream = assembly.GetManifestResourceStream(resourceName);
+		if (stream is null)
+		{
+			throw new InvalidOperationException("Couldn't open northwind.sql");
+		}
+		
+		using var reader = new StreamReader(stream);
+		return await reader.ReadToEndAsync();
+	}
 }

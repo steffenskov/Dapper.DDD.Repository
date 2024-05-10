@@ -1,6 +1,4 @@
-﻿using NetTopologySuite.Geometries;
-
-namespace Dapper.DDD.Repository.Sql.IntegrationTests;
+﻿namespace Dapper.DDD.Repository.Sql.IntegrationTests;
 
 public record City
 {

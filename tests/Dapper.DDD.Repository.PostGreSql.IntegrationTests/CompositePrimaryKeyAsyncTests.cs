@@ -1,8 +1,8 @@
 namespace Dapper.DDD.Repository.PostGreSql.IntegrationTests;
 
-public class CompositePrimaryKeyAsyncTests : BaseCompositePrimaryKeyAsyncTests, IClassFixture<Startup>
+public class CompositePrimaryKeyAsyncTests : BaseCompositePrimaryKeyAsyncTests
 {
-	public CompositePrimaryKeyAsyncTests(Startup startup) : base(startup.Provider)
+	public CompositePrimaryKeyAsyncTests(ContainerFixture containerFixture) : base(containerFixture)
 	{
 	}
 }

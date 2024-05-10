@@ -1,8 +1,8 @@
 ﻿namespace Dapper.DDD.Repository.Sql.IntegrationTests;
 
-public class AggregateWithValueObjectAsyncTests : BaseAggregateWithValueObjectAsyncTests, IClassFixture<Startup>
+public class AggregateWithValueObjectAsyncTests : BaseAggregateWithValueObjectAsyncTests
 {
-	public AggregateWithValueObjectAsyncTests(Startup startup) : base(startup.Provider)
+	public AggregateWithValueObjectAsyncTests(ContainerFixture containerFixture) : base(containerFixture)
 	{
 	}
 }

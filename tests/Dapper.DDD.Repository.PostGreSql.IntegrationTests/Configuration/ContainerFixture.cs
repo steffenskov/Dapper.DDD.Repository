@@ -1,24 +1,24 @@
-﻿using Dapper.DDD.Repository.DependencyInjection;
-using Dapper.DDD.Repository.IntegrationTests.Repositories;
-using NetTopologySuite.Geometries;
-using Npgsql.PostgresTypes;
+using Dapper.DDD.Repository.IntegrationTests.Configuration;
 
-namespace Dapper.DDD.Repository.PostGreSql.IntegrationTests;
+namespace Dapper.DDD.Repository.PostGreSql.IntegrationTests.Configuration;
 
-public class Startup
+public class ContainerFixture : IAsyncLifetime, IContainerFixture
 {
-	public Startup()
+	private PostgreSqlContainer? _container;
+	
+	public async Task InitializeAsync()
 	{
 		var services = new ServiceCollection();
 		services.AddOptions();
-
+		
 		SqlMapper.AddTypeHandler(new PointTypeMapper());
 		SqlMapper.AddTypeHandler(new PolygonTypeMapper());
-
+		
+		var connectionFactory = await InitializeTestContainerAsync();
+		
 		services.ConfigureDapperRepositoryDefaults(options =>
 		{
-			options.ConnectionFactory = new PostGreSqlConnectionFactory(
-				"Server=localhost;Port=55432;Database=northwind;Uid=postgres;Pwd=postgres;");
+			options.ConnectionFactory = connectionFactory;
 			options.DapperInjectionFactory = new DapperInjectionFactory();
 			options.QueryGeneratorFactory = new PostGreSqlQueryGeneratorFactory();
 			options.AddTypeConverter<CategoryId, int>(categoryId => categoryId.PrimitiveId, CategoryId.Create);
@@ -40,7 +40,7 @@ public class Startup
 			options.HasKey(x => x.Id);
 			options.HasDefault(x => x.DateCreated);
 		});
-
+		
 		services.AddViewRepository<ProductListView, int, IProductListViewRepository, ProductListViewRepository>(
 			options =>
 			{
@@ -49,7 +49,7 @@ public class Startup
 				options.HasKey(x => x.ProductID);
 			});
 		services.AddViewRepository<ProductListView>(options => { options.ViewName = "current_product_list"; });
-
+		
 		services.AddTableRepository<Customer, Guid, ICustomerRepository, CustomerRepository>(options =>
 		{
 			options.Schema = "public";
@@ -57,7 +57,7 @@ public class Startup
 			options.HasKey(x => x.Id);
 			options.Ignore(x => x.IdAndName);
 		});
-
+		
 		services.AddTableRepository<CustomerWithNestedAddresses, Guid>(options =>
 		{
 			options.Schema = "public";
@@ -82,6 +82,47 @@ public class Startup
 		});
 		Provider = services.BuildServiceProvider();
 	}
-
-	public ServiceProvider Provider { get; }
+	
+	public async Task DisposeAsync()
+	{
+		if (_container is not null)
+		{
+			await _container.DisposeAsync();
+		}
+	}
+	
+	public ServiceProvider Provider { get; private set; } = default!;
+	
+	private async Task<PostGreSqlConnectionFactory> InitializeTestContainerAsync()
+	{
+		_container = new PostgreSqlBuilder()
+			.WithImage("postgis/postgis:latest")
+			.WithDatabase("northwind")
+			.Build();
+		
+		var startTask = _container.StartAsync();
+		
+		var northwindScript = await GetNorthwindScriptAsync();
+		await startTask;
+		var connectionFactory = new PostGreSqlConnectionFactory(_container.GetConnectionString());
+		
+		using var connection = connectionFactory.CreateConnection();
+		await connection.ExecuteAsync(northwindScript);
+		return connectionFactory;
+	}
+	
+	private static async Task<string> GetNorthwindScriptAsync()
+	{
+		var assembly = Assembly.GetExecutingAssembly();
+		var resourceName = @"Dapper.DDD.Repository.PostGreSql.IntegrationTests.Resources.pgsql_northwind.sql";
+		
+		await using var stream = assembly.GetManifestResourceStream(resourceName);
+		if (stream is null)
+		{
+			throw new InvalidOperationException("Couldn't open pgsql_northwind.sql");
+		}
+		
+		using var reader = new StreamReader(stream);
+		return await reader.ReadToEndAsync();
+	}
 }

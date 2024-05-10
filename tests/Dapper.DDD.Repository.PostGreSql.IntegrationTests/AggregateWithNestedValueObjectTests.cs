@@ -1,8 +1,8 @@
 namespace Dapper.DDD.Repository.PostGreSql.IntegrationTests;
 
-public class AggregateWithNestedValueObjectTests : BaseAggregateWithNestedValueObjectTests, IClassFixture<Startup>
+public class AggregateWithNestedValueObjectTests : BaseAggregateWithNestedValueObjectTests
 {
-	public AggregateWithNestedValueObjectTests(Startup startup) : base(startup.Provider)
+	public AggregateWithNestedValueObjectTests(ContainerFixture containerFixture) : base(containerFixture)
 	{
 	}
 }
