@@ -55,31 +55,31 @@ jobs:
 
             - name: "Get repository version"
               id: version
-              uses: bbonkr/get-version-action@v1.0.5
+              uses: bbonkr/get-version-action@v1.2.0
               with:
                   project: ${{ env.PROJECT_PATH }}
 
             - name: "Get DI version"
               id: di_version
-              uses: bbonkr/get-version-action@v1.0.5
+              uses: bbonkr/get-version-action@v1.2.0
               with:
                   project: ${{ env.DI_PROJECT_PATH }}
 
             - name: "Get MySql version"
               id: mysql_version
-              uses: bbonkr/get-version-action@v1.0.5
+              uses: bbonkr/get-version-action@v1.2.0
               with:
                   project: ${{ env.MYSQL_PROJECT_PATH }}
 
             - name: "Get PostGreSql version"
               id: postgresql_version
-              uses: bbonkr/get-version-action@v1.0.5
+              uses: bbonkr/get-version-action@v1.2.0
               with:
                   project: ${{ env.POSTGRESQL_PROJECT_PATH }}
 
             - name: "Get Sql version"
               id: sql_version
-              uses: bbonkr/get-version-action@v1.0.5
+              uses: bbonkr/get-version-action@v1.2.0
               with:
                   project: ${{ env.SQL_PROJECT_PATH }}
 
