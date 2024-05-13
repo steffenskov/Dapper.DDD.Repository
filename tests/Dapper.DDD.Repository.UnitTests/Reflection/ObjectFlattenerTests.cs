@@ -67,12 +67,12 @@ public class ObjectFlattenerTests
 		// Arrange
 		var objectFlattener = new ObjectFlattener();
 		objectFlattener.AddTypeConverter(typeof(StrongUserId),
-			new TypeConverter<StrongUserId, int>(uid => uid.PrimitiveId, uid => new StrongUserId(uid)));
+			new TypeConverter<StrongUserId, int>(uid => uid.PrimitiveValue, uid => new StrongUserId(uid)));
 
 		// Act & Assert
 		var ex = Assert.Throws<InvalidOperationException>(() =>
 			objectFlattener.AddTypeConverter(typeof(StrongUserId),
-				new TypeConverter<StrongUserId, int>(uid => uid.PrimitiveId, uid => new StrongUserId(uid))));
+				new TypeConverter<StrongUserId, int>(uid => uid.PrimitiveValue, uid => new StrongUserId(uid))));
 
 		Assert.Equal($"A TypeConverter for the type {typeof(StrongUserId)} has already been added.", ex.Message);
 	}
@@ -85,7 +85,7 @@ public class ObjectFlattenerTests
 		var obj = new UserWithStrongTypedId { Id = new StrongUserId(42), Username = "Some name" };
 
 		objectFlattener.AddTypeConverter(typeof(StrongUserId),
-			new TypeConverter<StrongUserId, int>(uid => uid.PrimitiveId, uid => new StrongUserId(uid)));
+			new TypeConverter<StrongUserId, int>(uid => uid.PrimitiveValue, uid => new StrongUserId(uid)));
 
 		// Act
 		var result = objectFlattener.Flatten(obj);
@@ -99,7 +99,7 @@ public class ObjectFlattenerTests
 
 		// Assert
 		Assert.NotSame(obj, result);
-		Assert.Equal(obj.Id.PrimitiveId, getResultValue("Id"));
+		Assert.Equal(obj.Id.PrimitiveValue, getResultValue("Id"));
 		Assert.Equal(obj.Username, getResultValue("Username"));
 	}
 
@@ -114,7 +114,7 @@ public class ObjectFlattenerTests
 		};
 
 		objectFlattener.AddTypeConverter(typeof(StrongUserId),
-			new TypeConverter<StrongUserId, int>(uid => uid.PrimitiveId, uid => new StrongUserId(uid)));
+			new TypeConverter<StrongUserId, int>(uid => uid.PrimitiveValue, uid => new StrongUserId(uid)));
 
 		// Act
 		var result = objectFlattener.Flatten(obj);
@@ -141,7 +141,7 @@ public class ObjectFlattenerTests
 		var obj = new UserWithStrongTypedId { Id = new StrongUserId(42), Username = "Some name" };
 
 		objectFlattener.AddTypeConverter(typeof(StrongUserId),
-			new TypeConverter<StrongUserId, int>(uid => uid.PrimitiveId, uid => new StrongUserId(uid)));
+			new TypeConverter<StrongUserId, int>(uid => uid.PrimitiveValue, uid => new StrongUserId(uid)));
 		var flat = objectFlattener.Flatten(obj);
 
 		// Act
@@ -149,7 +149,7 @@ public class ObjectFlattenerTests
 
 		// Assert
 		Assert.NotSame(obj, complex);
-		Assert.Equal(obj.Id.PrimitiveId, complex.Id!.PrimitiveId);
+		Assert.Equal(obj.Id.PrimitiveValue, complex.Id!.PrimitiveValue);
 		Assert.Equal(obj.Username, complex.Username);
 	}
 
@@ -164,7 +164,7 @@ public class ObjectFlattenerTests
 		};
 
 		objectFlattener.AddTypeConverter(typeof(StrongUserId),
-			new TypeConverter<StrongUserId, int>(uid => uid.PrimitiveId, uid => new StrongUserId(uid)));
+			new TypeConverter<StrongUserId, int>(uid => uid.PrimitiveValue, uid => new StrongUserId(uid)));
 		var flat = objectFlattener.Flatten(obj);
 
 		// Act

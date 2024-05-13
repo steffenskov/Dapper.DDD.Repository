@@ -212,7 +212,7 @@ or wherever you're doing DI configuration in your project:
 		options.DapperInjectionFactory = new DapperInjectionFactory();
 		options.QueryGeneratorFactory = new SqlQueryGeneratorFactory(); // Use MySqlQueryGeneratorFactory() if using MySql
 		options.Schema = "dbo"; // Default schema, don't use this for MySql as it doesn't have the concept of schemas that SQL Server does.
-		options.AddTypeConverter<CategoryId, int>(categoryId => categoryId.PrimitiveId, primitiveId => new CategoryId(primitiveId)); // Example based on StrongTypedId
+		options.AddTypeConverter<CategoryId, int>(categoryId => categoryId.PrimitiveValue, primitiveId => new CategoryId(primitiveId)); // Example based on StrongTypedId
 	});
 	services.AddTableRepository<User, int>(options => // The generic types are <TAggregate, TAggregateId>
 	{
