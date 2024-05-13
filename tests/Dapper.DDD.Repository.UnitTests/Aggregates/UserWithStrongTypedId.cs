@@ -4,7 +4,7 @@ namespace Dapper.DDD.Repository.UnitTests.Aggregates;
 
 public class StrongUserId : StrongTypedId<StrongUserId, int>
 {
-	public StrongUserId(int primitiveId) : base(primitiveId)
+	public StrongUserId(int primitiveValue) : base(primitiveValue)
 	{
 	}
 }
@@ -12,6 +12,6 @@ public class StrongUserId : StrongTypedId<StrongUserId, int>
 public class UserWithStrongTypedId
 {
 	public StrongUserId? Id { get; set; }
-
+	
 	public string Username { get; set; } = default!;
 }

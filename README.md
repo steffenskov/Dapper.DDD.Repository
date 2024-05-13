@@ -63,9 +63,12 @@ without including primary keys.
 Also all the methods are kept `Async` and no synchronous versions are currently planned. This is because database
 calls (like all I/O) should ideally be kept async for improved performance and responsiveness.
 
-Finally if you want to utilize Dapper's SqlMapper functionality, you'll need to also instruct this instruction into treating the type as a built-in type. Otherwise both Dapper and this extension will attempt to deal with the type simultaneously.
+Finally if you want to utilize Dapper's SqlMapper functionality, you'll need to also instruct this instruction into
+treating the type as a built-in type. Otherwise both Dapper and this extension will attempt to deal with the type
+simultaneously.
 
 An example:
+
 ```
 SqlMapper.AddTypeHandler(new PolygonTypeMapper());
 
@@ -74,7 +77,6 @@ services.ConfigureDapperRepositoryDefaults(options =>
 	options.TreatAsBuiltInType<Polygon>(); // Necessary to allow the SqlMapper to work its magic
 }
 ```
-
 
 ## Usage:
 
@@ -212,7 +214,7 @@ or wherever you're doing DI configuration in your project:
 		options.DapperInjectionFactory = new DapperInjectionFactory();
 		options.QueryGeneratorFactory = new SqlQueryGeneratorFactory(); // Use MySqlQueryGeneratorFactory() if using MySql
 		options.Schema = "dbo"; // Default schema, don't use this for MySql as it doesn't have the concept of schemas that SQL Server does.
-		options.AddTypeConverter<CategoryId, int>(categoryId => categoryId.PrimitiveId, primitiveId => new CategoryId(primitiveId)); // Example based on StrongTypedId
+		options.AddTypeConverter<CategoryId, int>(categoryId => categoryId.PrimitiveValue, primitiveValue => new CategoryId(primitiveValue)); // Example based on StrongTypedId
 	});
 	services.AddTableRepository<User, int>(options => // The generic types are <TAggregate, TAggregateId>
 	{

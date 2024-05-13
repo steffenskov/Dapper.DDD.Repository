@@ -23,8 +23,8 @@ public class ContainerFixture : IAsyncLifetime, IContainerFixture
 				new SqlQueryGeneratorFactory().SerializeColumnType(type =>
 					type.Namespace == "NetTopologySuite.Geometries");
 			options.Schema = "dbo";
-			options.AddTypeConverter<CategoryId, int>(categoryId => categoryId.PrimitiveId, CategoryId.Create);
-			options.AddTypeConverter<Zipcode, int>(zipcode => zipcode.PrimitiveId, Zipcode.Create);
+			options.AddTypeConverter<CategoryId, int>(categoryId => categoryId.PrimitiveValue, CategoryId.Create);
+			options.AddTypeConverter<Zipcode, int>(zipcode => zipcode.PrimitiveValue, Zipcode.Create);
 			options.AddTypeConverter<Point, byte[]>(
 				geo => new SqlServerBytesWriter { IsGeography = false }.Write(geo),
 				bytes => (Point)new SqlServerBytesReader { IsGeography = false }.Read(bytes));

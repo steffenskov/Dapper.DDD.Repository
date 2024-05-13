@@ -21,8 +21,8 @@ public class ContainerFixture : IAsyncLifetime, IContainerFixture
 			options.ConnectionFactory = connectionFactory;
 			options.DapperInjectionFactory = new DapperInjectionFactory();
 			options.QueryGeneratorFactory = new PostGreSqlQueryGeneratorFactory();
-			options.AddTypeConverter<CategoryId, int>(categoryId => categoryId.PrimitiveId, CategoryId.Create);
-			options.AddTypeConverter<Zipcode, int>(zipcode => zipcode.PrimitiveId, Zipcode.Create);
+			options.AddTypeConverter<CategoryId, int>(categoryId => categoryId.PrimitiveValue, CategoryId.Create);
+			options.AddTypeConverter<Zipcode, int>(zipcode => zipcode.PrimitiveValue, Zipcode.Create);
 			options.TreatAsBuiltInType<Polygon>(); // Necessary to allow the SqlMapper to work its magic
 			options.TreatAsBuiltInType<Point>(); // Necessary to allow the SqlMapper to work its magic
 		});
