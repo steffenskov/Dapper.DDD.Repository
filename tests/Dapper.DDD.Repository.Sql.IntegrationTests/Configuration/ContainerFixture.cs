@@ -1,4 +1,5 @@
 using System.Reflection;
+using DotNet.Testcontainers.Builders;
 using Microsoft.SqlServer.Management.Common;
 using Microsoft.SqlServer.Management.Smo;
 using Testcontainers.MsSql;
@@ -87,7 +88,8 @@ public class ContainerFixture : IAsyncLifetime, IContainerFixture
 	private async Task<SqlConnectionFactory> InitializeTestContainerAsync()
 	{
 		_container = new MsSqlBuilder()
-			.WithImage("mcr.microsoft.com/mssql/server:2019-latest")
+			.WithImage("mcr.microsoft.com/mssql/server:2022-latest")
+			.WithWaitStrategy(Wait.ForUnixContainer().UntilPortIsAvailable(MsSqlBuilder.MsSqlPort))
 			.Build();
 		
 		var startTask = _container.StartAsync();
