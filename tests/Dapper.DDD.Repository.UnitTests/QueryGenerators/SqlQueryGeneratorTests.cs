@@ -9,6 +9,7 @@ namespace Dapper.DDD.Repository.UnitTests.QueryGenerators;
 public class SqlQueryGeneratorTests
 {
 	#region Constructor
+
 	[Fact]
 	public void Constructor_TableNameIsNull_Throws()
 	{
@@ -57,9 +58,24 @@ public class SqlQueryGeneratorTests
 		// Act && assert
 		Assert.Throws<ArgumentException>(() => new SqlQueryGenerator<SinglePrimaryKeyAggregate>(configuration));
 	}
+
 	#endregion
 
 	#region Delete
+
+	[Fact]
+	public void GenerateDeleteQuery_HasTriggers_DoesNotContainOutput()
+	{
+		// Arrange
+		var generator = CreateHasTriggersQueryGenerator();
+
+		// Act
+		var query = generator.GenerateDeleteQuery();
+
+		// Assert
+		Assert.Equal("DELETE FROM [dbo].[Users] WHERE [dbo].[Users].[Id] = @Id;", query);
+	}
+
 	[Fact]
 	public void GenerateDeleteQuery_HasNestedValueObject_Valid()
 	{
@@ -178,9 +194,11 @@ public class SqlQueryGeneratorTests
 			"DELETE FROM [dbo].[Users] OUTPUT [deleted].[Username], [deleted].[Password], [deleted].[DateCreated] WHERE [dbo].[Users].[Username] = @Username AND [dbo].[Users].[Password] = @Password;",
 			deleteQuery);
 	}
+
 	#endregion
 
 	#region GetAll
+
 	[Fact]
 	public void GenerateGetAllQuery_HasNestedValueObject_Valid()
 	{
@@ -268,9 +286,11 @@ public class SqlQueryGeneratorTests
 			"SELECT [dbo].[Users].[Id], [dbo].[Users].[Username], [dbo].[Users].[Password] FROM [dbo].[Users];",
 			selectQuery);
 	}
+
 	#endregion
 
 	#region Get
+
 	[Fact]
 	public void GenerateGetQuery_HasNestedValueObject_Valid()
 	{
@@ -375,9 +395,11 @@ public class SqlQueryGeneratorTests
 			"SELECT [dbo].[Users].[Username], [dbo].[Users].[Password], [dbo].[Users].[DateCreated] FROM [dbo].[Users] WHERE [dbo].[Users].[Username] = @Username AND [dbo].[Users].[Password] = @Password;",
 			selectQuery);
 	}
+
 	#endregion
 
 	#region Insert
+
 	[Fact]
 	public void GenerateInsertQuery_HasNestedValueObject_Valid()
 	{
@@ -544,9 +566,24 @@ public class SqlQueryGeneratorTests
 			"INSERT INTO [dbo].[Users] ([Username], [Password], [DateCreated]) OUTPUT [inserted].[Username], [inserted].[Password], [inserted].[DateCreated] VALUES (@Username, @Password, @DateCreated);",
 			insertQuery);
 	}
+
 	#endregion
 
 	#region Update
+
+	[Fact]
+	public void GenerateUpdateQuery_HasTriggers_DoesNotContainOutput()
+	{
+		// Arrange
+		var generator = CreateHasTriggersQueryGenerator();
+
+		// Act 
+		var updateQuery = generator.GenerateUpdateQuery(new SinglePrimaryKeyAggregate());
+
+		// Assert
+		Assert.Equal("UPDATE [dbo].[Users] SET [dbo].[Users].[Username] = @Username, [dbo].[Users].[Password] = @Password WHERE [dbo].[Users].[Id] = @Id;", updateQuery);
+	}
+
 	[Fact]
 	public void GenerateUpdateQuery_HasNestedValueObject_Valid()
 	{
@@ -688,9 +725,40 @@ public class SqlQueryGeneratorTests
 			"UPDATE [dbo].[Users] SET [dbo].[Users].[Age] = @Age OUTPUT [inserted].[Id], [inserted].[Age], [inserted].[DateCreated] WHERE [dbo].[Users].[Id] = @Id;",
 			query);
 	}
+
 	#endregion
 
 	#region Upsert
+
+	[Fact]
+	public void GenerateUpsertQuery_HasTriggersAndIdentity_ReturnsPureInsertQuery()
+	{
+		// Arrange
+		var generator = CreateHasTriggersQueryGenerator();
+
+		// Act 
+		var query = generator.GenerateUpsertQuery(new SinglePrimaryKeyAggregate());
+		var insertQuery = generator.GenerateInsertQuery(new SinglePrimaryKeyAggregate());
+
+		// Assert
+		Assert.Equal(insertQuery, query);
+	}
+
+	[Fact]
+	public void GenerateUpsertQuery_HasTriggersAndIdentityWithExistingValue_ReturnsPureUpdateQueryWithoutOutput()
+	{
+		// Arrange
+		var generator = CreateHasTriggersQueryGenerator();
+
+		// Act
+		var query = generator.GenerateUpsertQuery(new SinglePrimaryKeyAggregate { Id = 42 });
+		var updateQuery = generator.GenerateUpdateQuery(new SinglePrimaryKeyAggregate());
+
+		// Assert
+		Assert.Equal(updateQuery, query);
+		Assert.DoesNotContain("OUTPUT", query);
+	}
+
 	[Fact]
 	public void GenerateUpsertQuery_HasIdentity_ReturnsPureInsertQuery()
 	{
@@ -762,9 +830,11 @@ INSERT INTO [dbo].[Users] ([Id]) OUTPUT [inserted].[Id], [inserted].[DateCreated
 END",
 			query);
 	}
+
 	#endregion
 
 	#region Constructors
+
 	private static SqlQueryGenerator<HasDefaultConstraintAggregate>
 		CreateHasDefaultConstraintAggregateQueryGenerator()
 	{
@@ -796,6 +866,20 @@ END",
 		var configuration = new TableAggregateConfiguration<SinglePrimaryKeyAggregate>
 		{
 			Schema = "account", TableName = "Users"
+		};
+		configuration.HasKey(aggregate => aggregate.Id);
+		configuration.HasIdentity(aggregate => aggregate.Id);
+		var generator = new SqlQueryGenerator<SinglePrimaryKeyAggregate>(configuration);
+		return generator;
+	}
+
+	private static SqlQueryGenerator<SinglePrimaryKeyAggregate> CreateHasTriggersQueryGenerator()
+	{
+		var configuration = new TableAggregateConfiguration<SinglePrimaryKeyAggregate>
+		{
+			Schema = "dbo",
+			TableName = "Users",
+			HasTriggers = true
 		};
 		configuration.HasKey(aggregate => aggregate.Id);
 		configuration.HasIdentity(aggregate => aggregate.Id);
@@ -869,5 +953,6 @@ END",
 		var generator = new SqlQueryGenerator<AggregateWithNestedValueObject>(config);
 		return generator;
 	}
+
 	#endregion
 }

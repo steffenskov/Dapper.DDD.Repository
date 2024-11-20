@@ -20,7 +20,7 @@ where TAggregate: notnull
 	public IDapperInjectionFactory? DapperInjectionFactory { get; set; }
 
 	protected abstract string EntityName { get; }
-
+	
 	string IReadAggregateConfiguration<TAggregate>.EntityName => EntityName;
 	
 	IReadOnlyExtendedPropertyInfoCollection IReadAggregateConfiguration<TAggregate>.GetKeys()
