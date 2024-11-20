@@ -7,6 +7,7 @@ internal class SqlQueryGenerator<TAggregate> : IQueryGenerator<TAggregate>
 	where TAggregate : notnull
 {
 	private readonly IReadOnlyExtendedPropertyInfoCollection _defaultConstraints;
+	private readonly bool _hasTriggers;
 	private readonly IReadOnlyExtendedPropertyInfoCollection _identities;
 	private readonly IReadOnlyExtendedPropertyInfoCollection _keys;
 	private readonly IReadOnlyExtendedPropertyInfoCollection _properties;
@@ -34,6 +35,11 @@ internal class SqlQueryGenerator<TAggregate> : IQueryGenerator<TAggregate>
 		_schemaAndEntity =
 			$"{EnsureSquareBrackets(configuration.Schema)}.{EnsureSquareBrackets(readConfiguration.EntityName)}";
 
+		if (configuration is TableAggregateConfiguration<TAggregate> tableConfiguration)
+		{
+			_hasTriggers = tableConfiguration.HasTriggers;
+		}
+
 		var properties = readConfiguration.GetProperties();
 		var keys = new ExtendedPropertyInfoCollection(readConfiguration.GetKeys());
 		var valueObjects = readConfiguration.GetValueObjects();
@@ -58,6 +64,11 @@ internal class SqlQueryGenerator<TAggregate> : IQueryGenerator<TAggregate>
 	public string GenerateDeleteQuery()
 	{
 		var whereClause = GenerateWhereClause();
+
+		if (_hasTriggers)
+		{
+			return $"DELETE FROM {_schemaAndEntity} WHERE {whereClause};";
+		}
 
 		var outputProperties = GeneratePropertyList("deleted");
 		return $"DELETE FROM {_schemaAndEntity} OUTPUT {outputProperties} WHERE {whereClause};";
@@ -100,14 +111,17 @@ internal class SqlQueryGenerator<TAggregate> : IQueryGenerator<TAggregate>
 
 		if (string.IsNullOrEmpty(setClause))
 		{
-			throw new InvalidOperationException(
-				$"GenerateUpdateQuery for aggregate of type {typeof(TAggregate).FullName} failed as the type has no properties with a setter.");
+			throw new InvalidOperationException($"GenerateUpdateQuery for aggregate of type {typeof(TAggregate).FullName} failed as the type has no properties with a setter.");
+		}
+
+		if (_hasTriggers)
+		{
+			return $"UPDATE {_schemaAndEntity} SET {setClause} WHERE {GenerateWhereClause()};";
 		}
 
 		var outputProperties = GeneratePropertyList("inserted");
 
-		return
-			$"UPDATE {_schemaAndEntity} SET {setClause} OUTPUT {outputProperties} WHERE {GenerateWhereClause()};";
+		return $"UPDATE {_schemaAndEntity} SET {setClause} OUTPUT {outputProperties} WHERE {GenerateWhereClause()};";
 	}
 
 	public string GenerateUpsertQuery(TAggregate aggregate)
