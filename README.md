@@ -268,6 +268,9 @@ services.AddTableRepository<User, int, IUserRepository, UserRepository>(options 
 
 From here on you can inject an `IUserRepository` anywhere with the built-in Dependency-Injection.
 
+# Documentation
+Auto generated documentation via [DocFx](https://github.com/dotnet/docfx) is available here: https://steffenskov.github.io/Dapper.DDD.Repository/
+
 ## Upcoming features
 
 - Improvements to AggregateConfiguration injection, as the current "explicit interface" approach is a bit annoying for

@@ -46,3 +46,6 @@ public static IServiceCollection AddInfrastructure(this IServiceCollection servi
 ```
 
 And then simply calling `builder.Services.AddInfrastructure` from `Program.cs`.
+
+# Documentation
+Auto generated documentation via [DocFx](https://github.com/dotnet/docfx) is available here: https://steffenskov.github.io/Dapper.DDD.Repository/

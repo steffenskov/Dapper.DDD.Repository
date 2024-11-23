@@ -44,3 +44,6 @@ public class MySqlConnectionFactory : IConnectionFactory
 	}
 }
 ```
+
+# Documentation
+Auto generated documentation via [DocFx](https://github.com/dotnet/docfx) is available here: https://steffenskov.github.io/Dapper.DDD.Repository/

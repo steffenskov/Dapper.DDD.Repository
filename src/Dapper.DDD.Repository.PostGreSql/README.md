@@ -155,6 +155,9 @@ This does two things:
 - Configures Dapper to use the PointTypeMapper we've defined
 - Configures the Repository extension to treat the `Pont` type as a built-in type, which means all the "automagic" functionality of the Repository extension is disabled and Dapper gets to do its thing alone (which is to use the PointTypeMapper)
 
-
+~~~~
 And that's basically it, now you can define properties of the type `Point` in any of your aggregates and the
 built-in `ITableRepository` will work correctly.
+
+# Documentation
+Auto generated documentation via [DocFx](https://github.com/dotnet/docfx) is available here: https://steffenskov.github.io/Dapper.DDD.Repository/

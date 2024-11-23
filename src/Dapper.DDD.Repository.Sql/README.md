@@ -111,3 +111,6 @@ These 2 exceptions will appear if you've missed one of the steps above:
   your own custom Query.
 - `System.ArgumentException : An item with the same key has already been added. Key: Item`: You've not added
   a `TypeConverter` for one or more of your C# geometry types.
+
+# Documentation
+Auto generated documentation via [DocFx](https://github.com/dotnet/docfx) is available here: https://steffenskov.github.io/Dapper.DDD.Repository/
