@@ -85,9 +85,32 @@ internal class SqlQueryGenerator<TAggregate> : IQueryGenerator<TAggregate>
 			                    !property.HasDefaultValue(aggregate)))
 			.ToList();
 
-		var outputProperties = GeneratePropertyList("inserted");
+		if (!_hasTriggers)
+		{
+			var outputProperties = GeneratePropertyList("inserted");
+			return
+				$"INSERT INTO {_schemaAndEntity} ({string.Join(", ", propertiesToInsert.Select(property => AddSquareBrackets(property.Name)))}) OUTPUT {outputProperties} VALUES ({string.Join(", ", propertiesToInsert.Select(property => $"@{property.Name}"))});";
+		}
+
+		var propertyList = GeneratePropertyList(_schemaAndEntity);
+		string whereClause;
+		if (_identities.Any())
+		{
+			if (_identities.Count > 1)
+			{
+				throw new InvalidOperationException("Cannot generate INSERT query for tables with triggers and more than 1 identity column");
+			}
+
+			var identityProperty = _identities[0];
+			whereClause = $"{_schemaAndEntity}.{AddSquareBrackets(identityProperty.Name)} = SCOPE_IDENTITY()";
+		}
+		else
+		{
+			whereClause = GenerateWhereClause();
+		}
+
 		return
-			$"INSERT INTO {_schemaAndEntity} ({string.Join(", ", propertiesToInsert.Select(property => AddSquareBrackets(property.Name)))}) OUTPUT {outputProperties} VALUES ({string.Join(", ", propertiesToInsert.Select(property => $"@{property.Name}"))});";
+			$"INSERT INTO {_schemaAndEntity} ({string.Join(", ", propertiesToInsert.Select(property => AddSquareBrackets(property.Name)))}) VALUES ({string.Join(", ", propertiesToInsert.Select(property => $"@{property.Name}"))}); SELECT {propertyList} FROM {_schemaAndEntity} WHERE {whereClause};";
 	}
 
 	public string GenerateGetAllQuery()
