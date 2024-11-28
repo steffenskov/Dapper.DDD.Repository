@@ -1,4 +1,5 @@
 using System.Reflection;
+using Dapper.DDD.Repository.Sql.IntegrationTests.Repositories;
 using DotNet.Testcontainers.Builders;
 using Microsoft.SqlServer.Management.Common;
 using Microsoft.SqlServer.Management.Smo;
@@ -9,11 +10,11 @@ namespace Dapper.DDD.Repository.Sql.IntegrationTests.Configuration;
 public class ContainerFixture : IAsyncLifetime, IContainerFixture
 {
 	private MsSqlContainer? _container;
-	
+
 	public async Task InitializeAsync()
 	{
 		var connectionFactory = await InitializeTestContainerAsync();
-		
+
 		var services = new ServiceCollection();
 		services.AddOptions();
 		services.ConfigureDapperRepositoryDefaults(options =>
@@ -45,7 +46,7 @@ public class ContainerFixture : IAsyncLifetime, IContainerFixture
 			options.HasKey(x => x.Id);
 			options.HasDefault(x => x.DateCreated);
 		});
-		
+
 		services.AddViewRepository<ProductListView, int, IProductListViewRepository, ProductListViewRepository>(
 			options =>
 			{
@@ -53,7 +54,7 @@ public class ContainerFixture : IAsyncLifetime, IContainerFixture
 				options.HasKey(x => x.ProductID);
 			});
 		services.AddViewRepository<ProductListView>(options => { options.ViewName = "[Current Product List]"; });
-		
+
 		services.AddTableRepository<Customer, Guid, ICustomerRepository, CustomerRepository>(options =>
 		{
 			options.TableName = "CustomersWithValueObject";
@@ -70,11 +71,26 @@ public class ContainerFixture : IAsyncLifetime, IContainerFixture
 			options.TableName = "CustomersWithNestedValueObject";
 			options.HasKey(x => x.Id);
 		});
+		services.AddTableRepository<TriggerEntityWithIdentity, int, ITriggerRepositoryWithIdentity, TriggerRepositoryWithIdentity>(options =>
+		{
+			options.TableName = "TriggersWithIdentity";
+			options.HasKey(e => e.Id);
+			options.HasIdentity(e => e.Id);
+			options.HasTriggers = true;
+			options.HasDefault(e => e.DateCreated);
+		});
+		services.AddTableRepository<TriggerEntityWithoutIdentity, int, ITriggerRepositoryWithoutIdentity, TriggerRepositoryWithoutIdentity>(options =>
+		{
+			options.TableName = "TriggersWithoutIdentity";
+			options.HasKey(e => e.Id);
+			options.HasTriggers = true;
+			options.HasDefault(e => e.DateCreated);
+		});
 		services.AddViewRepository<string, IInvalidQueryRepository, InvalidQueryRepository>(options => { options.ViewName = "InvalidView"; });
 		services.AddViewRepository<DummyAggregate, int>(options => { options.ViewName = "DummyView"; });
 		Provider = services.BuildServiceProvider();
 	}
-	
+
 	public async Task DisposeAsync()
 	{
 		if (_container is not null)
@@ -82,41 +98,41 @@ public class ContainerFixture : IAsyncLifetime, IContainerFixture
 			await _container.DisposeAsync();
 		}
 	}
-	
+
 	public ServiceProvider Provider { get; private set; } = default!;
-	
+
 	private async Task<SqlConnectionFactory> InitializeTestContainerAsync()
 	{
 		_container = new MsSqlBuilder()
 			.WithImage("mcr.microsoft.com/mssql/server:2022-latest")
 			.WithWaitStrategy(Wait.ForUnixContainer().UntilPortIsAvailable(MsSqlBuilder.MsSqlPort))
 			.Build();
-		
+
 		var startTask = _container.StartAsync();
-		
+
 		var northwindScript = await GetNorthwindScriptAsync();
 		await startTask;
 		var connectionString = _container.GetConnectionString();
-		
+
 		await using var sqlConnection = new SqlConnection(connectionString);
 		var svrConnection = new ServerConnection(sqlConnection);
 		var server = new Server(svrConnection);
 		server.ConnectionContext.ExecuteNonQuery(northwindScript);
-		
+
 		return new SqlConnectionFactory(connectionString);
 	}
-	
+
 	private static async Task<string> GetNorthwindScriptAsync()
 	{
 		var assembly = Assembly.GetExecutingAssembly();
 		var resourceName = @"Dapper.DDD.Repository.Sql.IntegrationTests.Resources.northwind.sql";
-		
+
 		await using var stream = assembly.GetManifestResourceStream(resourceName);
 		if (stream is null)
 		{
 			throw new InvalidOperationException("Couldn't open northwind.sql");
 		}
-		
+
 		using var reader = new StreamReader(stream);
 		return await reader.ReadToEndAsync();
 	}

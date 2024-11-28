@@ -12396,3 +12396,32 @@ GO
 ALTER TABLE CustomersWithNestedValueObject
 	ADD CONSTRAINT PK_CustomersWithNestedValueObject PRIMARY KEY (Id);
 GO
+CREATE TABLE TriggersWithIdentity
+(
+	Id		INT		NOT NULL	PRIMARY KEY	IDENTITY(1,1),
+	Name		VARCHAR(100)	NOT NULL,
+	DateCreated	DATETIME	NOT NULL	DEFAULT(GETUTCDATE())
+);
+GO
+CREATE TRIGGER trigger_with_identity
+ON TriggersWithIdentity 
+AFTER INSERT
+AS
+PRINT 'TRIGGER!!!'
+
+GO
+
+CREATE TABLE TriggersWithoutIdentity
+(
+        Id              INT             NOT NULL        PRIMARY KEY,
+        Name            VARCHAR(100)    NOT NULL,
+        DateCreated     DATETIME        NOT NULL        DEFAULT(GETUTCDATE())
+);
+GO
+CREATE TRIGGER trigger_without_identity
+ON TriggersWithoutIdentity
+AFTER INSERT
+AS
+PRINT 'TRIGGER!!!'
+
+GO
