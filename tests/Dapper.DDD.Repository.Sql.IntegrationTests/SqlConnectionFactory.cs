@@ -1,5 +1,4 @@
 ﻿using System.Data;
-using Dapper.DDD.Repository.Interfaces;
 
 namespace Dapper.DDD.Repository.Sql.IntegrationTests;
 
