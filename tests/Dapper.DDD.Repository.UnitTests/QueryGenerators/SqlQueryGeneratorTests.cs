@@ -401,6 +401,36 @@ public class SqlQueryGeneratorTests
 	#region Insert
 
 	[Fact]
+	public void GenerateInsertQuery_HasTriggersAndIdentity_SelectsViaIdentity()
+	{
+		// Arrange
+		var generator = CreateHasTriggersQueryGenerator();
+
+		// Act 
+		var insertQuery = generator.GenerateInsertQuery(new SinglePrimaryKeyAggregate());
+
+		// Assert
+		Assert.Equal(
+			"INSERT INTO [dbo].[Users] ([Username], [Password]) VALUES (@Username, @Password); SELECT [dbo].[Users].[Id], [dbo].[Users].[Username], [dbo].[Users].[Password] FROM [dbo].[Users] WHERE [dbo].[Users].[Id] = SCOPE_IDENTITY();",
+			insertQuery);
+	}
+
+	[Fact]
+	public void GenerateInsertQuery_HasTriggersAndNoIdentity_SelectsViaPrimaryKey()
+	{
+		// Arrange
+		var generator = CreateHasTriggersButNoIdentityQueryGenerator();
+
+		// Act 
+		var insertQuery = generator.GenerateInsertQuery(new SinglePrimaryKeyAggregate());
+
+		// Assert
+		Assert.Equal(
+			"INSERT INTO [dbo].[Users] ([Id], [Username], [Password]) VALUES (@Id, @Username, @Password); SELECT [dbo].[Users].[Id], [dbo].[Users].[Username], [dbo].[Users].[Password] FROM [dbo].[Users] WHERE [dbo].[Users].[Id] = @Id;",
+			insertQuery);
+	}
+
+	[Fact]
 	public void GenerateInsertQuery_HasNestedValueObject_Valid()
 	{
 		// Arrange
@@ -883,6 +913,19 @@ END",
 		};
 		configuration.HasKey(aggregate => aggregate.Id);
 		configuration.HasIdentity(aggregate => aggregate.Id);
+		var generator = new SqlQueryGenerator<SinglePrimaryKeyAggregate>(configuration);
+		return generator;
+	}
+
+	private static SqlQueryGenerator<SinglePrimaryKeyAggregate> CreateHasTriggersButNoIdentityQueryGenerator()
+	{
+		var configuration = new TableAggregateConfiguration<SinglePrimaryKeyAggregate>
+		{
+			Schema = "dbo",
+			TableName = "Users",
+			HasTriggers = true
+		};
+		configuration.HasKey(aggregate => aggregate.Id);
 		var generator = new SqlQueryGenerator<SinglePrimaryKeyAggregate>(configuration);
 		return generator;
 	}
