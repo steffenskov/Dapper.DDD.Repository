@@ -90,7 +90,7 @@ public class TriggerTests
 		var inserted = await _identityRepository.InsertAsync(entityToInsert);
 
 		// Act
-		var updatedEntity = await _identityRepository.UpdateAsync(new TriggerEntityWithIdentity { Id = inserted.Id, Name = "Updated Hello World" });
+		var updatedEntity = await _identityRepository.UpdateAsync(new TriggerEntityWithIdentity { Id = inserted.Id, Name = "Updated Hello World", DateCreated = DateTime.UtcNow });
 
 		// Assert
 		Assert.NotNull(updatedEntity);
@@ -106,7 +106,7 @@ public class TriggerTests
 		await _noIdentityRepository.InsertAsync(entityToInsert);
 
 		// Act
-		var updatedEntity = await _noIdentityRepository.UpdateAsync(new TriggerEntityWithoutIdentity { Id = id, Name = "Updated Hello World" });
+		var updatedEntity = await _noIdentityRepository.UpdateAsync(new TriggerEntityWithoutIdentity { Id = id, Name = "Updated Hello World", DateCreated = DateTime.UtcNow });
 
 		// Assert
 		Assert.NotNull(updatedEntity);

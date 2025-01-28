@@ -109,7 +109,7 @@ internal class MySqlQueryGenerator<TAggregate> : IQueryGenerator<TAggregate>
 
 	public string GenerateUpdateQuery(TAggregate aggregate)
 	{
-		var setClause = GenerateSetClause(aggregate);
+		var setClause = GenerateSetClause();
 
 		if (string.IsNullOrEmpty(setClause))
 		{
@@ -135,7 +135,7 @@ internal class MySqlQueryGenerator<TAggregate> : IQueryGenerator<TAggregate>
 		var semicolonIndex = insertQuery.IndexOf(';');
 		var insertPart = insertQuery[..semicolonIndex];
 		var selectQuery = GenerateGetQuery();
-		var setClause = GenerateSetClause(aggregate);
+		var setClause = GenerateSetClause();
 		var onDuplicateClause = string.IsNullOrWhiteSpace(setClause)
 			? ""
 			: $" ON DUPLICATE KEY UPDATE {setClause}";
@@ -143,13 +143,11 @@ internal class MySqlQueryGenerator<TAggregate> : IQueryGenerator<TAggregate>
 	}
 
 	#region Helpers
-	private string GenerateSetClause(TAggregate aggregate)
+	private string GenerateSetClause()
 	{
 		var primaryKeys = _keys;
-		var propertiesWithDefaultValues = _defaultConstraints;
 		var propertiesToSet = _properties.Where(property =>
-			!primaryKeys.Contains(property) && property.HasSetter &&
-			(!propertiesWithDefaultValues.Contains(property) || !property.HasDefaultValue(aggregate)));
+			!primaryKeys.Contains(property) && property.HasSetter );
 		return string.Join(", ", propertiesToSet.Select(property => $"{property.Name} = @{property.Name}"));
 	}
 

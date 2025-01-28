@@ -21,12 +21,12 @@ internal class MemberAccessor
 		}
 
 		Name = property.Name;
+		HasSetter = property.CanWrite;
 		_getter = GetGetMethod(property);
 		_setter = GetSetMethod(property);
 	}
 
-	public bool HasGetter => _getter != null;
-	public bool HasSetter => _setter != null;
+	public bool HasSetter { get; }
 	public string Name { get; }
 
 	public object? GetValue(object target)
