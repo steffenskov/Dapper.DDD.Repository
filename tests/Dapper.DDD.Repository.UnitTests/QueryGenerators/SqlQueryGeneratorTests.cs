@@ -852,7 +852,7 @@ END",
 		Assert.Equal(
 			@"IF EXISTS (SELECT TOP 1 1 FROM [dbo].[Users] WHERE [dbo].[Users].[Id] = @Id)
 BEGIN
-SELECT [dbo].[Users].[Id], [dbo].[Users].[DateCreated] FROM [dbo].[Users] WHERE [dbo].[Users].[Id] = @Id;
+UPDATE [dbo].[Users] SET [dbo].[Users].[DateCreated] = @DateCreated OUTPUT [inserted].[Id], [inserted].[DateCreated] WHERE [dbo].[Users].[Id] = @Id;
 END
 ELSE
 BEGIN

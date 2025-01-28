@@ -130,7 +130,7 @@ internal class SqlQueryGenerator<TAggregate> : IQueryGenerator<TAggregate>
 
 	public string GenerateUpdateQuery(TAggregate aggregate)
 	{
-		var setClause = GenerateSetClause(aggregate);
+		var setClause = GenerateSetClause();
 
 		if (string.IsNullOrEmpty(setClause))
 		{
@@ -159,7 +159,7 @@ internal class SqlQueryGenerator<TAggregate> : IQueryGenerator<TAggregate>
 		}
 
 		var whereClause = GenerateWhereClause();
-		var setClause = GenerateSetClause(aggregate);
+		var setClause = GenerateSetClause();
 		var updateQuery = string.IsNullOrEmpty(setClause)
 			? GenerateGetQuery() // Use select query instead of update, as nothing can be updated but we still expect the aggregate to be returned
 			: GenerateUpdateQuery(aggregate);
@@ -181,13 +181,11 @@ END";
 		return string.Join(", ", _properties.Select(property => GeneratePropertyClause(tableName, property)));
 	}
 
-	private string GenerateSetClause(TAggregate aggregate)
+	private string GenerateSetClause()
 	{
 		var primaryKeys = _keys;
-		var propertiesWithDefaultValues = _defaultConstraints;
 		var propertiesToSet = _properties.Where(property =>
-			!primaryKeys.Contains(property) && property.HasSetter &&
-			(!propertiesWithDefaultValues.Contains(property) || !property.HasDefaultValue(aggregate)));
+			!primaryKeys.Contains(property) && property.HasSetter);
 		var result = string.Join(", ",
 			propertiesToSet.Select(property =>
 				$"{_schemaAndEntity}.{AddSquareBrackets(property.Name)} = @{property.Name}"));

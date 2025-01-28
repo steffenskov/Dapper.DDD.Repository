@@ -1,14 +1,13 @@
 using Dapper.DDD.Repository.PostGreSql;
 using Dapper.DDD.Repository.UnitTests.Aggregates;
 using Dapper.DDD.Repository.UnitTests.ValueObjects;
-using NetTopologySuite.Geometries;
-using NetTopologySuite.IO;
 
 namespace Dapper.DDD.Repository.UnitTests.QueryGenerators;
 
 public class PostGrePostGreSqlQueryGeneratorTests
 {
 	#region Constructor
+
 	[Fact]
 	public void Constructor_TableNameIsNull_Throws()
 	{
@@ -57,9 +56,11 @@ public class PostGrePostGreSqlQueryGeneratorTests
 		// Act && assert
 		Assert.Throws<ArgumentException>(() => new PostGreSqlQueryGenerator<SinglePrimaryKeyAggregate>(configuration));
 	}
+
 	#endregion
 
 	#region Delete
+
 	[Fact]
 	public void GenerateDeleteQuery_HasNestedValueObject_Valid()
 	{
@@ -163,9 +164,11 @@ public class PostGrePostGreSqlQueryGeneratorTests
 			"DELETE FROM public.Users WHERE public.Users.Username = @Username AND public.Users.Password = @Password RETURNING public.Users.Username, public.Users.Password, public.Users.DateCreated;",
 			deleteQuery);
 	}
+
 	#endregion
 
 	#region GetAll
+
 	[Fact]
 	public void GenerateGetAllQuery_HasNestedValueObject_Valid()
 	{
@@ -239,9 +242,11 @@ public class PostGrePostGreSqlQueryGeneratorTests
 			"SELECT public.Users.Id, public.Users.Username, public.Users.Password FROM public.Users;",
 			selectQuery);
 	}
+
 	#endregion
 
 	#region Get
+
 	[Fact]
 	public void GenerateGetQuery_HasNestedValueObject_Valid()
 	{
@@ -331,9 +336,11 @@ public class PostGrePostGreSqlQueryGeneratorTests
 			"SELECT public.Users.Username, public.Users.Password, public.Users.DateCreated FROM public.Users WHERE public.Users.Username = @Username AND public.Users.Password = @Password;",
 			selectQuery);
 	}
+
 	#endregion
 
 	#region Insert
+
 	[Fact]
 	public void GenerateInsertQuery_HasNestedValueObject_Valid()
 	{
@@ -485,9 +492,11 @@ public class PostGrePostGreSqlQueryGeneratorTests
 			"INSERT INTO public.Users (Username, Password, DateCreated) VALUES (@Username, @Password, @DateCreated) RETURNING public.Users.Username, public.Users.Password, public.Users.DateCreated;",
 			insertQuery);
 	}
+
 	#endregion
 
 	#region Update
+
 	[Fact]
 	public void GenerateUpdateQuery_HasNestedValueObject_Valid()
 	{
@@ -614,9 +623,11 @@ public class PostGrePostGreSqlQueryGeneratorTests
 			"UPDATE public.Users SET Age = @Age WHERE public.Users.Id = @Id RETURNING public.Users.Id, public.Users.Age, public.Users.DateCreated;",
 			query);
 	}
+
 	#endregion
 
 	#region Upsert
+
 	[Fact]
 	public void GenerateUpsertQuery_HasIdentity_ReturnsInsertQuery()
 	{
@@ -655,7 +666,8 @@ public class PostGrePostGreSqlQueryGeneratorTests
 		var query = generator.GenerateUpsertQuery(new CompositePrimaryKeyAggregate());
 
 		// Assert
-		Assert.Equal("INSERT INTO public.Users (Username, Password, DateCreated) VALUES (@Username, @Password, @DateCreated) ON CONFLICT (Username, Password) DO UPDATE SET DateCreated = @DateCreated WHERE public.Users.Username = @Username AND public.Users.Password = @Password RETURNING public.Users.Username, public.Users.Password, public.Users.DateCreated;",
+		Assert.Equal(
+			"INSERT INTO public.Users (Username, Password, DateCreated) VALUES (@Username, @Password, @DateCreated) ON CONFLICT (Username, Password) DO UPDATE SET DateCreated = @DateCreated WHERE public.Users.Username = @Username AND public.Users.Password = @Password RETURNING public.Users.Username, public.Users.Password, public.Users.DateCreated;",
 			query);
 	}
 
@@ -663,15 +675,23 @@ public class PostGrePostGreSqlQueryGeneratorTests
 	public void GenerateUpsertQuery_HasNoUpdatableColumns_Throws()
 	{
 		// Arrange
-		var generator = CreateHasDefaultConstraintAggregateQueryGenerator();
+		var configuration = new TableAggregateConfiguration<AllPropertiesHasMissingSetterAggregate>
+		{
+			Schema = "public", TableName = "Users"
+		};
+		configuration.HasKey(aggregate => aggregate.Id);
+		configuration.HasDefault(aggregate => aggregate.DateCreated);
+		var generator = new PostGreSqlQueryGenerator<AllPropertiesHasMissingSetterAggregate>(configuration);
 
 		// Act && Assert
-		var ex = Assert.Throws<InvalidOperationException>(() => generator.GenerateUpsertQuery(new HasDefaultConstraintAggregate()));
+		var ex = Assert.Throws<InvalidOperationException>(() => generator.GenerateUpsertQuery(new AllPropertiesHasMissingSetterAggregate()));
 		Assert.Equal("PostGreSql does not support Upsert on tables with no updatable columns.", ex.Message);
 	}
+
 	#endregion
 
 	#region Constructors
+
 	private static PostGreSqlQueryGenerator<HasDefaultConstraintAggregate>
 		CreateHasDefaultConstraintAggregateQueryGenerator()
 	{
@@ -762,5 +782,6 @@ public class PostGrePostGreSqlQueryGeneratorTests
 		var generator = new PostGreSqlQueryGenerator<AggregateWithNestedValueObject>(config);
 		return generator;
 	}
+
 	#endregion
 }

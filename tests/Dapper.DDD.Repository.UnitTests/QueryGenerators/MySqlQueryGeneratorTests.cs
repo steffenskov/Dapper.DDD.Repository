@@ -19,7 +19,6 @@ public class MySqlQueryGeneratorTests
 			() => new MySqlQueryGenerator<SinglePrimaryKeyAggregate>(configuration));
 
 		Assert.Equal("Value cannot be null. (Parameter 'readConfiguration.EntityName')", ex.Message);
-
 	}
 
 	[Fact]
@@ -37,10 +36,10 @@ public class MySqlQueryGeneratorTests
 	public void Constructor_SchemaIsNotNull_Throws()
 	{
 		// Arrange
-		var configuration = new TableAggregateConfiguration<SinglePrimaryKeyAggregate> { TableName = "Some name", Schema = " "};
+		var configuration = new TableAggregateConfiguration<SinglePrimaryKeyAggregate> { TableName = "Some name", Schema = " " };
 		// Act && Assert
 		var ex = Assert.Throws<ArgumentException>(() => new MySqlQueryGenerator<SinglePrimaryKeyAggregate>(configuration));
-		
+
 		Assert.Equal("MySql doesn't support Schema. (Parameter 'configuration')", ex.Message);
 	}
 
@@ -121,6 +120,7 @@ public class MySqlQueryGeneratorTests
 			@"SELECT Users.Username, Users.Password, Users.DateCreated FROM Users WHERE Users.Username = @Username AND Users.Password = @Password;DELETE FROM Users WHERE Users.Username = @Username AND Users.Password = @Password;",
 			deleteQuery);
 	}
+
 	#endregion
 
 	#region GetAll
@@ -177,6 +177,7 @@ public class MySqlQueryGeneratorTests
 		// Assert
 		Assert.Equal("SELECT Users.Id, Users.Username, Users.Password FROM Users;", selectQuery);
 	}
+
 	#endregion
 
 	#region Get
@@ -251,6 +252,7 @@ public class MySqlQueryGeneratorTests
 			"SELECT Users.Username, Users.Password, Users.DateCreated FROM Users WHERE Users.Username = @Username AND Users.Password = @Password;",
 			selectQuery);
 	}
+
 	#endregion
 
 	#region Insert
@@ -262,11 +264,11 @@ public class MySqlQueryGeneratorTests
 		var defaultConfig = new DefaultConfiguration();
 		var config = new TableAggregateConfiguration<AggregateWithNestedValueObject> { TableName = "Users" };
 		config.HasKey(x => x.Id);
-		config.HasIdentity((x => x.Id));
-		config.HasIdentity((x => x.FirstLevel));
+		config.HasIdentity(x => x.Id);
+		config.HasIdentity(x => x.FirstLevel);
 		config.SetDefaults(defaultConfig);
 		var generator = new MySqlQueryGenerator<AggregateWithNestedValueObject>(config);
-		
+
 		// Act && Assert
 		var ex = Assert.Throws<InvalidOperationException>(() => generator.GenerateInsertQuery(new AggregateWithNestedValueObject(
 			Guid.NewGuid(),
@@ -412,6 +414,7 @@ public class MySqlQueryGeneratorTests
 			@"INSERT INTO Users (Username, Password, DateCreated) VALUES (@Username, @Password, @DateCreated);SELECT Users.Username, Users.Password, Users.DateCreated FROM Users WHERE Users.Username = @Username AND Users.Password = @Password;",
 			insertQuery);
 	}
+
 	#endregion
 
 	#region Update
@@ -523,6 +526,7 @@ public class MySqlQueryGeneratorTests
 			@"UPDATE Users SET Age = @Age WHERE Users.Id = @Id;SELECT Users.Id, Users.Age, Users.DateCreated FROM Users WHERE Users.Id = @Id;",
 			query);
 	}
+
 	#endregion
 
 	#region Upsert
@@ -535,7 +539,7 @@ public class MySqlQueryGeneratorTests
 
 		// Act
 		var query = generator.GenerateUpsertQuery(new SinglePrimaryKeyAggregate());
-		var insertQuery = generator.GenerateInsertQuery(new SinglePrimaryKeyAggregate()); 
+		var insertQuery = generator.GenerateInsertQuery(new SinglePrimaryKeyAggregate());
 
 		// Assert
 		Assert.Equal(insertQuery, query);
@@ -548,7 +552,7 @@ public class MySqlQueryGeneratorTests
 		var generator = CreateSinglePrimaryKeyAggregateQueryGenerator();
 
 		// Act
-		var query = generator.GenerateUpsertQuery(new SinglePrimaryKeyAggregate{ Id = 42 });
+		var query = generator.GenerateUpsertQuery(new SinglePrimaryKeyAggregate { Id = 42 });
 		var updateQuery = generator.GenerateUpdateQuery(new SinglePrimaryKeyAggregate());
 
 		// Assert
@@ -574,18 +578,23 @@ public class MySqlQueryGeneratorTests
 	public void GenerateUpsertQuery_HasNoUpdatableColumns_Valid()
 	{
 		// Arrange
-		var generator = CreateHasDefaultConstraintAggregateQueryGenerator();
+		var configuration =
+			new TableAggregateConfiguration<AllPropertiesHasMissingSetterAggregate> { TableName = "Users" };
+		configuration.HasKey(aggregate => aggregate.Id);
+		configuration.HasDefault(aggregate => aggregate.DateCreated);
+		var generator = new MySqlQueryGenerator<AllPropertiesHasMissingSetterAggregate>(configuration);
 
 		// Act
-		var query = generator.GenerateUpsertQuery(new HasDefaultConstraintAggregate());
+		var query = generator.GenerateUpsertQuery(new AllPropertiesHasMissingSetterAggregate());
 
 		// Assert
 		Assert.Equal(
 			@"INSERT INTO Users (Id) VALUES (@Id);SELECT Users.Id, Users.DateCreated FROM Users WHERE Users.Id = @Id;",
 			query);
 	}
+
 	#endregion
-	
+
 	#region Constructors
 
 	private static MySqlQueryGenerator<HasDefaultConstraintAggregate>

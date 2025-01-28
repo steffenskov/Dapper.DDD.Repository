@@ -92,7 +92,7 @@ internal class PostGreSqlQueryGenerator<TAggregate> : IQueryGenerator<TAggregate
 
 	public string GenerateUpdateQuery(TAggregate aggregate)
 	{
-		var setClause = GenerateSetClause(aggregate);
+		var setClause = GenerateSetClause();
 
 		if (string.IsNullOrEmpty(setClause))
 		{
@@ -117,7 +117,7 @@ internal class PostGreSqlQueryGenerator<TAggregate> : IQueryGenerator<TAggregate
 				: insertQuery; // All identities are default => do an insert
 		}
 
-		var setClause = GenerateSetClause(aggregate);
+		var setClause = GenerateSetClause();
 		if (string.IsNullOrEmpty(setClause))
 			throw new InvalidOperationException("PostGreSql does not support Upsert on tables with no updatable columns.");
 
@@ -138,13 +138,11 @@ internal class PostGreSqlQueryGenerator<TAggregate> : IQueryGenerator<TAggregate
 		return string.Join(", ", _properties.Select(property => GeneratePropertyClause(tableName, property)));
 	}
 
-	private string GenerateSetClause(TAggregate aggregate)
+	private string GenerateSetClause()
 	{
 		var primaryKeys = _keys;
-		var propertiesWithDefaultValues = _defaultConstraints;
 		var propertiesToSet = _properties.Where(property =>
-			!primaryKeys.Contains(property) && property.HasSetter &&
-			(!propertiesWithDefaultValues.Contains(property) || !property.HasDefaultValue(aggregate)));
+			!primaryKeys.Contains(property) && property.HasSetter );
 		var result = string.Join(", ",
 			propertiesToSet.Select(property =>
 				$"{property.Name} = @{property.Name}"));
