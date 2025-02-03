@@ -10,7 +10,7 @@
 	</PropertyGroup>
 	<ItemGroup>
 		<PackageReference Include="AutoFixture" Version="5.0.0-preview0012"/>
-		<PackageReference Include="AutoFixture.Xunit2" Version="5.0.0-preview0011"/>
+		<PackageReference Include="AutoFixture.Xunit2" Version="5.0.0-preview0012"/>
 		<PackageReference Include="Dapper" Version="2.1.35" />
 		<PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="9.0.1"/>
 		<PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.12.0" />
