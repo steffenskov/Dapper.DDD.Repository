@@ -20,10 +20,10 @@ public abstract class BaseAggregateWithValueObjectAsyncTests : BaseTests
 	public async Task GetAll_NoInput_Valid(Customer aggregate)
 	{
 		// Arrange
-		_ = await _repository.InsertAsync(aggregate);
+		_ = await _repository.InsertAsync(aggregate, TestContext.Current.CancellationToken);
 		
 		// Act
-		var fetchedEntities = await _repository.GetAllAsync();
+		var fetchedEntities = await _repository.GetAllAsync(TestContext.Current.CancellationToken);
 		
 		// Assert
 		Assert.True(fetchedEntities.Count() > 0);
@@ -37,7 +37,7 @@ public abstract class BaseAggregateWithValueObjectAsyncTests : BaseTests
 	public async Task Delete_UseMissingPrimaryKeyValue_ReturnsNull()
 	{
 		// Act
-		var deleted = await _repository.DeleteAsync(Guid.NewGuid());
+		var deleted = await _repository.DeleteAsync(Guid.NewGuid(),TestContext.Current.CancellationToken);
 		
 		// Assert
 		Assert.Null(deleted);
@@ -48,10 +48,10 @@ public abstract class BaseAggregateWithValueObjectAsyncTests : BaseTests
 	public async Task Delete_UsePrimaryKey_Valid(Customer aggregate)
 	{
 		// Arrange
-		var insertedAggregate = await _repository.InsertAsync(aggregate);
+		var insertedAggregate = await _repository.InsertAsync(aggregate,TestContext.Current.CancellationToken);
 		
 		// Act
-		var deleted = await _repository.DeleteAsync(insertedAggregate.Id);
+		var deleted = await _repository.DeleteAsync(insertedAggregate.Id,TestContext.Current.CancellationToken);
 		
 		// Assert
 		Assert.Equal(insertedAggregate, deleted);
@@ -67,23 +67,23 @@ public abstract class BaseAggregateWithValueObjectAsyncTests : BaseTests
 	public async Task Get_UsePrimaryKey_Valid(Customer aggregate)
 	{
 		// Arrange
-		var insertedAggregate = await _repository.InsertAsync(aggregate);
+		var insertedAggregate = await _repository.InsertAsync(aggregate,TestContext.Current.CancellationToken);
 		
 		// Act
-		var gotten = await _repository.GetAsync(insertedAggregate.Id);
+		var gotten = await _repository.GetAsync(insertedAggregate.Id,TestContext.Current.CancellationToken);
 		
 		// Assert
 		Assert.Equal(insertedAggregate, gotten);
 		Assert.NotSame(insertedAggregate, gotten);
 		
-		_ = await _repository.DeleteAsync(insertedAggregate.Id);
+		_ = await _repository.DeleteAsync(insertedAggregate.Id,TestContext.Current.CancellationToken);
 	}
 	
 	[Fact]
 	public async Task Get_UseMissingPrimaryKey_ReturnsNull()
 	{
 		// Act
-		var gotten = await _repository.GetAsync(Guid.NewGuid());
+		var gotten = await _repository.GetAsync(Guid.NewGuid(),TestContext.Current.CancellationToken);
 		
 		// Assert
 		Assert.Null(gotten);
@@ -97,7 +97,7 @@ public abstract class BaseAggregateWithValueObjectAsyncTests : BaseTests
 	public async Task Insert_InputIsNull_Throws()
 	{
 		// Act && Assert
-		_ = await Assert.ThrowsAsync<ArgumentNullException>(async () => await _repository.InsertAsync(null!));
+		_ = await Assert.ThrowsAsync<ArgumentNullException>(async () => await _repository.InsertAsync(null!,TestContext.Current.CancellationToken));
 	}
 	
 	[Theory]
@@ -105,7 +105,7 @@ public abstract class BaseAggregateWithValueObjectAsyncTests : BaseTests
 	public async Task Insert_HasAllValues_IsInserted(Customer aggregate)
 	{
 		// Act
-		var insertedAggregate = await _repository.InsertAsync(aggregate);
+		var insertedAggregate = await _repository.InsertAsync(aggregate,TestContext.Current.CancellationToken);
 		try
 		{
 			// Assert
@@ -114,7 +114,7 @@ public abstract class BaseAggregateWithValueObjectAsyncTests : BaseTests
 		}
 		finally
 		{
-			_ = await _repository.DeleteAsync(insertedAggregate.Id);
+			_ = await _repository.DeleteAsync(insertedAggregate.Id,TestContext.Current.CancellationToken);
 		}
 	}
 	
@@ -127,7 +127,7 @@ public abstract class BaseAggregateWithValueObjectAsyncTests : BaseTests
 		
 		// Act && Assert
 		_ = await Assert.ThrowsAsync<DapperRepositoryQueryException>(async () =>
-			await _repository.InsertAsync(aggregate));
+			await _repository.InsertAsync(aggregate,TestContext.Current.CancellationToken));
 	}
 	
 	#endregion
@@ -138,7 +138,7 @@ public abstract class BaseAggregateWithValueObjectAsyncTests : BaseTests
 	public async Task Update_InputIsNull_Throws()
 	{
 		// Act && Assert
-		_ = await Assert.ThrowsAsync<ArgumentNullException>(async () => await _repository.UpdateAsync(null!));
+		_ = await Assert.ThrowsAsync<ArgumentNullException>(async () => await _repository.UpdateAsync(null!,TestContext.Current.CancellationToken));
 	}
 	
 	[Theory]
@@ -146,17 +146,17 @@ public abstract class BaseAggregateWithValueObjectAsyncTests : BaseTests
 	public async Task Update_UseAggregate_Valid(Customer aggregate)
 	{
 		// Arrange
-		var insertedAggregate = await _repository.InsertAsync(aggregate);
+		var insertedAggregate = await _repository.InsertAsync(aggregate,TestContext.Current.CancellationToken);
 		
 		var update = insertedAggregate with { Name = "Some new name" };
 		
 		// Act
-		var updatedAggregate = await _repository.UpdateAsync(update);
+		var updatedAggregate = await _repository.UpdateAsync(update,TestContext.Current.CancellationToken);
 		
 		// Assert
 		Assert.Equal("Some new name", updatedAggregate?.Name);
 		
-		_ = await _repository.DeleteAsync(insertedAggregate.Id);
+		_ = await _repository.DeleteAsync(insertedAggregate.Id,TestContext.Current.CancellationToken);
 	}
 	
 	[Fact]
@@ -169,7 +169,7 @@ public abstract class BaseAggregateWithValueObjectAsyncTests : BaseTests
 		};
 		
 		// Act 
-		var updated = await _repository.UpdateAsync(aggregate);
+		var updated = await _repository.UpdateAsync(aggregate,TestContext.Current.CancellationToken);
 		
 		// Assert
 		Assert.Null(updated);

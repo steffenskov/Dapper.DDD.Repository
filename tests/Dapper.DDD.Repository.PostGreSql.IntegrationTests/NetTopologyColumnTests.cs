@@ -29,10 +29,10 @@ public class NetTopologyColumnTests
 		city.GeoLocation.SRID = 25832;
 		city.Area.SRID = 25832;
 		
-		await _repository.InsertAsync(city);
+		await _repository.InsertAsync(city,TestContext.Current.CancellationToken);
 		
 		// Act
-		var result = await _repository.DeleteAsync(city.Id);
+		var result = await _repository.DeleteAsync(city.Id,TestContext.Current.CancellationToken);
 		
 		// Assert
 		Assert.Equal(city, result);
@@ -55,7 +55,7 @@ public class NetTopologyColumnTests
 		city.Area.SRID = 25832;
 		
 		// Act
-		var result = await _repository.InsertAsync(city);
+		var result = await _repository.InsertAsync(city,TestContext.Current.CancellationToken);
 		
 		// Assert
 		try
@@ -66,7 +66,7 @@ public class NetTopologyColumnTests
 		}
 		finally
 		{
-			await _repository.DeleteAsync(city.Id);
+			await _repository.DeleteAsync(city.Id,TestContext.Current.CancellationToken);
 		}
 	}
 	
@@ -85,10 +85,10 @@ public class NetTopologyColumnTests
 		};
 		city.GeoLocation.SRID = 25832;
 		city.Area.SRID = 25832;
-		await _repository.InsertAsync(city);
+		await _repository.InsertAsync(city,TestContext.Current.CancellationToken);
 		
 		// Act
-		var result = (await _repository.GetAllAsync()).ToList();
+		var result = (await _repository.GetAllAsync(TestContext.Current.CancellationToken)).ToList();
 		
 		// Assert
 		try
@@ -100,7 +100,7 @@ public class NetTopologyColumnTests
 		}
 		finally
 		{
-			await _repository.DeleteAsync(city.Id);
+			await _repository.DeleteAsync(city.Id,TestContext.Current.CancellationToken);
 		}
 	}
 	
@@ -119,10 +119,10 @@ public class NetTopologyColumnTests
 		};
 		city.GeoLocation.SRID = 25832;
 		city.Area.SRID = 25832;
-		await _repository.InsertAsync(city);
+		await _repository.InsertAsync(city,TestContext.Current.CancellationToken);
 		
 		// Act
-		var fetchedCity = await _repository.GetAsync(city.Id);
+		var fetchedCity = await _repository.GetAsync(city.Id,TestContext.Current.CancellationToken);
 		
 		// Assert
 		try
@@ -132,7 +132,7 @@ public class NetTopologyColumnTests
 		}
 		finally
 		{
-			await _repository.DeleteAsync(city.Id);
+			await _repository.DeleteAsync(city.Id,TestContext.Current.CancellationToken);
 		}
 	}
 	
@@ -151,7 +151,7 @@ public class NetTopologyColumnTests
 		};
 		city.GeoLocation.SRID = 25832;
 		city.Area.SRID = 25832;
-		await _repository.InsertAsync(city);
+		await _repository.InsertAsync(city,TestContext.Current.CancellationToken);
 		
 		// Act
 		var newArea = Geometry.DefaultFactory.CreatePolygon(new Coordinate[]
@@ -159,7 +159,7 @@ public class NetTopologyColumnTests
 			new(10, 10), new(10, 20), new(20, 20), new(20, 10), new(10, 10)
 		});
 		newArea.SRID = 1234;
-		var updatedCity = await _repository.UpdateAsync(city with { Area = newArea });
+		var updatedCity = await _repository.UpdateAsync(city with { Area = newArea },TestContext.Current.CancellationToken);
 		
 		// Assert
 		try
@@ -169,7 +169,7 @@ public class NetTopologyColumnTests
 		}
 		finally
 		{
-			await _repository.DeleteAsync(city.Id);
+			await _repository.DeleteAsync(city.Id,TestContext.Current.CancellationToken);
 		}
 	}
 }

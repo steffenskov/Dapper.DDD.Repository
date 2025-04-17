@@ -3,19 +3,19 @@ namespace Dapper.DDD.Repository.IntegrationTests;
 public abstract class OtherTests : BaseTests
 {
 	private readonly ITableRepository<CompositeUser, CompositeUserId> _repository;
-	
+
 	protected OtherTests(IContainerFixture fixture) : base(fixture)
 	{
 		_repository = fixture.Provider.GetRequiredService<ITableRepository<CompositeUser, CompositeUserId>>();
 	}
-	
+
 	[Theory]
 	[AutoDomainData]
 	public async Task Insert_RelyOnDefaultConstraint_Valid(CompositeUser aggregate)
 	{
 		// Act
-		var insertedAggregate = await _repository.InsertAsync(aggregate);
-		
+		var insertedAggregate = await _repository.InsertAsync(aggregate, TestContext.Current.CancellationToken);
+
 		// Assert
 		try
 		{
@@ -25,17 +25,17 @@ public abstract class OtherTests : BaseTests
 		}
 		finally
 		{
-			await _repository.DeleteAsync(aggregate.Id);
+			await _repository.DeleteAsync(aggregate.Id, TestContext.Current.CancellationToken);
 		}
 	}
-	
+
 	[Theory]
 	[AutoDomainData]
 	public async Task Update_PropertyHasMissingSetter_PropertyIsExcluded(CompositeUser aggregate)
 	{
 		// Act
-		var insertedAggregate = await _repository.InsertAsync(aggregate);
-		
+		var insertedAggregate = await _repository.InsertAsync(aggregate, TestContext.Current.CancellationToken);
+
 		// Assert
 		try
 		{
@@ -45,7 +45,7 @@ public abstract class OtherTests : BaseTests
 		}
 		finally
 		{
-			await _repository.DeleteAsync(aggregate.Id);
+			await _repository.DeleteAsync(aggregate.Id, TestContext.Current.CancellationToken);
 		}
 	}
 }

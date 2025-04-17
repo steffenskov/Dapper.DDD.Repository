@@ -1,6 +1,6 @@
 ﻿using System.Runtime.CompilerServices;
 using AutoFixture;
-using AutoFixture.Xunit2;
+using AutoFixture.Xunit3;
 
 namespace Dapper.DDD.Repository.IntegrationTests;
 

@@ -13,7 +13,7 @@ public abstract class BaseProductListViewWithoutIdTests : BaseTests
 	public async Task GetAll_HaveRows_Valid()
 	{
 		// Act
-		var all = await _repository.GetAllAsync();
+		var all = await _repository.GetAllAsync(TestContext.Current.CancellationToken);
 		
 		// Assert
 		Assert.True(all.Count() >= 2);

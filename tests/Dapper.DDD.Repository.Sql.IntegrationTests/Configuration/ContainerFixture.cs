@@ -11,7 +11,7 @@ public class ContainerFixture : IAsyncLifetime, IContainerFixture
 {
 	private MsSqlContainer? _container;
 
-	public async Task InitializeAsync()
+	public async ValueTask InitializeAsync()
 	{
 		var connectionFactory = await InitializeTestContainerAsync();
 
@@ -47,12 +47,11 @@ public class ContainerFixture : IAsyncLifetime, IContainerFixture
 			options.HasDefault(x => x.DateCreated);
 		});
 
-		services.AddViewRepository<ProductListView, int, IProductListViewRepository, ProductListViewRepository>(
-			options =>
-			{
-				options.ViewName = "[Current Product List]";
-				options.HasKey(x => x.ProductID);
-			});
+		services.AddViewRepository<ProductListView, int, IProductListViewRepository, ProductListViewRepository>(options =>
+		{
+			options.ViewName = "[Current Product List]";
+			options.HasKey(x => x.ProductID);
+		});
 		services.AddViewRepository<ProductListView>(options => { options.ViewName = "[Current Product List]"; });
 
 		services.AddTableRepository<Customer, Guid, ICustomerRepository, CustomerRepository>(options =>
@@ -91,7 +90,7 @@ public class ContainerFixture : IAsyncLifetime, IContainerFixture
 		Provider = services.BuildServiceProvider();
 	}
 
-	public async Task DisposeAsync()
+	public async ValueTask DisposeAsync()
 	{
 		if (_container is not null)
 		{
