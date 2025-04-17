@@ -6,11 +6,11 @@ namespace Dapper.DDD.Repository.MySql.IntegrationTests.Configuration;
 public class ContainerFixture : IAsyncLifetime, IContainerFixture
 {
 	private MySqlContainer? _container;
-	
-	public async Task InitializeAsync()
+
+	public async ValueTask InitializeAsync()
 	{
 		var connectionFactory = await InitializeTestContainerAsync();
-		
+
 		var services = new ServiceCollection();
 		services.AddOptions();
 		services.ConfigureDapperRepositoryDefaults(options =>
@@ -33,22 +33,21 @@ public class ContainerFixture : IAsyncLifetime, IContainerFixture
 			options.HasKey(x => x.Id);
 			options.HasDefault(x => x.DateCreated);
 		});
-		
-		services.AddViewRepository<ProductListView, int, IProductListViewRepository, ProductListViewRepository>(
-			options =>
-			{
-				options.ViewName = "current_product_list";
-				options.HasKey(x => x.ProductID);
-			});
+
+		services.AddViewRepository<ProductListView, int, IProductListViewRepository, ProductListViewRepository>(options =>
+		{
+			options.ViewName = "current_product_list";
+			options.HasKey(x => x.ProductID);
+		});
 		services.AddViewRepository<ProductListView>(options => { options.ViewName = "current_product_list"; });
-		
+
 		services.AddTableRepository<Customer, Guid, ICustomerRepository, CustomerRepository>(options =>
 		{
 			options.TableName = "customers_with_value_object";
 			options.HasKey(x => x.Id);
 			options.Ignore(x => x.IdAndName);
 		});
-		
+
 		services.AddTableRepository<CustomerWithNestedAddresses, Guid>(options =>
 		{
 			options.TableName = "customers_with_nested_value_object";
@@ -58,48 +57,48 @@ public class ContainerFixture : IAsyncLifetime, IContainerFixture
 		services.AddViewRepository<DummyAggregate, int>(options => { options.ViewName = "DummyView"; });
 		Provider = services.BuildServiceProvider();
 	}
-	
-	public async Task DisposeAsync()
+
+	public async ValueTask DisposeAsync()
 	{
 		if (_container is not null)
 		{
 			await _container.DisposeAsync();
 		}
 	}
-	
+
 	public ServiceProvider Provider { get; private set; } = default!;
-	
+
 	private async Task<MySqlConnectionFactory> InitializeTestContainerAsync()
 	{
 		_container = new MySqlBuilder()
 			.WithDatabase("northwind")
 			.Build();
-		
+
 		var startTask = _container.StartAsync();
-		
+
 		var createTableScript = await GetNorthwindScriptAsync("CreateTable");
 		var insertDataScript = await GetNorthwindScriptAsync("InsertData");
 		await startTask;
 		var connectionString = $"{_container.GetConnectionString()};Allow User Variables=True";
 		var connectionFactory = new MySqlConnectionFactory(connectionString);
-		
+
 		using var connection = connectionFactory.CreateConnection();
 		await connection.ExecuteAsync(createTableScript);
 		await connection.ExecuteAsync(insertDataScript);
 		return connectionFactory;
 	}
-	
+
 	private static async Task<string> GetNorthwindScriptAsync(string filename)
 	{
 		var assembly = Assembly.GetExecutingAssembly();
 		var resourceName = $"Dapper.DDD.Repository.MySql.IntegrationTests.Resources.{filename}.sql";
-		
+
 		await using var stream = assembly.GetManifestResourceStream(resourceName);
 		if (stream is null)
 		{
 			throw new InvalidOperationException($"Couldn't open {filename}.sql");
 		}
-		
+
 		using var reader = new StreamReader(stream);
 		return await reader.ReadToEndAsync();
 	}

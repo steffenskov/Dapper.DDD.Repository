@@ -4,99 +4,99 @@ public abstract class BaseSinglePrimaryKeyAsyncTests<TDbException> : BaseTests
 	where TDbException : Exception
 {
 	private readonly ITableRepository<Category, CategoryId> _repository;
-	
+
 	protected BaseSinglePrimaryKeyAsyncTests(IContainerFixture fixture) : base(fixture)
 	{
 		_repository = fixture.Provider.GetRequiredService<ITableRepository<Category, CategoryId>>();
 	}
-	
-	
+
+
 	#region GetAll
-	
+
 	[Fact]
 	public async Task GetAll_NoInput_Valid()
 	{
 		// Act
-		var fetchedEntities = await _repository.GetAllAsync();
-		
+		var fetchedEntities = await _repository.GetAllAsync(TestContext.Current.CancellationToken);
+
 		// Assert
 		Assert.True(fetchedEntities.Count() > 0);
 	}
-	
+
 	#endregion
-	
+
 	#region Delete
-	
+
 	[Fact]
 	public async Task Delete_UseMissingPrimaryKeyValue_ReturnsNull()
 	{
 		// Act
-		var deleted = await _repository.DeleteAsync(new CategoryId(int.MaxValue));
-		
+		var deleted = await _repository.DeleteAsync(new CategoryId(int.MaxValue), TestContext.Current.CancellationToken);
+
 		// Assert
 		Assert.Null(deleted);
 	}
-	
+
 	[Theory]
 	[AutoDomainData]
 	public async Task Delete_UsePrimaryKey_Valid(Category aggregate)
 	{
 		// Arrange
-		var insertedAggregate = await _repository.InsertAsync(aggregate);
-		
+		var insertedAggregate = await _repository.InsertAsync(aggregate, TestContext.Current.CancellationToken);
+
 		// Act
-		var deleted = await _repository.DeleteAsync(insertedAggregate.CategoryID);
-		
+		var deleted = await _repository.DeleteAsync(insertedAggregate.CategoryID, TestContext.Current.CancellationToken);
+
 		// Assert
 		Assert.Equal(insertedAggregate.CategoryID, deleted?.CategoryID);
 		Assert.Equal(aggregate.Description, deleted?.Description);
 		Assert.Equal(aggregate.CategoryName, deleted?.CategoryName);
 		Assert.Equal(aggregate.Picture, deleted?.Picture);
 	}
-	
+
 	#endregion
-	
+
 	#region Get
-	
+
 	[Theory]
 	[AutoDomainData]
 	public async Task Get_UsePrimaryKey_Valid(Category aggregate)
 	{
 		// Arrange
-		var insertedAggregate = await _repository.InsertAsync(aggregate);
-		
+		var insertedAggregate = await _repository.InsertAsync(aggregate, TestContext.Current.CancellationToken);
+
 		// Act
-		var gotten = await _repository.GetAsync(insertedAggregate.CategoryID);
-		
+		var gotten = await _repository.GetAsync(insertedAggregate.CategoryID, TestContext.Current.CancellationToken);
+
 		// Assert
 		Assert.Equal(insertedAggregate.Description, gotten?.Description);
 		Assert.Equal(insertedAggregate.CategoryName, gotten?.CategoryName);
 		Assert.Equal(insertedAggregate.Picture, gotten?.Picture);
-		
-		await _repository.DeleteAsync(insertedAggregate.CategoryID);
+
+		await _repository.DeleteAsync(insertedAggregate.CategoryID, TestContext.Current.CancellationToken);
 	}
-	
+
 	[Fact]
 	public async Task Get_UseMissingPrimaryKey_ReturnsNull()
 	{
 		// Act
-		var gotten = await _repository.GetAsync(new CategoryId(int.MaxValue));
-		
+		var gotten = await _repository.GetAsync(new CategoryId(int.MaxValue), TestContext.Current.CancellationToken);
+
 		// Assert
 		Assert.Null(gotten);
 	}
-	
+
 	#endregion
-	
+
 	#region Insert
-	
+
 	[Fact]
 	public async Task Insert_InputIsNull_Throws()
 	{
 		// Act && Assert
-		await Assert.ThrowsAsync<ArgumentNullException>(async () => await _repository.InsertAsync(null!));
+		await Assert.ThrowsAsync<ArgumentNullException>(async () => await _repository.InsertAsync(null!, TestContext.Current.CancellationToken));
 	}
-	
+
 	[Fact]
 	public async Task Insert_HasIdentityKeyWithValue_Throws()
 	{
@@ -108,17 +108,17 @@ public abstract class BaseSinglePrimaryKeyAsyncTests<TDbException> : BaseTests
 			CategoryName = "Lorem ipsum",
 			Picture = null
 		};
-		
+
 		// Act && Assert
-		await Assert.ThrowsAsync<ArgumentException>(async () => await _repository.InsertAsync(aggregate));
+		await Assert.ThrowsAsync<ArgumentException>(async () => await _repository.InsertAsync(aggregate, TestContext.Current.CancellationToken));
 	}
-	
+
 	[Theory]
 	[AutoDomainData]
 	public async Task Insert_HasIdentityKeyWithoutValue_IsInserted(Category aggregate)
 	{
 		// Act
-		var insertedAggregate = await _repository.InsertAsync(aggregate);
+		var insertedAggregate = await _repository.InsertAsync(aggregate, TestContext.Current.CancellationToken);
 		try
 		{
 			// Assert
@@ -129,10 +129,10 @@ public abstract class BaseSinglePrimaryKeyAsyncTests<TDbException> : BaseTests
 		}
 		finally
 		{
-			await _repository.DeleteAsync(insertedAggregate.CategoryID);
+			await _repository.DeleteAsync(insertedAggregate.CategoryID, TestContext.Current.CancellationToken);
 		}
 	}
-	
+
 	[Fact]
 	public async Task Insert_NonNullPropertyMissing_Throws()
 	{
@@ -141,40 +141,40 @@ public abstract class BaseSinglePrimaryKeyAsyncTests<TDbException> : BaseTests
 		{
 			Description = "Lorem ipsum, dolor sit amit", CategoryName = null!, Picture = null
 		};
-		
+
 		// Act && Assert
-		await Assert.ThrowsAsync<TDbException>(async () => await _repository.InsertAsync(aggregate));
+		await Assert.ThrowsAsync<TDbException>(async () => await _repository.InsertAsync(aggregate, TestContext.Current.CancellationToken));
 	}
-	
+
 	#endregion
-	
+
 	#region Update
-	
+
 	[Fact]
 	public async Task Update_InputIsNull_Throws()
 	{
 		// Act && Assert
-		await Assert.ThrowsAsync<ArgumentNullException>(async () => await _repository.UpdateAsync(null!));
+		await Assert.ThrowsAsync<ArgumentNullException>(async () => await _repository.UpdateAsync(null!, TestContext.Current.CancellationToken));
 	}
-	
+
 	[Theory]
 	[AutoDomainData]
 	public async Task Update_UseAggregate_Valid(Category aggregate)
 	{
 		// Arrange
-		var insertedAggregate = await _repository.InsertAsync(aggregate);
-		
+		var insertedAggregate = await _repository.InsertAsync(aggregate, TestContext.Current.CancellationToken);
+
 		var update = insertedAggregate with { Description = "Something else" };
-		
+
 		// Act
-		var updatedAggregate = await _repository.UpdateAsync(update);
-		
+		var updatedAggregate = await _repository.UpdateAsync(update, TestContext.Current.CancellationToken);
+
 		// Assert
 		Assert.Equal("Something else", updatedAggregate?.Description);
-		
-		await _repository.DeleteAsync(insertedAggregate.CategoryID);
+
+		await _repository.DeleteAsync(insertedAggregate.CategoryID, TestContext.Current.CancellationToken);
 	}
-	
+
 	[Fact]
 	public async Task Update_UseMissingPrimaryKeyValue_ReturnsNull()
 	{
@@ -185,24 +185,24 @@ public abstract class BaseSinglePrimaryKeyAsyncTests<TDbException> : BaseTests
 			Description = "Lorem ipsum, dolor sit amit",
 			CategoryName = "Hello world"
 		};
-		
+
 		// Act 
-		var updated = await _repository.UpdateAsync(aggregate);
-		
+		var updated = await _repository.UpdateAsync(aggregate, TestContext.Current.CancellationToken);
+
 		// Assert
 		Assert.Null(updated);
 	}
-	
+
 	#endregion
-	
+
 	#region Upsert
-	
+
 	[Theory]
 	[AutoDomainData]
 	public async Task Upsert_DoesNotExist_Inserted(Category aggregate)
 	{
 		// Act
-		var insertedAggregate = await _repository.UpsertAsync(aggregate);
+		var insertedAggregate = await _repository.UpsertAsync(aggregate, TestContext.Current.CancellationToken);
 		try
 		{
 			// Assert
@@ -213,27 +213,27 @@ public abstract class BaseSinglePrimaryKeyAsyncTests<TDbException> : BaseTests
 		}
 		finally
 		{
-			await _repository.DeleteAsync(insertedAggregate.CategoryID);
+			await _repository.DeleteAsync(insertedAggregate.CategoryID, TestContext.Current.CancellationToken);
 		}
 	}
-	
+
 	[Theory]
 	[AutoDomainData]
 	public async Task Upsert_Exists_Updated(Category aggregate)
 	{
 		// Arrange
-		var insertedAggregate = await _repository.InsertAsync(aggregate);
-		
+		var insertedAggregate = await _repository.InsertAsync(aggregate, TestContext.Current.CancellationToken);
+
 		var update = insertedAggregate with { Description = "Something else" };
-		
+
 		// Act
-		var updatedAggregate = await _repository.UpsertAsync(update);
-		
+		var updatedAggregate = await _repository.UpsertAsync(update, TestContext.Current.CancellationToken);
+
 		// Assert
 		Assert.Equal("Something else", updatedAggregate?.Description);
-		
-		await _repository.DeleteAsync(insertedAggregate.CategoryID);
+
+		await _repository.DeleteAsync(insertedAggregate.CategoryID, TestContext.Current.CancellationToken);
 	}
-	
+
 	#endregion
 }

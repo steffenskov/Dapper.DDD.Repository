@@ -158,12 +158,12 @@ public class TableRepositoryTests : IClassFixture<NoDefaultsStartup>
 		var queried = false;
 		var query = "";
 		var dapperInjection = Substitute.For<IDapperInjection<UserAggregate>>();
-		dapperInjection.When(injection => injection.ExecuteAsync(Arg.Any<IDbConnection>(), Arg.Any<string>(), Arg.Any<object>())).Do(callInfo =>
+		dapperInjection.When(injection => injection.ExecuteAsync(Arg.Any<IDbConnection>(), Arg.Any<string>(), Arg.Any<object>(), cancellationToken: Arg.Any<CancellationToken>())).Do(callInfo =>
 		{
 			executed = true;
 			query = callInfo.ArgAt<string>(1);
 		});
-		dapperInjection.When(injection => injection.QuerySingleOrDefaultAsync(Arg.Any<IDbConnection>(), Arg.Any<Type>(), Arg.Any<string>(), Arg.Any<object>())).Do(callInfo =>
+		dapperInjection.When(injection => injection.QuerySingleOrDefaultAsync(Arg.Any<IDbConnection>(), Arg.Any<Type>(), Arg.Any<string>(), Arg.Any<object>(), cancellationToken: Arg.Any<CancellationToken>())).Do(callInfo =>
 		{
 			queried = true;
 			query = callInfo.ArgAt<string>(2);
@@ -183,7 +183,7 @@ public class TableRepositoryTests : IClassFixture<NoDefaultsStartup>
 		var repo = new TableRepository<UserAggregate, Guid>(Options.Create(config), Options.Create(new DefaultConfiguration()));
 
 		// Act
-		var result = await repo.DeleteAsync(Guid.NewGuid());
+		var result = await repo.DeleteAsync(Guid.NewGuid(), TestContext.Current.CancellationToken);
 
 		// Assert
 		Assert.False(executed);
@@ -202,12 +202,12 @@ public class TableRepositoryTests : IClassFixture<NoDefaultsStartup>
 		var queried = false;
 		var query = "";
 		var dapperInjection = Substitute.For<IDapperInjection<UserAggregate>>();
-		dapperInjection.When(injection => injection.ExecuteAsync(Arg.Any<IDbConnection>(), Arg.Any<string>(), Arg.Any<object>())).Do(callInfo =>
+		dapperInjection.When(injection => injection.ExecuteAsync(Arg.Any<IDbConnection>(), Arg.Any<string>(), Arg.Any<object>(), cancellationToken: Arg.Any<CancellationToken>())).Do(callInfo =>
 		{
 			executed = true;
 			query = callInfo.ArgAt<string>(1);
 		});
-		dapperInjection.When(injection => injection.QuerySingleOrDefaultAsync(Arg.Any<IDbConnection>(), Arg.Any<Type>(), Arg.Any<string>(), Arg.Any<object>())).Do(callInfo =>
+		dapperInjection.When(injection => injection.QuerySingleOrDefaultAsync(Arg.Any<IDbConnection>(), Arg.Any<Type>(), Arg.Any<string>(), Arg.Any<object>(), cancellationToken: Arg.Any<CancellationToken>())).Do(callInfo =>
 		{
 			queried = true;
 			query = callInfo.ArgAt<string>(2);
@@ -228,7 +228,7 @@ public class TableRepositoryTests : IClassFixture<NoDefaultsStartup>
 		var repo = new TableRepository<UserAggregate, Guid>(Options.Create(config), Options.Create(new DefaultConfiguration()));
 
 		// Act
-		var result = await repo.DeleteAsync(Guid.NewGuid());
+		var result = await repo.DeleteAsync(Guid.NewGuid(), TestContext.Current.CancellationToken);
 
 		// Assert
 		Assert.True(executed);
@@ -247,12 +247,12 @@ public class TableRepositoryTests : IClassFixture<NoDefaultsStartup>
 		var queried = false;
 		var query = "";
 		var dapperInjection = Substitute.For<IDapperInjection<UserAggregate>>();
-		dapperInjection.When(injection => injection.ExecuteAsync(Arg.Any<IDbConnection>(), Arg.Any<string>(), Arg.Any<object>())).Do(callInfo =>
+		dapperInjection.When(injection => injection.ExecuteAsync(Arg.Any<IDbConnection>(), Arg.Any<string>(), Arg.Any<object>(), cancellationToken: Arg.Any<CancellationToken>())).Do(callInfo =>
 		{
 			executed = true;
 			query = callInfo.ArgAt<string>(1);
 		});
-		dapperInjection.When(injection => injection.QuerySingleOrDefaultAsync(Arg.Any<IDbConnection>(), Arg.Any<Type>(), Arg.Any<string>(), Arg.Any<object>())).Do(callInfo =>
+		dapperInjection.When(injection => injection.QuerySingleOrDefaultAsync(Arg.Any<IDbConnection>(), Arg.Any<Type>(), Arg.Any<string>(), Arg.Any<object>(), cancellationToken: Arg.Any<CancellationToken>())).Do(callInfo =>
 		{
 			queried = true;
 			query = callInfo.ArgAt<string>(2);
@@ -272,7 +272,7 @@ public class TableRepositoryTests : IClassFixture<NoDefaultsStartup>
 		var repo = new TableRepository<UserAggregate, Guid>(Options.Create(config), Options.Create(new DefaultConfiguration()));
 
 		// Act
-		var result = await repo.DeleteAsync(Guid.NewGuid());
+		var result = await repo.DeleteAsync(Guid.NewGuid(), TestContext.Current.CancellationToken);
 
 		// Assert
 		Assert.False(executed);
@@ -291,13 +291,13 @@ public class TableRepositoryTests : IClassFixture<NoDefaultsStartup>
 		var queried = false;
 		var query = "";
 		var dapperInjection = Substitute.For<IDapperInjection<UserAggregate>>();
-		dapperInjection.ExecuteAsync(Arg.Any<IDbConnection>(), Arg.Any<string>(), Arg.Any<object>()).Returns(1);
-		dapperInjection.When(injection => injection.ExecuteAsync(Arg.Any<IDbConnection>(), Arg.Any<string>(), Arg.Any<object>())).Do(callInfo =>
+		dapperInjection.ExecuteAsync(Arg.Any<IDbConnection>(), Arg.Any<string>(), Arg.Any<object>(), cancellationToken: Arg.Any<CancellationToken>()).Returns(1);
+		dapperInjection.When(injection => injection.ExecuteAsync(Arg.Any<IDbConnection>(), Arg.Any<string>(), Arg.Any<object>(), cancellationToken: Arg.Any<CancellationToken>())).Do(callInfo =>
 		{
 			executed = true;
 			query = callInfo.ArgAt<string>(1);
 		});
-		dapperInjection.When(injection => injection.QuerySingleOrDefaultAsync(Arg.Any<IDbConnection>(), Arg.Any<Type>(), Arg.Any<string>(), Arg.Any<object>())).Do(callInfo =>
+		dapperInjection.When(injection => injection.QuerySingleOrDefaultAsync(Arg.Any<IDbConnection>(), Arg.Any<Type>(), Arg.Any<string>(), Arg.Any<object>(), cancellationToken: Arg.Any<CancellationToken>())).Do(callInfo =>
 		{
 			queried = true;
 			query = callInfo.ArgAt<string>(2);
@@ -323,7 +323,7 @@ public class TableRepositoryTests : IClassFixture<NoDefaultsStartup>
 			DeliveryAddress = new Address("Street", "City"),
 			Id = Guid.NewGuid(),
 			InvoiceAddress = new Address("Street", "City")
-		});
+		}, TestContext.Current.CancellationToken);
 
 		// Assert
 		Assert.True(executed);
@@ -342,13 +342,13 @@ public class TableRepositoryTests : IClassFixture<NoDefaultsStartup>
 		var queried = false;
 		var query = "";
 		var dapperInjection = Substitute.For<IDapperInjection<UserAggregate>>();
-		dapperInjection.ExecuteAsync(Arg.Any<IDbConnection>(), Arg.Any<string>(), Arg.Any<object>()).Returns(0);
-		dapperInjection.When(injection => injection.ExecuteAsync(Arg.Any<IDbConnection>(), Arg.Any<string>(), Arg.Any<object>())).Do(callInfo =>
+		dapperInjection.ExecuteAsync(Arg.Any<IDbConnection>(), Arg.Any<string>(), Arg.Any<object>(), cancellationToken: Arg.Any<CancellationToken>()).Returns(0);
+		dapperInjection.When(injection => injection.ExecuteAsync(Arg.Any<IDbConnection>(), Arg.Any<string>(), Arg.Any<object>(), cancellationToken: Arg.Any<CancellationToken>())).Do(callInfo =>
 		{
 			executed = true;
 			query = callInfo.ArgAt<string>(1);
 		});
-		dapperInjection.When(injection => injection.QuerySingleOrDefaultAsync(Arg.Any<IDbConnection>(), Arg.Any<Type>(), Arg.Any<string>(), Arg.Any<object>())).Do(callInfo =>
+		dapperInjection.When(injection => injection.QuerySingleOrDefaultAsync(Arg.Any<IDbConnection>(), Arg.Any<Type>(), Arg.Any<string>(), Arg.Any<object>(), cancellationToken: Arg.Any<CancellationToken>())).Do(callInfo =>
 		{
 			queried = true;
 			query = callInfo.ArgAt<string>(2);
@@ -374,7 +374,7 @@ public class TableRepositoryTests : IClassFixture<NoDefaultsStartup>
 			DeliveryAddress = new Address("Street", "City"),
 			Id = Guid.NewGuid(),
 			InvoiceAddress = new Address("Street", "City")
-		});
+		}, TestContext.Current.CancellationToken);
 
 		// Assert
 		Assert.True(executed);
@@ -409,7 +409,7 @@ public class TableRepositoryTests : IClassFixture<NoDefaultsStartup>
 			DeliveryAddress = new Address("Street", "City"),
 			Id = Guid.NewGuid(),
 			InvoiceAddress = new Address("Street", "City")
-		}));
+		}, TestContext.Current.CancellationToken));
 	}
 
 	#endregion

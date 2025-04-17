@@ -21,10 +21,10 @@ public class TriggerTests
 	{
 		// Arrange
 		var entityToInsert = new TriggerEntityWithIdentity { Name = "Hello World" };
-		var inserted = await _identityRepository.InsertAsync(entityToInsert);
+		var inserted = await _identityRepository.InsertAsync(entityToInsert,TestContext.Current.CancellationToken);
 
 		// Act
-		var deletedEntity = await _identityRepository.DeleteAsync(inserted.Id);
+		var deletedEntity = await _identityRepository.DeleteAsync(inserted.Id,TestContext.Current.CancellationToken);
 
 		// Assert
 		Assert.Null(deletedEntity);
@@ -36,10 +36,10 @@ public class TriggerTests
 		// Arrange
 		var id = Random.Shared.Next();
 		var entityToInsert = new TriggerEntityWithoutIdentity { Id = id, Name = "Hello World" };
-		await _noIdentityRepository.InsertAsync(entityToInsert);
+		await _noIdentityRepository.InsertAsync(entityToInsert,TestContext.Current.CancellationToken);
 
 		// Act
-		var deletedEntity = await _noIdentityRepository.DeleteAsync(id);
+		var deletedEntity = await _noIdentityRepository.DeleteAsync(id,TestContext.Current.CancellationToken);
 
 		// Assert
 		Assert.Null(deletedEntity);
@@ -56,7 +56,7 @@ public class TriggerTests
 		var entityToInsert = new TriggerEntityWithIdentity { Name = "Hello World" };
 
 		// Act
-		var insertedEntity = await _identityRepository.InsertAsync(entityToInsert);
+		var insertedEntity = await _identityRepository.InsertAsync(entityToInsert,TestContext.Current.CancellationToken);
 
 		// Assert
 		Assert.True(insertedEntity.Id > 0);
@@ -71,7 +71,7 @@ public class TriggerTests
 		var entityToInsert = new TriggerEntityWithoutIdentity { Id = id, Name = "Hello World" };
 
 		// Act
-		var insertedEntity = await _noIdentityRepository.InsertAsync(entityToInsert);
+		var insertedEntity = await _noIdentityRepository.InsertAsync(entityToInsert,TestContext.Current.CancellationToken);
 
 		// Assert
 		Assert.Equal(id, insertedEntity.Id);
@@ -87,10 +87,10 @@ public class TriggerTests
 	{
 		// Arrange
 		var entityToInsert = new TriggerEntityWithIdentity { Name = "Hello World" };
-		var inserted = await _identityRepository.InsertAsync(entityToInsert);
+		var inserted = await _identityRepository.InsertAsync(entityToInsert,TestContext.Current.CancellationToken);
 
 		// Act
-		var updatedEntity = await _identityRepository.UpdateAsync(new TriggerEntityWithIdentity { Id = inserted.Id, Name = "Updated Hello World", DateCreated = DateTime.UtcNow });
+		var updatedEntity = await _identityRepository.UpdateAsync(new TriggerEntityWithIdentity { Id = inserted.Id, Name = "Updated Hello World", DateCreated = DateTime.UtcNow },TestContext.Current.CancellationToken);
 
 		// Assert
 		Assert.NotNull(updatedEntity);
@@ -103,10 +103,10 @@ public class TriggerTests
 		// Arrange
 		var id = Random.Shared.Next();
 		var entityToInsert = new TriggerEntityWithoutIdentity { Id = id, Name = "Hello World" };
-		await _noIdentityRepository.InsertAsync(entityToInsert);
+		await _noIdentityRepository.InsertAsync(entityToInsert,TestContext.Current.CancellationToken);
 
 		// Act
-		var updatedEntity = await _noIdentityRepository.UpdateAsync(new TriggerEntityWithoutIdentity { Id = id, Name = "Updated Hello World", DateCreated = DateTime.UtcNow });
+		var updatedEntity = await _noIdentityRepository.UpdateAsync(new TriggerEntityWithoutIdentity { Id = id, Name = "Updated Hello World", DateCreated = DateTime.UtcNow },TestContext.Current.CancellationToken);
 
 		// Assert
 		Assert.NotNull(updatedEntity);
@@ -124,7 +124,7 @@ public class TriggerTests
 		var entityToInsert = new TriggerEntityWithIdentity { Name = "Hello World" };
 
 		// Act && Assert
-		var ex = await Assert.ThrowsAsync<InvalidOperationException>(async () => await _identityRepository.UpsertAsync(entityToInsert));
+		var ex = await Assert.ThrowsAsync<InvalidOperationException>(async () => await _identityRepository.UpsertAsync(entityToInsert,TestContext.Current.CancellationToken));
 		Assert.Equal("Upsert is not supported on tables with triggers", ex.Message);
 	}
 
@@ -136,7 +136,7 @@ public class TriggerTests
 		var entityToInsert = new TriggerEntityWithoutIdentity { Id = id, Name = "Hello World" };
 
 		// Act
-		var ex = await Assert.ThrowsAsync<InvalidOperationException>(async () => await _noIdentityRepository.UpsertAsync(entityToInsert));
+		var ex = await Assert.ThrowsAsync<InvalidOperationException>(async () => await _noIdentityRepository.UpsertAsync(entityToInsert,TestContext.Current.CancellationToken));
 		Assert.Equal("Upsert is not supported on tables with triggers", ex.Message);
 	}
 
