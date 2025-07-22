@@ -24,7 +24,10 @@ internal class MemberAccessor
 		HasSetter = property.CanWrite;
 		_getter = GetGetMethod(property);
 		_setter = GetSetMethod(property);
+		IsComputed = _setter is null;
 	}
+
+	public bool IsComputed { get; }
 
 	public bool HasSetter { get; }
 	public string Name { get; }

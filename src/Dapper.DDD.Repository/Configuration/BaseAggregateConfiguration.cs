@@ -1,12 +1,11 @@
-﻿using System.Collections.ObjectModel;
-using System.Linq.Expressions;
+﻿using System.Linq.Expressions;
 using Dapper.DDD.Repository.QueryGenerators;
 using Dapper.DDD.Repository.Reflection;
 
 namespace Dapper.DDD.Repository.Configuration;
 
 public abstract class BaseAggregateConfiguration<TAggregate> : IReadAggregateConfiguration<TAggregate>
-where TAggregate: notnull
+	where TAggregate : notnull
 {
 	private readonly ExtendedPropertyInfoCollection _defaults = new();
 	private readonly ExtendedPropertyInfoCollection _identities = new();
@@ -20,9 +19,9 @@ where TAggregate: notnull
 	public IDapperInjectionFactory? DapperInjectionFactory { get; set; }
 
 	protected abstract string EntityName { get; }
-	
+
 	string IReadAggregateConfiguration<TAggregate>.EntityName => EntityName;
-	
+
 	IReadOnlyExtendedPropertyInfoCollection IReadAggregateConfiguration<TAggregate>.GetKeys()
 	{
 		return _keyProperties ?? new ExtendedPropertyInfoCollection();
@@ -35,13 +34,13 @@ where TAggregate: notnull
 
 	ExtendedPropertyInfoCollection IReadAggregateConfiguration<TAggregate>.GetProperties()
 	{
-		var rawList =
-			TypePropertiesCache.GetProperties<TAggregate>()
-				.ToDictionary(prop => prop.Name); // Clone dictionary so we can mutate it
+		var rawList = TypePropertiesCache.GetProperties<TAggregate>()
+			.Where(prop => !prop.IsComputed) // Ignore properties that're computed
+			.ToDictionary(prop => prop.Name); // Clone dictionary so we can mutate it
 
 		foreach (var ignore in _ignores)
 		{
-			_ = rawList.Remove(ignore.Name);
+			rawList.Remove(ignore.Name);
 		}
 
 		return new ExtendedPropertyInfoCollection(rawList.Values);
