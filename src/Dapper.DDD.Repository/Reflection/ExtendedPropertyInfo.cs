@@ -7,6 +7,7 @@ public class ExtendedPropertyInfo
 	private readonly MemberAccessor _accessor;
 
 	private readonly object? _defaultValue;
+
 	public ExtendedPropertyInfo(PropertyInfo property)
 	{
 		Type = property.PropertyType;
@@ -27,6 +28,7 @@ public class ExtendedPropertyInfo
 	public Type Type { get; }
 
 	public bool HasSetter => _accessor.HasSetter;
+	public bool IsComputed => _accessor.IsComputed;
 
 	public bool HasDefaultValue<T>(T aggregate)
 		where T : notnull
