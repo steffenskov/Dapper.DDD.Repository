@@ -243,6 +243,19 @@ public class PostGrePostGreSqlQueryGeneratorTests
 			selectQuery);
 	}
 
+	[Fact]
+	public void GenerateGetAllQuery_NestedComputedProperty_DoesNotContainComputedProperty()
+	{
+		// Arrange
+		var generator = CreateNestedComputedPropertyQueryGenerator();
+
+		// Act
+		var query = generator.GenerateGetAllQuery();
+
+		// Assert
+		Assert.DoesNotContain(nameof(ValueObjectWithComputedProperty.Description), query);
+	}
+
 	#endregion
 
 	#region Get
@@ -335,6 +348,19 @@ public class PostGrePostGreSqlQueryGeneratorTests
 		Assert.Equal(
 			"SELECT public.Users.Username, public.Users.Password, public.Users.DateCreated FROM public.Users WHERE public.Users.Username = @Username AND public.Users.Password = @Password;",
 			selectQuery);
+	}
+
+	[Fact]
+	public void GenerateGetQuery_NestedComputedProperty_DoesNotContainComputedProperty()
+	{
+		// Arrange
+		var generator = CreateNestedComputedPropertyQueryGenerator();
+
+		// Act
+		var query = generator.GenerateGetQuery();
+
+		// Assert
+		Assert.DoesNotContain(nameof(ValueObjectWithComputedProperty.Description), query);
 	}
 
 	#endregion
@@ -493,6 +519,19 @@ public class PostGrePostGreSqlQueryGeneratorTests
 			insertQuery);
 	}
 
+	[Fact]
+	public void GenerateInsertQuery_NestedComputedProperty_DoesNotContainComputedProperty()
+	{
+		// Arrange
+		var generator = CreateNestedComputedPropertyQueryGenerator();
+
+		// Act
+		var query = generator.GenerateInsertQuery(new NestedComputedPropertyAggregate());
+
+		// Assert
+		Assert.DoesNotContain(nameof(ValueObjectWithComputedProperty.Description), query);
+	}
+
 	#endregion
 
 	#region Update
@@ -624,6 +663,19 @@ public class PostGrePostGreSqlQueryGeneratorTests
 			query);
 	}
 
+	[Fact]
+	public void GenerateUpdateQuery_NestedComputedProperty_DoesNotContainComputedProperty()
+	{
+		// Arrange
+		var generator = CreateNestedComputedPropertyQueryGenerator();
+
+		// Act
+		var query = generator.GenerateUpdateQuery(new NestedComputedPropertyAggregate());
+
+		// Assert
+		Assert.DoesNotContain(nameof(ValueObjectWithComputedProperty.Description), query);
+	}
+
 	#endregion
 
 	#region Upsert
@@ -686,6 +738,19 @@ public class PostGrePostGreSqlQueryGeneratorTests
 		// Act && Assert
 		var ex = Assert.Throws<InvalidOperationException>(() => generator.GenerateUpsertQuery(new AllPropertiesHasMissingSetterAggregate()));
 		Assert.Equal("PostGreSql does not support Upsert on tables with no updatable columns.", ex.Message);
+	}
+
+	[Fact]
+	public void GenerateUpsertQuery_NestedComputedProperty_DoesNotContainComputedProperty()
+	{
+		// Arrange
+		var generator = CreateNestedComputedPropertyQueryGenerator();
+
+		// Act
+		var query = generator.GenerateUpsertQuery(new NestedComputedPropertyAggregate());
+
+		// Assert
+		Assert.DoesNotContain(nameof(ValueObjectWithComputedProperty.Description), query);
 	}
 
 	#endregion
@@ -780,6 +845,16 @@ public class PostGrePostGreSqlQueryGeneratorTests
 		config.HasKey(x => x.Id);
 		config.SetDefaults(defaultConfig);
 		var generator = new PostGreSqlQueryGenerator<AggregateWithNestedValueObject>(config);
+		return generator;
+	}
+
+	private static PostGreSqlQueryGenerator<NestedComputedPropertyAggregate> CreateNestedComputedPropertyQueryGenerator()
+	{
+		var configuration = new TableAggregateConfiguration<NestedComputedPropertyAggregate>
+		{
+			Schema = "dbo", TableName = "Users"
+		};
+		var generator = new PostGreSqlQueryGenerator<NestedComputedPropertyAggregate>(configuration);
 		return generator;
 	}
 
