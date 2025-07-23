@@ -66,25 +66,30 @@ public class ExtendedPropertyInfo
 			.OrderBy(prop => prop.Name);
 	}
 
-	public IReadOnlyExtendedPropertyInfoCollection GetFlattenedPropertiesOrdered<TAggregate>(
+	public IReadOnlyExtendedPropertyInfoCollection GetFlattenedNonComputedPropertiesOrdered<TAggregate>(
 		IReadAggregateConfiguration<TAggregate> configuration) where TAggregate : notnull
 	{
-		return new ExtendedPropertyInfoCollection(GetFlattenedPropertiesOrdered(Type, Name, configuration));
+		return new ExtendedPropertyInfoCollection(GetFlattenedNonComputedPropertiesOrdered(Type, Name, configuration));
 	}
 
-	private static IEnumerable<ExtendedPropertyInfo> GetFlattenedPropertiesOrdered<TAggregate>(Type type, string prefix,
+	private static IEnumerable<ExtendedPropertyInfo> GetFlattenedNonComputedPropertiesOrdered<TAggregate>(Type type, string prefix,
 		IReadAggregateConfiguration<TAggregate> configuration) where TAggregate : notnull
 	{
 		var properties = GetPropertiesOrdered(type, prefix);
 		foreach (var prop in properties)
 		{
+			if (prop.IsComputed)
+			{
+				continue;
+			}
+
 			if (prop.Type.IsSimpleOrBuiltIn(EmptyCollections.TypeSet) || configuration.HasTypeConverter(prop.Type) || configuration.TreatAsBuiltInType(prop.Type))
 			{
 				yield return prop;
 			}
 			else
 			{
-				foreach (var nestedProp in GetFlattenedPropertiesOrdered(prop.Type, prop.Name, configuration))
+				foreach (var nestedProp in GetFlattenedNonComputedPropertiesOrdered(prop.Type, prop.Name, configuration))
 				{
 					yield return nestedProp;
 				}

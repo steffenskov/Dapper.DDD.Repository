@@ -287,6 +287,19 @@ public class SqlQueryGeneratorTests
 			selectQuery);
 	}
 
+	[Fact]
+	public void GenerateGetAllQuery_NestedComputedProperty_DoesNotContainComputedProperty()
+	{
+		// Arrange
+		var generator = CreateNestedComputedPropertyQueryGenerator();
+
+		// Act
+		var query = generator.GenerateGetAllQuery();
+
+		// Assert
+		Assert.DoesNotContain(nameof(ValueObjectWithComputedProperty.Description), query);
+	}
+
 	#endregion
 
 	#region Get
@@ -394,6 +407,19 @@ public class SqlQueryGeneratorTests
 		Assert.Equal(
 			"SELECT [dbo].[Users].[Username], [dbo].[Users].[Password], [dbo].[Users].[DateCreated] FROM [dbo].[Users] WHERE [dbo].[Users].[Username] = @Username AND [dbo].[Users].[Password] = @Password;",
 			selectQuery);
+	}
+
+	[Fact]
+	public void GenerateGetQuery_NestedComputedProperty_DoesNotContainComputedProperty()
+	{
+		// Arrange
+		var generator = CreateNestedComputedPropertyQueryGenerator();
+
+		// Act
+		var query = generator.GenerateGetQuery();
+
+		// Assert
+		Assert.DoesNotContain(nameof(ValueObjectWithComputedProperty.Description), query);
 	}
 
 	#endregion
@@ -597,6 +623,19 @@ public class SqlQueryGeneratorTests
 			insertQuery);
 	}
 
+	[Fact]
+	public void GenerateInsertQuery_NestedComputedProperty_DoesNotContainComputedProperty()
+	{
+		// Arrange
+		var generator = CreateNestedComputedPropertyQueryGenerator();
+
+		// Act
+		var query = generator.GenerateInsertQuery(new NestedComputedPropertyAggregate());
+
+		// Assert
+		Assert.DoesNotContain(nameof(ValueObjectWithComputedProperty.Description), query);
+	}
+
 	#endregion
 
 	#region Update
@@ -756,6 +795,19 @@ public class SqlQueryGeneratorTests
 			query);
 	}
 
+	[Fact]
+	public void GenerateUpdateQuery_NestedComputedProperty_DoesNotContainComputedProperty()
+	{
+		// Arrange
+		var generator = CreateNestedComputedPropertyQueryGenerator();
+
+		// Act
+		var query = generator.GenerateUpdateQuery(new NestedComputedPropertyAggregate());
+
+		// Assert
+		Assert.DoesNotContain(nameof(ValueObjectWithComputedProperty.Description), query);
+	}
+
 	#endregion
 
 	#region Upsert
@@ -861,6 +913,19 @@ END",
 			query);
 	}
 
+	[Fact]
+	public void GenerateUpsertQuery_NestedComputedProperty_DoesNotContainComputedProperty()
+	{
+		// Arrange
+		var generator = CreateNestedComputedPropertyQueryGenerator();
+
+		// Act
+		var query = generator.GenerateUpsertQuery(new NestedComputedPropertyAggregate());
+
+		// Assert
+		Assert.DoesNotContain(nameof(ValueObjectWithComputedProperty.Description), query);
+	}
+
 	#endregion
 
 	#region Constructors
@@ -890,8 +955,7 @@ END",
 		return generator;
 	}
 
-	private static SqlQueryGenerator<SinglePrimaryKeyAggregate>
-		CreateSinglePrimaryKeyAggregateWithCustomSchemaQueryGenerator()
+	private static SqlQueryGenerator<SinglePrimaryKeyAggregate> CreateSinglePrimaryKeyAggregateWithCustomSchemaQueryGenerator()
 	{
 		var configuration = new TableAggregateConfiguration<SinglePrimaryKeyAggregate>
 		{
@@ -930,8 +994,7 @@ END",
 		return generator;
 	}
 
-	private static SqlQueryGenerator<CompositePrimaryKeyAggregate>
-		CreateCompositePrimaryKeyAggregateQueryGenerator()
+	private static SqlQueryGenerator<CompositePrimaryKeyAggregate> CreateCompositePrimaryKeyAggregateQueryGenerator()
 	{
 		var configuration = new TableAggregateConfiguration<CompositePrimaryKeyAggregate>
 		{
@@ -994,6 +1057,16 @@ END",
 		config.HasKey(x => x.Id);
 		config.SetDefaults(defaultConfig);
 		var generator = new SqlQueryGenerator<AggregateWithNestedValueObject>(config);
+		return generator;
+	}
+
+	private static SqlQueryGenerator<NestedComputedPropertyAggregate> CreateNestedComputedPropertyQueryGenerator()
+	{
+		var configuration = new TableAggregateConfiguration<NestedComputedPropertyAggregate>
+		{
+			Schema = "dbo", TableName = "Users"
+		};
+		var generator = new SqlQueryGenerator<NestedComputedPropertyAggregate>(configuration);
 		return generator;
 	}
 

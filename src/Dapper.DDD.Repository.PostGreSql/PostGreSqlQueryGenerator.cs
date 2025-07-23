@@ -35,7 +35,7 @@ internal class PostGreSqlQueryGenerator<TAggregate> : IQueryGenerator<TAggregate
 		var valueObjects = readConfiguration.GetValueObjects();
 		foreach (var valueObject in valueObjects)
 		{
-			var valueObjectProperties = valueObject.GetFlattenedPropertiesOrdered(configuration);
+			var valueObjectProperties = valueObject.GetFlattenedNonComputedPropertiesOrdered(configuration);
 			properties.Remove(valueObject);
 			properties.AddRange(valueObjectProperties);
 			if (keys.Contains(valueObject))
@@ -55,7 +55,7 @@ internal class PostGreSqlQueryGenerator<TAggregate> : IQueryGenerator<TAggregate
 	{
 		var whereClause = GenerateWhereClause();
 
-		var outputProperties = GeneratePropertyList(this._schemaAndEntity);
+		var outputProperties = GeneratePropertyList(_schemaAndEntity);
 		return $"DELETE FROM {_schemaAndEntity} WHERE {whereClause} RETURNING {outputProperties};";
 	}
 
@@ -70,14 +70,14 @@ internal class PostGreSqlQueryGenerator<TAggregate> : IQueryGenerator<TAggregate
 			                    !property.HasDefaultValue(aggregate)))
 			.ToList();
 
-		var outputProperties = GeneratePropertyList(this._schemaAndEntity);
+		var outputProperties = GeneratePropertyList(_schemaAndEntity);
 		return
 			$"INSERT INTO {_schemaAndEntity} ({string.Join(", ", propertiesToInsert.Select(property => property.Name))}) VALUES ({string.Join(", ", propertiesToInsert.Select(property => $"@{property.Name}"))}) RETURNING {outputProperties};";
 	}
 
 	public string GenerateGetAllQuery()
 	{
-		var propertyList = GeneratePropertyList(this._schemaAndEntity);
+		var propertyList = GeneratePropertyList(_schemaAndEntity);
 		return $"SELECT {propertyList} FROM {_schemaAndEntity};";
 	}
 
@@ -85,7 +85,7 @@ internal class PostGreSqlQueryGenerator<TAggregate> : IQueryGenerator<TAggregate
 	{
 		var whereClause = GenerateWhereClause();
 
-		var propertyList = GeneratePropertyList(this._schemaAndEntity);
+		var propertyList = GeneratePropertyList(_schemaAndEntity);
 
 		return $"SELECT {propertyList} FROM {_schemaAndEntity} WHERE {whereClause};";
 	}
@@ -100,7 +100,7 @@ internal class PostGreSqlQueryGenerator<TAggregate> : IQueryGenerator<TAggregate
 				$"GenerateUpdateQuery for aggregate of type {typeof(TAggregate).FullName} failed as the type has no properties with a setter.");
 		}
 
-		var outputProperties = GeneratePropertyList(this._schemaAndEntity);
+		var outputProperties = GeneratePropertyList(_schemaAndEntity);
 
 		return
 			$"UPDATE {_schemaAndEntity} SET {setClause} WHERE {GenerateWhereClause()} RETURNING {outputProperties};";
@@ -119,7 +119,9 @@ internal class PostGreSqlQueryGenerator<TAggregate> : IQueryGenerator<TAggregate
 
 		var setClause = GenerateSetClause();
 		if (string.IsNullOrEmpty(setClause))
+		{
 			throw new InvalidOperationException("PostGreSql does not support Upsert on tables with no updatable columns.");
+		}
 
 
 		var returningIndex = insertQuery.IndexOf(" RETURNING ");
@@ -127,7 +129,7 @@ internal class PostGreSqlQueryGenerator<TAggregate> : IQueryGenerator<TAggregate
 		var primaryKeys = string.Join(", ", _keys.Select(prop => prop.Name));
 
 		var conflictResolution = $"ON CONFLICT ({primaryKeys}) DO UPDATE";
-		var outputProperties = GeneratePropertyList(this._schemaAndEntity);
+		var outputProperties = GeneratePropertyList(_schemaAndEntity);
 		var updateQuery = $"SET {setClause} WHERE {GenerateWhereClause()} RETURNING {outputProperties};";
 
 		return $"{insertQuery} {conflictResolution} {updateQuery}";
@@ -142,7 +144,7 @@ internal class PostGreSqlQueryGenerator<TAggregate> : IQueryGenerator<TAggregate
 	{
 		var primaryKeys = _keys;
 		var propertiesToSet = _properties.Where(property =>
-			!primaryKeys.Contains(property) && property.HasSetter );
+			!primaryKeys.Contains(property) && property.HasSetter);
 		var result = string.Join(", ",
 			propertiesToSet.Select(property =>
 				$"{property.Name} = @{property.Name}"));

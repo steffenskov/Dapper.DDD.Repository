@@ -15,8 +15,7 @@ public class MySqlQueryGeneratorTests
 		var configuration = new TableAggregateConfiguration<SinglePrimaryKeyAggregate> { TableName = null! };
 
 		// Act && Assert
-		var ex = Assert.Throws<ArgumentNullException>(
-			() => new MySqlQueryGenerator<SinglePrimaryKeyAggregate>(configuration));
+		var ex = Assert.Throws<ArgumentNullException>(() => new MySqlQueryGenerator<SinglePrimaryKeyAggregate>(configuration));
 
 		Assert.Equal("Value cannot be null. (Parameter 'readConfiguration.EntityName')", ex.Message);
 	}
@@ -178,6 +177,19 @@ public class MySqlQueryGeneratorTests
 		Assert.Equal("SELECT Users.Id, Users.Username, Users.Password FROM Users;", selectQuery);
 	}
 
+	[Fact]
+	public void GenerateGetAllQuery_NestedComputedProperty_DoesNotContainComputedProperty()
+	{
+		// Arrange
+		var generator = CreateNestedComputedPropertyQueryGenerator();
+
+		// Act
+		var query = generator.GenerateGetAllQuery();
+
+		// Assert
+		Assert.DoesNotContain(nameof(ValueObjectWithComputedProperty.Description), query);
+	}
+
 	#endregion
 
 	#region Get
@@ -251,6 +263,19 @@ public class MySqlQueryGeneratorTests
 		Assert.Equal(
 			"SELECT Users.Username, Users.Password, Users.DateCreated FROM Users WHERE Users.Username = @Username AND Users.Password = @Password;",
 			selectQuery);
+	}
+
+	[Fact]
+	public void GenerateGetQuery_NestedComputedProperty_DoesNotContainComputedProperty()
+	{
+		// Arrange
+		var generator = CreateNestedComputedPropertyQueryGenerator();
+
+		// Act
+		var query = generator.GenerateGetQuery();
+
+		// Assert
+		Assert.DoesNotContain(nameof(ValueObjectWithComputedProperty.Description), query);
 	}
 
 	#endregion
@@ -415,6 +440,19 @@ public class MySqlQueryGeneratorTests
 			insertQuery);
 	}
 
+	[Fact]
+	public void GenerateInsertQuery_NestedComputedProperty_DoesNotContainComputedProperty()
+	{
+		// Arrange
+		var generator = CreateNestedComputedPropertyQueryGenerator();
+
+		// Act
+		var query = generator.GenerateInsertQuery(new NestedComputedPropertyAggregate());
+
+		// Assert
+		Assert.DoesNotContain(nameof(ValueObjectWithComputedProperty.Description), query);
+	}
+
 	#endregion
 
 	#region Update
@@ -527,6 +565,19 @@ public class MySqlQueryGeneratorTests
 			query);
 	}
 
+	[Fact]
+	public void GenerateUpdateQuery_NestedComputedProperty_DoesNotContainComputedProperty()
+	{
+		// Arrange
+		var generator = CreateNestedComputedPropertyQueryGenerator();
+
+		// Act
+		var query = generator.GenerateUpdateQuery(new NestedComputedPropertyAggregate());
+
+		// Assert
+		Assert.DoesNotContain(nameof(ValueObjectWithComputedProperty.Description), query);
+	}
+
 	#endregion
 
 	#region Upsert
@@ -593,12 +644,24 @@ public class MySqlQueryGeneratorTests
 			query);
 	}
 
+	[Fact]
+	public void GenerateUpsertQuery_NestedComputedProperty_DoesNotContainComputedProperty()
+	{
+		// Arrange
+		var generator = CreateNestedComputedPropertyQueryGenerator();
+
+		// Act
+		var query = generator.GenerateUpsertQuery(new NestedComputedPropertyAggregate());
+
+		// Assert
+		Assert.DoesNotContain(nameof(ValueObjectWithComputedProperty.Description), query);
+	}
+
 	#endregion
 
 	#region Constructors
 
-	private static MySqlQueryGenerator<HasDefaultConstraintAggregate>
-		CreateHasDefaultConstraintAggregateQueryGenerator()
+	private static MySqlQueryGenerator<HasDefaultConstraintAggregate> CreateHasDefaultConstraintAggregateQueryGenerator()
 	{
 		var configuration = new TableAggregateConfiguration<HasDefaultConstraintAggregate> { TableName = "Users" };
 		configuration.HasKey(aggregate => aggregate.Id);
@@ -616,8 +679,7 @@ public class MySqlQueryGeneratorTests
 		return generator;
 	}
 
-	private static MySqlQueryGenerator<CompositePrimaryKeyAggregate>
-		CreateCompositePrimaryKeyAggregateQueryGenerator()
+	private static MySqlQueryGenerator<CompositePrimaryKeyAggregate> CreateCompositePrimaryKeyAggregateQueryGenerator()
 	{
 		var configuration = new TableAggregateConfiguration<CompositePrimaryKeyAggregate> { TableName = "Users" };
 		configuration.HasKey(aggregate => new { aggregate.Username, aggregate.Password });
@@ -641,14 +703,23 @@ public class MySqlQueryGeneratorTests
 		return generator;
 	}
 
-	private static MySqlQueryGenerator<AggregateWithNestedValueObject>
-		CreateAggregateWithNestedValueObjectGenerator()
+	private static MySqlQueryGenerator<AggregateWithNestedValueObject> CreateAggregateWithNestedValueObjectGenerator()
 	{
 		var defaultConfig = new DefaultConfiguration();
 		var config = new TableAggregateConfiguration<AggregateWithNestedValueObject> { TableName = "Users" };
 		config.HasKey(x => x.Id);
 		config.SetDefaults(defaultConfig);
 		var generator = new MySqlQueryGenerator<AggregateWithNestedValueObject>(config);
+		return generator;
+	}
+
+	private static MySqlQueryGenerator<NestedComputedPropertyAggregate> CreateNestedComputedPropertyQueryGenerator()
+	{
+		var configuration = new TableAggregateConfiguration<NestedComputedPropertyAggregate>
+		{
+			TableName = "Users"
+		};
+		var generator = new MySqlQueryGenerator<NestedComputedPropertyAggregate>(configuration);
 		return generator;
 	}
 

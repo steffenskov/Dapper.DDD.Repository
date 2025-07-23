@@ -33,7 +33,7 @@ internal class MySqlQueryGenerator<TAggregate> : IQueryGenerator<TAggregate>
 		var valueObjects = readConfiguration.GetValueObjects();
 		foreach (var valueObject in valueObjects)
 		{
-			var valueObjectProperties = valueObject.GetFlattenedPropertiesOrdered(configuration);
+			var valueObjectProperties = valueObject.GetFlattenedNonComputedPropertiesOrdered(configuration);
 			properties.Remove(valueObject);
 			properties.AddRange(valueObjectProperties);
 			if (keys.Contains(valueObject))
@@ -143,11 +143,12 @@ internal class MySqlQueryGenerator<TAggregate> : IQueryGenerator<TAggregate>
 	}
 
 	#region Helpers
+
 	private string GenerateSetClause()
 	{
 		var primaryKeys = _keys;
 		var propertiesToSet = _properties.Where(property =>
-			!primaryKeys.Contains(property) && property.HasSetter );
+			!primaryKeys.Contains(property) && property.HasSetter);
 		return string.Join(", ", propertiesToSet.Select(property => $"{property.Name} = @{property.Name}"));
 	}
 
@@ -166,5 +167,6 @@ internal class MySqlQueryGenerator<TAggregate> : IQueryGenerator<TAggregate>
 	{
 		return $"{tableName}.{property.Name}";
 	}
+
 	#endregion
 }
