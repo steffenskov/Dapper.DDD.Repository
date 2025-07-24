@@ -20,4 +20,11 @@ public record Category
 	public byte[]? Picture { get; init; }
 
 	public string FormattedName => $"{CategoryName} {Description}".TrimEnd();
+
+	public ValueObject? Value { get; init; }
+}
+
+public class ValueObject
+{
+	public string Description => "Computed property";
 }

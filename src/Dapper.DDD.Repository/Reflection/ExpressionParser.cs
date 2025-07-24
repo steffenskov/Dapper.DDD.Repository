@@ -8,7 +8,7 @@ internal class ExpressionParser<TAggregate>
 		Expression<Func<TAggregate, object?>> expression)
 	{
 		var propertyNames = GetMemberName(expression);
-		var properties = TypePropertiesCache.GetProperties<TAggregate>();
+		var properties = TypePropertiesCache.GetNonComputedProperties<TAggregate>();
 		foreach (var propertyName in propertyNames)
 		{
 			yield return !properties.TryGetValue(propertyName, out var property)

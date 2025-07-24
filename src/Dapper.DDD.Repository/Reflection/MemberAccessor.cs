@@ -24,7 +24,14 @@ internal class MemberAccessor
 		HasSetter = property.CanWrite;
 		_getter = GetGetMethod(property);
 		_setter = GetSetMethod(property);
-		IsComputed = _setter is null;
+		if (property.DeclaringType?.Name.StartsWith("<>f__AnonymousType") == true)
+		{
+			IsComputed = false;
+		}
+		else
+		{
+			IsComputed = _setter is null;
+		}
 	}
 
 	public bool IsComputed { get; }

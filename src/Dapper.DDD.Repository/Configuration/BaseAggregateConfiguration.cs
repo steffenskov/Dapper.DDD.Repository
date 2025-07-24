@@ -34,8 +34,7 @@ public abstract class BaseAggregateConfiguration<TAggregate> : IReadAggregateCon
 
 	ExtendedPropertyInfoCollection IReadAggregateConfiguration<TAggregate>.GetProperties()
 	{
-		var rawList = TypePropertiesCache.GetProperties<TAggregate>()
-			.Where(prop => !prop.IsComputed) // Ignore properties that're computed
+		var rawList = TypePropertiesCache.GetNonComputedProperties<TAggregate>()
 			.ToDictionary(prop => prop.Name); // Clone dictionary so we can mutate it
 
 		foreach (var ignore in _ignores)
@@ -55,7 +54,7 @@ public abstract class BaseAggregateConfiguration<TAggregate> : IReadAggregateCon
 	IEnumerable<ExtendedPropertyInfo> IReadAggregateConfiguration<TAggregate>.GetValueObjects()
 	{
 		var ignoredNames = _ignores.Select(prop => prop.Name).ToHashSet();
-		return TypePropertiesCache.GetProperties<TAggregate>()
+		return TypePropertiesCache.GetNonComputedProperties<TAggregate>()
 			.Where(prop => !ignoredNames.Contains(prop.Name))
 			.Where(prop => !prop.Type.IsSimpleOrBuiltIn(_defaultConfiguration?._treatAsBuiltInType ?? EmptyCollections.TypeSet) && !HasTypeConverter(prop.Type));
 	}
