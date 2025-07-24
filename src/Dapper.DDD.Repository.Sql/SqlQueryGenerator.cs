@@ -45,7 +45,7 @@ internal class SqlQueryGenerator<TAggregate> : IQueryGenerator<TAggregate>
 		var valueObjects = readConfiguration.GetValueObjects();
 		foreach (var valueObject in valueObjects)
 		{
-			var valueObjectProperties = valueObject.GetFlattenedNonComputedPropertiesOrdered(configuration);
+			var valueObjectProperties = valueObject.GetFlattenedPropertiesOrdered(configuration);
 			properties.Remove(valueObject);
 			properties.AddRange(valueObjectProperties);
 			if (keys.Contains(valueObject))

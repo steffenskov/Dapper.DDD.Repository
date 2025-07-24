@@ -8,12 +8,12 @@ public static class
 	private static readonly LockedConcurrentDictionary<Type, IReadOnlyExtendedPropertyInfoCollection> _properties =
 		new();
 
-	public static IReadOnlyExtendedPropertyInfoCollection GetProperties<T>()
+	public static IReadOnlyExtendedPropertyInfoCollection GetNonComputedProperties<T>()
 	{
-		return GetProperties(typeof(T));
+		return GetNonComputedProperties(typeof(T));
 	}
 
-	public static IReadOnlyExtendedPropertyInfoCollection GetProperties(Type type)
+	public static IReadOnlyExtendedPropertyInfoCollection GetNonComputedProperties(Type type)
 	{
 		return _properties.GetOrAdd(type, t =>
 		{
@@ -21,7 +21,11 @@ public static class
 
 			foreach (var property in type.GetProperties(BindingFlags.Instance | BindingFlags.Public))
 			{
-				properties.Add(new ExtendedPropertyInfo(property));
+				var extendedProperty = new ExtendedPropertyInfo(property);
+				if (!extendedProperty.IsComputed)
+				{
+					properties.Add(extendedProperty);
+				}
 			}
 
 			return properties;

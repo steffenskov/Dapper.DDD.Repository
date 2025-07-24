@@ -17,8 +17,8 @@ internal class ObjectFlattener
 		new();
 
 	private static readonly ModuleBuilder _moduleBuilder;
-	private readonly ConcurrentDictionary<Type, ITypeConverter> _typeConverters = new();
 	private readonly ISet<Type> _treatAsBuiltInType = new HashSet<Type>();
+	private readonly ConcurrentDictionary<Type, ITypeConverter> _typeConverters = new();
 
 	static ObjectFlattener()
 	{
@@ -203,6 +203,7 @@ internal class ObjectFlattener
 		{
 			return typeConverter.ConvertToComplex(sourceValue);
 		}
+
 		if (destinationType.IsGenericType)
 		{
 			var singleGenericArgumentType = destinationType.GetGenericArguments().SingleOrDefault();
@@ -272,6 +273,7 @@ internal class ObjectFlattener
 						{
 							propValue = typeConverter.ConvertToSimple(propValue);
 						}
+
 						destinationPropType = typeConverter.SimpleType;
 					}
 				}
@@ -432,7 +434,7 @@ internal class ObjectFlattener
 	{
 		if (!_typeProperties.TryGetValue(type, out var result))
 		{
-			result = TypePropertiesCache.GetProperties(type);
+			result = TypePropertiesCache.GetNonComputedProperties(type);
 		}
 
 		return result;
