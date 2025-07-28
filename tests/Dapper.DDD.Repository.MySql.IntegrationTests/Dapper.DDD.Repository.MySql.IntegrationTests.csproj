@@ -19,7 +19,7 @@
 			<PrivateAssets>all</PrivateAssets>
 		</PackageReference>
 		<PackageReference Include="System.Text.Json" Version="9.0.7" />
-		<PackageReference Include="MySql.Data" Version="9.3.0" />
+		<PackageReference Include="MySql.Data" Version="9.4.0" />
 	</ItemGroup>
 	<ItemGroup>
 		<ProjectReference Include="..\..\src\Dapper.DDD.Repository.MySql\Dapper.DDD.Repository.MySql.csproj" />
