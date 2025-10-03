@@ -9,23 +9,23 @@
 		<IsPackable>false</IsPackable>
 	</PropertyGroup>
 	<ItemGroup>
-		<PackageReference Include="AutoFixture" Version="5.0.0-preview0012" />
-		<PackageReference Include="AutoFixture.Xunit3" Version="5.0.0-preview0012" />
-		<PackageReference Include="Dapper" Version="2.1.66" />
-		<PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="9.0.9" />
-		<PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.14.1" />
-		<PackageReference Include="StrongTypedId" Version="1.9.2" />
-		<PackageReference Include="xunit.v3" Version="3.0.1" />
-		<PackageReference Include="xunit.runner.visualstudio" Version="3.1.5">
+		<PackageReference Include="AutoFixture"/>
+		<PackageReference Include="AutoFixture.Xunit3"/>
+		<PackageReference Include="Dapper"/>
+		<PackageReference Include="Microsoft.Extensions.DependencyInjection"/>
+		<PackageReference Include="Microsoft.NET.Test.Sdk"/>
+		<PackageReference Include="StrongTypedId"/>
+		<PackageReference Include="xunit.v3"/>
+		<PackageReference Include="xunit.runner.visualstudio">
 			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
 			<PrivateAssets>all</PrivateAssets>
 		</PackageReference>
-		<PackageReference Include="coverlet.collector" Version="6.0.4">
+		<PackageReference Include="coverlet.collector">
 			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
 			<PrivateAssets>all</PrivateAssets>
 		</PackageReference>
 	</ItemGroup>
 	<ItemGroup>
-		<ProjectReference Include="..\..\src\Dapper.DDD.Repository\Dapper.DDD.Repository.csproj" />
+		<ProjectReference Include="..\..\src\Dapper.DDD.Repository\Dapper.DDD.Repository.csproj"/>
 	</ItemGroup>
 </Project>

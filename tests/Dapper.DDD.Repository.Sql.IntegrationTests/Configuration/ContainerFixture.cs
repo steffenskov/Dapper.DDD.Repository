@@ -104,7 +104,7 @@ public class ContainerFixture : IAsyncLifetime, IContainerFixture
 	{
 		_container = new MsSqlBuilder()
 			.WithImage("mcr.microsoft.com/mssql/server:2022-latest")
-			.WithWaitStrategy(Wait.ForUnixContainer().UntilPortIsAvailable(MsSqlBuilder.MsSqlPort))
+			.WithWaitStrategy(Wait.ForUnixContainer().UntilInternalTcpPortIsAvailable(MsSqlBuilder.MsSqlPort))
 			.Build();
 
 		var startTask = _container.StartAsync();
