@@ -7,29 +7,29 @@
 		<IsPackable>false</IsPackable>
 	</PropertyGroup>
 	<ItemGroup>
-		<PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.14.1" />
-		<PackageReference Include="Microsoft.SqlServer.SqlManagementObjects" Version="172.76.0" />
-		<PackageReference Include="NetTopologySuite" Version="2.6.0" />
-		<PackageReference Include="NetTopologySuite.IO.SqlServerBytes" Version="2.1.0" />
-		<PackageReference Include="Testcontainers.MsSql" Version="4.7.0" />
-		<PackageReference Include="xunit.v3" Version="3.1.0" />
-		<PackageReference Include="xunit.runner.visualstudio" Version="3.1.5">
+		<PackageReference Include="Microsoft.NET.Test.Sdk"/>
+		<PackageReference Include="Microsoft.SqlServer.SqlManagementObjects"/>
+		<PackageReference Include="NetTopologySuite"/>
+		<PackageReference Include="NetTopologySuite.IO.SqlServerBytes"/>
+		<PackageReference Include="Testcontainers.MsSql"/>
+		<PackageReference Include="xunit.v3"/>
+		<PackageReference Include="xunit.runner.visualstudio">
 			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
 			<PrivateAssets>all</PrivateAssets>
 		</PackageReference>
-		<PackageReference Include="coverlet.collector" Version="6.0.4">
+		<PackageReference Include="coverlet.collector">
 			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
 			<PrivateAssets>all</PrivateAssets>
 		</PackageReference>
-		<PackageReference Include="Microsoft.Data.SqlClient" Version="6.1.1" />
+		<PackageReference Include="Microsoft.Data.SqlClient"/>
 	</ItemGroup>
 	<ItemGroup>
-		<ProjectReference Include="..\..\src\Dapper.DDD.Repository.Sql\Dapper.DDD.Repository.Sql.csproj" />
-		<ProjectReference Include="..\Dapper.DDD.Repository.IntegrationTests\Dapper.DDD.Repository.IntegrationTests.csproj" />
-		<ProjectReference Include="..\..\src\Dapper.DDD.Repository.DependencyInjection\Dapper.DDD.Repository.DependencyInjection.csproj" />
+		<ProjectReference Include="..\..\src\Dapper.DDD.Repository.Sql\Dapper.DDD.Repository.Sql.csproj"/>
+		<ProjectReference Include="..\Dapper.DDD.Repository.IntegrationTests\Dapper.DDD.Repository.IntegrationTests.csproj"/>
+		<ProjectReference Include="..\..\src\Dapper.DDD.Repository.DependencyInjection\Dapper.DDD.Repository.DependencyInjection.csproj"/>
 	</ItemGroup>
 	<ItemGroup>
-		<None Remove="Resources\northwind.sql" />
-		<EmbeddedResource Include="Resources\northwind.sql" />
+		<None Remove="Resources\northwind.sql"/>
+		<EmbeddedResource Include="Resources\northwind.sql"/>
 	</ItemGroup>
 </Project>

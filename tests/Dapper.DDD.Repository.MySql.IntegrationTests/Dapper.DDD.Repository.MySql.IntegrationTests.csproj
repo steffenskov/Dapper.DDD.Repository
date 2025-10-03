@@ -7,30 +7,30 @@
 		<IsPackable>false</IsPackable>
 	</PropertyGroup>
 	<ItemGroup>
-		<PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.14.1" />
-		<PackageReference Include="Testcontainers.MySql" Version="4.7.0" />
-		<PackageReference Include="xunit.v3" Version="3.1.0" />
-		<PackageReference Include="xunit.runner.visualstudio" Version="3.1.5">
+		<PackageReference Include="Microsoft.NET.Test.Sdk"/>
+		<PackageReference Include="Testcontainers.MySql"/>
+		<PackageReference Include="xunit.v3"/>
+		<PackageReference Include="xunit.runner.visualstudio">
 			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
 			<PrivateAssets>all</PrivateAssets>
 		</PackageReference>
-		<PackageReference Include="coverlet.collector" Version="6.0.4">
+		<PackageReference Include="coverlet.collector">
 			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
 			<PrivateAssets>all</PrivateAssets>
 		</PackageReference>
-		<PackageReference Include="System.Text.Json" Version="9.0.9" />
-		<PackageReference Include="MySql.Data" Version="9.4.0" />
+		<PackageReference Include="System.Text.Json"/>
+		<PackageReference Include="MySql.Data"/>
 	</ItemGroup>
 	<ItemGroup>
-		<ProjectReference Include="..\..\src\Dapper.DDD.Repository.MySql\Dapper.DDD.Repository.MySql.csproj" />
-		<ProjectReference Include="..\Dapper.DDD.Repository.IntegrationTests\Dapper.DDD.Repository.IntegrationTests.csproj" />
-		<ProjectReference Include="..\..\src\Dapper.DDD.Repository.DependencyInjection\Dapper.DDD.Repository.DependencyInjection.csproj" />
+		<ProjectReference Include="..\..\src\Dapper.DDD.Repository.MySql\Dapper.DDD.Repository.MySql.csproj"/>
+		<ProjectReference Include="..\Dapper.DDD.Repository.IntegrationTests\Dapper.DDD.Repository.IntegrationTests.csproj"/>
+		<ProjectReference Include="..\..\src\Dapper.DDD.Repository.DependencyInjection\Dapper.DDD.Repository.DependencyInjection.csproj"/>
 	</ItemGroup>
 	<ItemGroup>
-		<None Remove="Resources\CreateTable.sql" />
-		<EmbeddedResource Include="Resources\CreateTable.sql" />
-		<None Remove="Resources\CreateUser.sql" />
-		<None Remove="Resources\InsertData.sql" />
-		<EmbeddedResource Include="Resources\InsertData.sql" />
+		<None Remove="Resources\CreateTable.sql"/>
+		<EmbeddedResource Include="Resources\CreateTable.sql"/>
+		<None Remove="Resources\CreateUser.sql"/>
+		<None Remove="Resources\InsertData.sql"/>
+		<EmbeddedResource Include="Resources\InsertData.sql"/>
 	</ItemGroup>
 </Project>

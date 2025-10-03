@@ -27,6 +27,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 	ProjectSection(SolutionItems) = preProject
 		.editorconfig = .editorconfig
 		Directory.Build.props = Directory.Build.props
+		Directory.Packages.props = Directory.Packages.props
 	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Dapper.DDD.Repository.PostGreSql", "src\Dapper.DDD.Repository.PostGreSql\Dapper.DDD.Repository.PostGreSql.csproj", "{92DAD05A-C310-40D0-BB38-D27C4B565EC3}"
