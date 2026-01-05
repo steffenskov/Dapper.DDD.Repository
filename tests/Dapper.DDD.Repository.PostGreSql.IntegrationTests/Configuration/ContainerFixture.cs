@@ -94,8 +94,7 @@ public class ContainerFixture : IAsyncLifetime, IContainerFixture
 
 	private async Task<PostGreSqlConnectionFactory> InitializeTestContainerAsync()
 	{
-		_container = new PostgreSqlBuilder()
-			.WithImage("postgis/postgis:latest")
+		_container = new PostgreSqlBuilder("postgis/postgis:latest")
 			.WithDatabase("northwind")
 			.Build();
 
