@@ -67,7 +67,8 @@ public static partial class DapperRepositoryDependencyInjection
 	/// <typeparam name="TRepositoryClass">Actual implementation type of your repository</typeparam>
 	/// <typeparam name="TConfiguration">
 	///     Custom type of configuration for your repository, useful if you want to append custom
-	///     configuration. Your repository constructor should expect this type instead of ViewAggregateConfiguration.
+	///     configuration. Your repository constructor should expect this type instead of ViewAggregateConfiguration&lt;
+	///     TAggregate&gt;.
 	/// </typeparam>
 	/// <param name="configureOptions">Used to configure the repository via lambda</param>
 	public static IServiceCollection AddViewRepository<TAggregate, TAggregateId, TRepositoryInterface,
