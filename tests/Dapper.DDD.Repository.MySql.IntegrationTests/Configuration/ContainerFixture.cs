@@ -70,7 +70,7 @@ public class ContainerFixture : IAsyncLifetime, IContainerFixture
 
 	private async Task<MySqlConnectionFactory> InitializeTestContainerAsync()
 	{
-		_container = new MySqlBuilder()
+		_container = new MySqlBuilder("mysql:latest")
 			.WithDatabase("northwind")
 			.Build();
 

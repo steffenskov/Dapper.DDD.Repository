@@ -102,8 +102,7 @@ public class ContainerFixture : IAsyncLifetime, IContainerFixture
 
 	private async Task<SqlConnectionFactory> InitializeTestContainerAsync()
 	{
-		_container = new MsSqlBuilder()
-			.WithImage("mcr.microsoft.com/mssql/server:2022-latest")
+		_container = new MsSqlBuilder("mcr.microsoft.com/mssql/server:2022-latest")
 			.WithWaitStrategy(Wait.ForUnixContainer().UntilInternalTcpPortIsAvailable(MsSqlBuilder.MsSqlPort))
 			.Build();
 
