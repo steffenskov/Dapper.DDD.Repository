@@ -32,6 +32,6 @@
 		<PackageVersion Include="Npgsql" Version="10.0.1"/>
 		<PackageVersion Include="Npgsql.NetTopologySuite" Version="10.0.1"/>
 		<PackageVersion Include="Microsoft.Data.SqlClient" Version="6.1.4"/>
-		<PackageVersion Include="Microsoft.SqlServer.SqlManagementObjects" Version="180.10.0"/>
+		<PackageVersion Include="Microsoft.SqlServer.SqlManagementObjects" Version="181.12.0"/>
 	</ItemGroup>
 </Project>
