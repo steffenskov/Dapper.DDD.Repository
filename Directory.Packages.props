@@ -25,7 +25,7 @@
 		<PackageVersion Include="Testcontainers.PostgreSql" Version="4.13.0"/>
 		<PackageVersion Include="Testcontainers.MsSql" Version="4.13.0"/>
 		<PackageVersion Include="NSubstitute" Version="6.0.0"/>
-		<PackageVersion Include="System.Text.Json" Version="10.0.9"/>
+		<PackageVersion Include="System.Text.Json" Version="10.0.10"/>
 		<PackageVersion Include="MySql.Data" Version="9.7.0"/>
 		<PackageVersion Include="NetTopologySuite" Version="2.6.0"/>
 		<PackageVersion Include="NetTopologySuite.IO.SqlServerBytes" Version="2.1.0"/>
