@@ -12,7 +12,7 @@
 		<PackageVersion Include="Microsoft.NET.Test.Sdk" Version="18.8.1"/>
 		<PackageVersion Include="StrongTypedId" Version="1.9.2"/>
 		<PackageVersion Include="xunit.v3" Version="3.2.2"/>
-		<PackageVersion Include="xunit.runner.visualstudio" Version="3.1.5">
+		<PackageVersion Include="xunit.runner.visualstudio" Version="4.0.0">
 			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
 			<PrivateAssets>all</PrivateAssets>
 		</PackageVersion>
