@@ -7,7 +7,7 @@
 		<PackageVersion Include="Microsoft.Extensions.Options" Version="11.0.0"/>
 		<PackageVersion Include="AutoFixture" Version="5.0.0-rc.1"/>
 		<PackageVersion Include="AutoFixture.Xunit3" Version="5.0.0-rc.1"/>
-		<PackageVersion Include="Dapper" Version="2.1.89"/>
+		<PackageVersion Include="Dapper" Version="2.1.100"/>
 		<PackageVersion Include="Microsoft.Extensions.DependencyInjection" Version="11.0.0"/>
 		<PackageVersion Include="Microsoft.NET.Test.Sdk" Version="18.12.0"/>
 		<PackageVersion Include="StrongTypedId" Version="1.9.2"/>
