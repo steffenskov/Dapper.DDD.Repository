@@ -2,24 +2,22 @@
 	<PropertyGroup>
 		<!-- Enable central package management, https://learn.microsoft.com/en-us/nuget/consume-packages/Central-Package-Management -->
 		<ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
+        <CentralPackageTransitivePinningEnabled>true</CentralPackageTransitivePinningEnabled>
 	</PropertyGroup>
+	<ItemGroup Label="Pins">
+	</ItemGroup>
 	<ItemGroup>
-		<PackageVersion Include="Microsoft.Extensions.Options" Version="11.0.0"/>
+		<PackageVersion Include="Microsoft.Extensions.Options" Version="10.0.15"/>
 		<PackageVersion Include="AutoFixture" Version="5.0.0-rc.1"/>
 		<PackageVersion Include="AutoFixture.Xunit3" Version="5.0.0-rc.1"/>
 		<PackageVersion Include="Dapper" Version="2.1.100"/>
-		<PackageVersion Include="Microsoft.Extensions.DependencyInjection" Version="11.0.0"/>
+		<PackageVersion Include="Microsoft.Extensions.DependencyInjection" Version="10.0.15"/>
 		<PackageVersion Include="Microsoft.NET.Test.Sdk" Version="18.12.0"/>
 		<PackageVersion Include="StrongTypedId" Version="1.9.2"/>
 		<PackageVersion Include="xunit.v3" Version="4.0.3"/>
-		<PackageVersion Include="xunit.runner.visualstudio" Version="4.0.1">
-			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-			<PrivateAssets>all</PrivateAssets>
-		</PackageVersion>
-		<PackageVersion Include="coverlet.collector" Version="10.1.1">
-			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-			<PrivateAssets>all</PrivateAssets>
-		</PackageVersion>
+		<PackageVersion Include="xunit.v3.extensibility.core" Version="4.0.3"/>
+		<PackageVersion Include="xunit.v3.assert" Version="4.0.3"/>
+		<PackageVersion Include="Microsoft.Testing.Extensions.CodeCoverage" Version="18.12.0"/>
 
 		<PackageVersion Include="Testcontainers.MySql" Version="4.17.0"/>
 		<PackageVersion Include="Testcontainers.PostgreSql" Version="4.16.0"/>
