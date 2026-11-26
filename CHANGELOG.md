@@ -7,6 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.12.0] - 2026-11-26
+
+### Changed
+
+- Upgraded to .Net 10
+
+	
 ## [1.11.0] - 2026-02-06
 
 ### Added
